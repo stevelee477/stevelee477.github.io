@@ -96,24 +96,25 @@
 
 
 
-  <meta name="description" content="话说起名为这个标题只是不知道怎么更好的表达">
+  <meta name="description" content="今天来折腾一下 Hexo ，主要是做一个备份，以后更换环境的时候能够更快的设置">
+<meta name="keywords" content="Hexo">
 <meta property="og:type" content="article">
-<meta property="og:title" content="「Hexo其实很简单」">
-<meta property="og:url" content="http://lyh.moe/2018/12/04/「Hexo其实很简单」/index.html">
+<meta property="og:title" content="Hexo 美化">
+<meta property="og:url" content="http://lyh.moe/2019/02/05/Hexo-美化/index.html">
 <meta property="og:site_name" content="Steve&#39;s">
-<meta property="og:description" content="话说起名为这个标题只是不知道怎么更好的表达">
+<meta property="og:description" content="今天来折腾一下 Hexo ，主要是做一个备份，以后更换环境的时候能够更快的设置">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2018-12-05T04:13:13.000Z">
+<meta property="og:updated_time" content="2019-02-05T08:09:53.139Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="「Hexo其实很简单」">
-<meta name="twitter:description" content="话说起名为这个标题只是不知道怎么更好的表达">
+<meta name="twitter:title" content="Hexo 美化">
+<meta name="twitter:description" content="今天来折腾一下 Hexo ，主要是做一个备份，以后更换环境的时候能够更快的设置">
 
 
 
 
 
 
-  <link rel="canonical" href="http://lyh.moe/2018/12/04/「Hexo其实很简单」/">
+  <link rel="canonical" href="http://lyh.moe/2019/02/05/Hexo-美化/">
 
 
 
@@ -123,7 +124,7 @@
   };
 </script>
 
-  <title>「Hexo其实很简单」 | Steve's</title>
+  <title>Hexo 美化 | Steve's</title>
   
 
 
@@ -305,7 +306,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://lyh.moe/2018/12/04/「Hexo其实很简单」/">
+    <link itemprop="mainEntityOfPage" href="http://lyh.moe/2019/02/05/Hexo-美化/">
 
     <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Steve">
@@ -322,7 +323,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">「Hexo其实很简单」
+          <h1 class="post-title" itemprop="name headline">Hexo 美化
 
               
             
@@ -348,24 +349,12 @@
                 
               
 
-              <time title="创建时间：2018-12-04 21:35:08" itemprop="dateCreated datePublished" datetime="2018-12-04T21:35:08+08:00">2018-12-04</time>
+              <time title="创建时间：2019-02-05 15:07:52 / 修改时间：16:09:53" itemprop="dateCreated datePublished" datetime="2019-02-05T15:07:52+08:00">2019-02-05</time>
             
 
             
               
 
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2018-12-05 12:13:13" itemprop="dateModified" datetime="2018-12-05T12:13:13+08:00">2018-12-05</time>
               
             
           </span>
@@ -379,7 +368,7 @@
 
           
           
-            <span id="/2018/12/04/「Hexo其实很简单」/" class="leancloud_visitors" data-flag-title="「Hexo其实很简单」">
+            <span id="/2019/02/05/Hexo-美化/" class="leancloud_visitors" data-flag-title="Hexo 美化">
               <span class="post-meta-divider">|</span>
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
@@ -404,7 +393,7 @@
                 
                   <span class="post-meta-item-text">本文字数：</span>
                 
-                <span title="本文字数">720</span>
+                <span title="本文字数">902</span>
               
 
               
@@ -438,27 +427,26 @@
       
 
       
-        <h2 id="本地安装-Hexo"><a href="#本地安装-Hexo" class="headerlink" title="本地安装 Hexo"></a>本地安装 Hexo</h2><p>在 macOS 下，使用万能的 <a href="https://brew.sh/" target="_blank" rel="noopener">brew</a> 先安装上npm</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install npm</span><br></pre></td></tr></table></figure>
-<p>然后安装 Hexo 就好了</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install -g hexo-cli</span><br></pre></td></tr></table></figure>
-<h2 id="创建-GitHub-Pages-Repo"><a href="#创建-GitHub-Pages-Repo" class="headerlink" title="创建 GitHub Pages Repo"></a>创建 GitHub Pages Repo</h2><p>本来想要在 Vultr 上搭建的，但是发现 Vultr 上搭建比较麻烦<del>主要是没钱</del>，所以决定搭在 GitHub 上，Hexo作为一个轻量化的博客也可以完美的支持 GitHub Pages</p>
-<p>创建 GitHub Pages 时直接按照正常创建普通 Repo 一样就可以了，不过注意的是 Repo 名称必须为 <strong><em>username</em>.github.io</strong></p>
-<h2 id="创建本地-Hexo-文件"><a href="#创建本地-Hexo-文件" class="headerlink" title="创建本地 Hexo 文件"></a>创建本地 Hexo 文件</h2><p>下面要在本地创建 Hexo 文件，只需要输入</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hexo init &lt;folder&gt;</span><br><span class="line"><span class="built_in">cd</span> &lt;folder&gt;</span><br><span class="line">npm install</span><br></pre></td></tr></table></figure>
-<p>之后可以运行</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo s</span><br></pre></td></tr></table></figure>
-<p>来本地运行查看效果</p>
-<h2 id="部署到-GitHub-Pages"><a href="#部署到-GitHub-Pages" class="headerlink" title="部署到 GitHub Pages"></a>部署到 GitHub Pages</h2><p>在 Hexo 文件夹中找到 <strong>_config.yml</strong> 修改最后的 <strong>deploy</strong></p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">deploy:</span><br><span class="line">    type: git</span><br><span class="line">    repo: &lt;Your GitHub Pages Repo&gt;</span><br><span class="line">    branch: master</span><br></pre></td></tr></table></figure>
-<p>然后运行</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hexo clean</span><br><span class="line">hexo generate</span><br><span class="line">hexo deploy</span><br></pre></td></tr></table></figure>
-<p>就可以看到效果了</p>
-<h2 id="More-Tweaks"><a href="#More-Tweaks" class="headerlink" title="More Tweaks"></a>More Tweaks</h2><ul>
-<li>修改主题为 <a href="https://github.com/theme-next/hexo-theme-next" target="_blank" rel="noopener">NexT</a> <del>话说真的好看啊</del></li>
-<li>重定向到<a href="http://lyh.moe/">我的域名</a></li>
-</ul>
-<h2 id="关于-Custom-domain"><a href="#关于-Custom-domain" class="headerlink" title="关于 Custom domain"></a>关于 Custom domain</h2><p>发现每次 <code>hexo deploy</code> 后， CNAME 文件都会被删掉，所以只需要在 <strong>source/</strong> 目录下建一个 CNAME 文件就可以了</p>
+        <h2 id="主题设置"><a href="#主题设置" class="headerlink" title="主题设置"></a>主题设置</h2><h3 id="Next-主题安装"><a href="#Next-主题安装" class="headerlink" title="Next 主题安装"></a>Next 主题安装</h3><p>首先先装上 Hexo 主题，官方的 Tutorial 在<a href="http://theme-next.iissnan.com/getting-started.html" target="_blank" rel="noopener">这里</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/iissnan/hexo-theme-next themes/next</span><br></pre></td></tr></table></figure>
+<p>然后在<strong>站点配置文件</strong>中</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">theme:</span> <span class="string">next</span></span><br></pre></td></tr></table></figure>
+<h3 id="主题设置-1"><a href="#主题设置-1" class="headerlink" title="主题设置"></a>主题设置</h3><h4 id="选择-Scheme"><a href="#选择-Scheme" class="headerlink" title="选择 Scheme"></a>选择 Scheme</h4><p>Next 有几个不同的 Scheme 可供选择，这里我选择的是 <em>Pisces</em></p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">scheme:</span> <span class="string">Pisces</span></span><br></pre></td></tr></table></figure>
+<h4 id="Social-账号设定"><a href="#Social-账号设定" class="headerlink" title="Social 账号设定"></a>Social 账号设定</h4><p>在<strong>主题配置文件</strong>中，设置上自己的社交账号</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">social:</span></span><br><span class="line"><span class="attr">  GitHub:</span> <span class="attr">https://github.com/stevelee477</span> <span class="string">||</span> <span class="string">github</span></span><br><span class="line"><span class="attr">  E-Mail:</span> <span class="attr">mailto:lyh@lyh.moe</span> <span class="string">||</span> <span class="string">envelope</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>其中 <em>|</em> 后的指的是<a href="https://fontawesome.com" target="_blank" rel="noopener">Font Awesome</a>上的图标</p>
+</blockquote>
+<h2 id="字数统计-阅读时间"><a href="#字数统计-阅读时间" class="headerlink" title="字数统计 阅读时间"></a>字数统计 阅读时间</h2><p>首先安装</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-symbols-count-time --save</span><br></pre></td></tr></table></figure>
+<p>然后在<strong>站点配置文件</strong>中添加</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">symbols_count_time:</span></span><br><span class="line"><span class="attr">  symbols:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">  time:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">  total_symbols:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">  total_time:</span> <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+<p>在<strong>主题配置文件</strong>中设置</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Post wordcount display settings</span></span><br><span class="line"><span class="comment"># Dependencies: https://github.com/theme-next/hexo-symbols-count-time</span></span><br><span class="line"><span class="attr">symbols_count_time:</span></span><br><span class="line"><span class="attr">  separated_meta:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">  item_text_post:</span> <span class="literal">true</span></span><br><span class="line"><span class="attr">  item_text_total:</span> <span class="literal">false</span></span><br><span class="line"><span class="attr">  awl:</span> <span class="number">4</span></span><br><span class="line"><span class="attr">  wpm:</span> <span class="number">275</span></span><br></pre></td></tr></table></figure>
+<p>awl 是 average world length, wpm 是 word per minute</p>
+<h2 id="Leancloud-配置"><a href="#Leancloud-配置" class="headerlink" title="Leancloud 配置"></a>Leancloud 配置</h2><p>虽然写文章也不是为了别人读的，不过总是要折腾一下</p>
+<p>Leancloud 是一个可以统计文章阅读量的平台，关于 Hexo 上 Leancloud 的使用方法在<a href="https://yunhao.space/2018/06/27/hexo-leancloud-plugin-installation-tutor/" target="_blank" rel="noopener">这篇文章</a>中说的很详细 </p>
       
     </div>
 
@@ -479,6 +467,12 @@
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/tags/Hexo/" rel="tag"># Hexo</a>
+          
+        </div>
+      
 
       
       
@@ -488,8 +482,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/12/04/hello-world/" rel="next" title="hello-world">
-                <i class="fa fa-chevron-left"></i> hello-world
+              <a href="/2019/02/03/CSAPP-Lab-V-Shell-Lab/" rel="next" title="[CSAPP Lab]-V Shell Lab">
+                <i class="fa fa-chevron-left"></i> [CSAPP Lab]-V Shell Lab
               </a>
             
           </div>
@@ -497,10 +491,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/01/04/CSAPP-Lab-II-Bomb-Lab/" rel="prev" title="[CSAPP Lab]-II Bomb Lab">
-                [CSAPP Lab]-II Bomb Lab <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -661,7 +651,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#本地安装-Hexo"><span class="nav-number">1.</span> <span class="nav-text">本地安装 Hexo</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#创建-GitHub-Pages-Repo"><span class="nav-number">2.</span> <span class="nav-text">创建 GitHub Pages Repo</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#创建本地-Hexo-文件"><span class="nav-number">3.</span> <span class="nav-text">创建本地 Hexo 文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#部署到-GitHub-Pages"><span class="nav-number">4.</span> <span class="nav-text">部署到 GitHub Pages</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#More-Tweaks"><span class="nav-number">5.</span> <span class="nav-text">More Tweaks</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#关于-Custom-domain"><span class="nav-number">6.</span> <span class="nav-text">关于 Custom domain</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#主题设置"><span class="nav-number">1.</span> <span class="nav-text">主题设置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Next-主题安装"><span class="nav-number">1.1.</span> <span class="nav-text">Next 主题安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#主题设置-1"><span class="nav-number">1.2.</span> <span class="nav-text">主题设置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#选择-Scheme"><span class="nav-number">1.2.1.</span> <span class="nav-text">选择 Scheme</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Social-账号设定"><span class="nav-number">1.2.2.</span> <span class="nav-text">Social 账号设定</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#字数统计-阅读时间"><span class="nav-number">2.</span> <span class="nav-text">字数统计 阅读时间</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Leancloud-配置"><span class="nav-number">3.</span> <span class="nav-text">Leancloud 配置</span></a></li></ol></div>
             
 
           </div>
