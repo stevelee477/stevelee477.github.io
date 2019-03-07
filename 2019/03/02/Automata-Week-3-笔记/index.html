@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+  
+  
+    
+      
+    
+    
+      
+    
+  <script src="//cdn.jsdelivr.net/npm/pace-js@1/pace.min.js"></script>
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/pace-js@1/themes/blue/pace-theme-minimal.css">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
+
+<link rel="stylesheet" href="/css/main.css?v=7.0.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.0.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.0.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.0.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.0.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="这是来自 Coursera 的课程 Automata ,话说到了第三周了才发现这门课的老师 Jeff Ullman 就是「龙书」的作者">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Automata Week 3 笔记">
+<meta property="og:url" content="http://lyh.moe/2019/03/02/Automata-Week-3-笔记/index.html">
+<meta property="og:site_name" content="Steve&#39;s">
+<meta property="og:description" content="这是来自 Coursera 的课程 Automata ,话说到了第三周了才发现这门课的老师 Jeff Ullman 就是「龙书」的作者">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://lyh.moe/2019/03/02/Automata-Week-3-笔记/1.png">
+<meta property="og:image" content="http://lyh.moe/2019/03/02/Automata-Week-3-笔记/2.png">
+<meta property="og:image" content="http://lyh.moe/2019/03/02/Automata-Week-3-笔记/3.png">
+<meta property="og:image" content="http://lyh.moe/2019/03/02/Automata-Week-3-笔记/4.png">
+<meta property="og:updated_time" content="2019-03-07T14:13:32.903Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Automata Week 3 笔记">
+<meta name="twitter:description" content="这是来自 Coursera 的课程 Automata ,话说到了第三周了才发现这门课的老师 Jeff Ullman 就是「龙书」的作者">
+<meta name="twitter:image" content="http://lyh.moe/2019/03/02/Automata-Week-3-笔记/1.png">
+
+
+
+
+
+
+  <link rel="canonical" href="http://lyh.moe/2019/03/02/Automata-Week-3-笔记/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Automata Week 3 笔记 | Steve's</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Steve's</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://lyh.moe/2019/03/02/Automata-Week-3-笔记/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Steve">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Steve's">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Automata Week 3 笔记
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-03-02 23:09:36" itemprop="dateCreated datePublished" datetime="2019-03-02T23:09:36+08:00">2019-03-02</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-03-07 22:13:32" itemprop="dateModified" datetime="2019-03-07T22:13:32+08:00">2019-03-07</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-symbolscount">
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">本文字数：</span>
+                
+                <span title="本文字数">4.2k</span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">4 分钟</span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Introduction-to-context-free-grammars"><a href="#Introduction-to-context-free-grammars" class="headerlink" title="Introduction to context-free grammars"></a>Introduction to context-free grammars</h1><h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><ul>
+<li>Context-free grammar 是一个用来描述 language 的标记</li>
+<li>相比有限自动机和 RE 更加的强大，不过仍然不能表示所有 language</li>
+<li>对于像括号匹配和编程语言的 nested structures(?) 十分有用</li>
+</ul>
+<ol>
+<li>Terminals = 定义的 symbol, 类似于 alphabet</li>
+<li>Variables (aka. nonterminals) = 符号的有限集合，用来表示语言</li>
+<li>Start symbol = 类似于 start state</li>
+<li>Production  类似于 transition, 形如 variables(head) -&gt; string of varibles and terminals(body)<blockquote>
+<p>例如: $\lbrace 0^{n}1^{n}\mid n\geq0 \rbrace$ 其中</p>
+<ul>
+<li>Terminals = $\lbrace 0,1 \rbrace$</li>
+<li>Variables = $\lbrace S \rbrace$</li>
+<li>Start symbol = S</li>
+<li>Productions = <ul>
+<li>S -&gt; 01</li>
+<li>S -&gt; 0S1</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+</li>
+<li>Derivations  从 start symbol 开始，重复的使用 production 的 body 替换掉 head<blockquote>
+<p>在刚才的例子中，S =&gt; 0S1 =&gt; 00S11 =&gt; 000111</p>
+</blockquote>
+</li>
+<li>Iterated Derivation = <code>=&gt;*</code> 就是进行0次或者更多的 derivation</li>
+<li>Sentential Forms 从 start symbol 开始推导所得到的 form</li>
+</ol>
+<h2 id="BNF-Backus-Naur-Form-Notation"><a href="#BNF-Backus-Naur-Form-Notation" class="headerlink" title="BNF(Backus-Naur Form) Notation"></a>BNF(Backus-Naur Form) Notation</h2><p>编程语言的语法通常会写成 BNF</p>
+<ul>
+<li>Variables 写成 &lt;…&gt; 如:  &#123;statement&#125;</li>
+<li>Terminals 通常是粗体或者是带有下划线的 如 ${\bf WHILE}\ or\ \underline{WHILE}$</li>
+<li>::= 用来代替 -&gt;</li>
+<li>| 用来表示或<blockquote>
+<p>如 S -&gt; 0S1 | 01</p>
+</blockquote>
+</li>
+<li>… 用来表示一个或者多个<blockquote>
+<p>如:<br>  &#160;&#160;&#123;digit&#125; ::= 0|1|2|3|4|5|6|7|8|9<br>  &#160;&#160;&#123;unsigned integer&#125; ::= &#123;digit&#125;</p>
+</blockquote>
+</li>
+<li>条件:<blockquote>
+<p>&#123;statement&#125; ::= if &#123;condition&#125; then &#123;statement&#125; [; else &#123;statement&#125;]</p>
+</blockquote>
+</li>
+<li>Grouping 用 {} 来代表需要被解释为整个 unit 的 symbol</li>
+</ul>
+<h3 id="Leftmost-and-Rightmost-Derivations"><a href="#Leftmost-and-Rightmost-Derivations" class="headerlink" title="Leftmost and Rightmost Derivations"></a>Leftmost and Rightmost Derivations</h3><p>就是从左还是从右开始 derivation</p>
+<blockquote>
+<p>$\alpha =&gt;_{lm} \beta$ 表示 leftmost</p>
+</blockquote>
+<blockquote>
+<p>如:<br>  S -&gt; SS | (S) | ()<br>  S =&gt;lm SS =&gt;lm (S)S =&gt;lm (())S =&gt;lm (())() 就是 leftmost<br>  S =&gt;rm SS =&gt;rm S() =&gt;rm (S)() =&gt;rm (())() 则是 rightmost</p>
+</blockquote>
+<h1 id="Parse-tree"><a href="#Parse-tree" class="headerlink" title="Parse tree"></a>Parse tree</h1><h2 id="定义-1"><a href="#定义-1" class="headerlink" title="定义"></a>定义</h2><p>Parse tree 就是使用 symbols 来表示的特定的 CFG(Context-free grammar)</p>
+<ul>
+<li>Leaves: 树叶标记着 terminal 或者是 $\epsilon$</li>
+<li>Interior nodes: 内部节点标记着 variable</li>
+<li>Root: 根节点必须是 start symbol</li>
+</ul>
+<p><img src="/2019/03/02/Automata-Week-3-笔记/1.png" alt=""></p>
+<ul>
+<li>yield: 将叶子结点从左到右连接起来叫做 <strong>yield</strong></li>
+</ul>
+<p><img src="/2019/03/02/Automata-Week-3-笔记/2.png" alt=""></p>
+<p>然后就是两个证明:</p>
+<ol>
+<li>对于给定的 parse tree 根节点是 A 并且 yield 是 w，则 $A =&gt;_{lm} w$ </li>
+<li>如果 $A =&gt;_{lm} w$ 则存在一个 parse tree 且它的根节点是 A 且能够 yield w</li>
+</ol>
+<h2 id="Ambiguous-Grammars"><a href="#Ambiguous-Grammars" class="headerlink" title="Ambiguous Grammars"></a>Ambiguous Grammars</h2><p>如果一个 string 可以由两个或者更多的 parse tree 所得到，那么称这个 CFG 是 ambiguous</p>
+<p><img src="/2019/03/02/Automata-Week-3-笔记/3.png" alt=""></p>
+<p>如图中的，这一个括号序列可以由两个 tree 得到</p>
+<p>我们可以对括号序列的 grammar 进行修正</p>
+<blockquote>
+<p>B -&gt; (RB | ε R -&gt; ) | (RR</p>
+</blockquote>
+<p>需要注意的是，并不是所有的 ambiguous grammar 都可以进行修正(fix)，这些不能修正的称为 inherently ambiguous，例如 $\lbrace 0^i1^j2^k \mid i = j or j = k \rbrace$</p>
+<h1 id="Normal-forms-for-context-free-grammars"><a href="#Normal-forms-for-context-free-grammars" class="headerlink" title="Normal forms for context-free grammars"></a>Normal forms for context-free grammars</h1><p>这一节讲的是 CFG 的正则化，就是通过一些方法来化简 CFG</p>
+<h2 id="Variables-That-Derive-Nothing"><a href="#Variables-That-Derive-Nothing" class="headerlink" title="Variables That Derive Nothing"></a>Variables That Derive Nothing</h2><h3 id="定义-2"><a href="#定义-2" class="headerlink" title="定义"></a>定义</h3><p>有些时候，variables 不能完全的转化为 terminals，比如下面的例子：</p>
+<blockquote>
+<p>S -&gt; AB, A -&gt; aA|a, B -&gt; AB<br>  虽然 A 能够推导出 a 的所有 string，但是 B 出现了循环引用，所以 S 无法转化为只有 terminals 的状态</p>
+</blockquote>
+<h3 id="Algorithm-to-Eliminate-Variables-That-Derive-Nothing"><a href="#Algorithm-to-Eliminate-Variables-That-Derive-Nothing" class="headerlink" title="Algorithm to Eliminate Variables That Derive Nothing"></a>Algorithm to Eliminate Variables That Derive Nothing</h3><ol>
+<li>搜索(Discovery)所有能够推导出 terminal 的 variables</li>
+<li>去除掉所有不存在于这个集合的 production(???)</li>
+</ol>
+<p>总之，最后的效果是这样的</p>
+<p><img src="/2019/03/02/Automata-Week-3-笔记/4.png" alt=""></p>
+<h2 id="Unreachable-Symbols"><a href="#Unreachable-Symbols" class="headerlink" title="Unreachable Symbols"></a>Unreachable Symbols</h2><p>所谓 unreachable symbols，就是这个 symbol 不能通过推导所到达</p>
+<h2 id="Eliminating-Useless-Symbols"><a href="#Eliminating-Useless-Symbols" class="headerlink" title="Eliminating Useless Symbols"></a>Eliminating Useless Symbols</h2><p>useful 是能够从 start symbol 通过某种 derivation 得到特定的 terminal<br>否则，就是 useless</p>
+<p>清除 Useless Symbols 需要遵循一定的顺序</p>
+<ol>
+<li>Eliminate symbols that derive no terminal string</li>
+<li>Eliminate unreachable symbols</li>
+</ol>
+<p>注意这个顺序</p>
+<blockquote>
+<p>S -&gt; AB, A -&gt; C, C -&gt; c, B -&gt; bB<br>  如果先是去除 unreachable symbols，会发现所有的都是可以 reachable 的</p>
+</blockquote>
+<h2 id="Epsilon-Productions"><a href="#Epsilon-Productions" class="headerlink" title="Epsilon Productions"></a>Epsilon Productions</h2><p>有时候我们要避免出现 A -&gt; ε (叫做 ε-productions)的情况</p>
+<h3 id="Nullable-Symbols"><a href="#Nullable-Symbols" class="headerlink" title="Nullable Symbols"></a>Nullable Symbols</h3><p>要清除 ε-productions，我们首先需要搜索 nullable symbols</p>
+<blockquote>
+<p>S -&gt; AB, A -&gt; aA | ε, B -&gt; bB | A<br>  A 是一个 nullable，所以 B 也是<br>  因为 S -&gt; AB 所以 S 也是 nullable</p>
+</blockquote>
+<h3 id="Eliminating-ε-Productions"><a href="#Eliminating-ε-Productions" class="headerlink" title="Eliminating ε-Productions"></a>Eliminating ε-Productions</h3><p>直接上例子</p>
+<blockquote>
+<p>S -&gt; ABC, A -&gt; aA | ε, B -&gt; bB | ε, C -&gt; ε<br>  A, B, C 和 S 是 nullable<br>  S -&gt; ABC | AB | AC | BC | A | B | C<br>  A -&gt; aA | a<br>  B -&gt; bB | b</p>
+</blockquote>
+<h2 id="Unit-Productions"><a href="#Unit-Productions" class="headerlink" title="Unit Productions"></a>Unit Productions</h2><p>unit production 就是某个 production 的 body 中只含有一个 varible </p>
+<p>去除掉 unit productions 也比较简单</p>
+<blockquote>
+<p>如果 A =&gt; B 且 b -&gt; $\alpha$ 则增加一个 production A -&gt; $\alpha$<br>  最后扔掉其他的 production</p>
+</blockquote>
+<h2 id="Cleaning-Up-a-Grammar"><a href="#Cleaning-Up-a-Grammar" class="headerlink" title="Cleaning Up a Grammar"></a>Cleaning Up a Grammar</h2><p>要清理一个 CFG，需要按照以下步骤:</p>
+<ol>
+<li>Eliminate ε-productions.</li>
+<li>Eliminate unit productions.</li>
+<li>Eliminate variables that derive no<br>terminal string.</li>
+<li>Eliminate variables not reached from the<br>start symbol.</li>
+</ol>
+<p>注意第一步必须在前边</p>
+<h2 id="Chomsky-Normal-Form"><a href="#Chomsky-Normal-Form" class="headerlink" title="Chomsky Normal Form"></a>Chomsky Normal Form</h2><p>如果一个 CFG 的 production 只有两种形式</p>
+<ol>
+<li>A -&gt; BC (2个 variables)</li>
+<li>A -&gt; a (1个 terminal)</li>
+</ol>
+<p>那么这个 CFG 被称为 Chomsky Normal Form</p>
+<h1 id="Pushdown-automata"><a href="#Pushdown-automata" class="headerlink" title="Pushdown automata"></a>Pushdown automata</h1><p>PDA(Pushdown automata) 可以直观的理解为带有一个栈的 ε-NFA，不同于 NFA 的是，NFA 的转移只依赖于当前的状态和输入，而 PDA 还依赖于栈顶的元素</p>
+<p>比如之前讨论过的 $\lbrace 0^{n}1^{n}\mid n\geq0 \rbrace$ 可以使用 PDA 来表示:</p>
+<ul>
+<li>δ(q, 0, Z0) = {(q, XZ0)}</li>
+<li>δ(q, 0, X) = {(q, XX)}<br>以上两条规则遇到输入为0时将 X 压入栈中</li>
+<li>δ(q, 1, X) = {(p, ε)} 当遇到 1 时，弹出栈顶元素，并且转移到 p</li>
+<li>δ(p, 1, X) = {(p, ε)} 遇到 1 时，出栈</li>
+<li>δ(p, ε, Z0) = {(f, Z0)}</li>
+</ul>
+<p>如果 P 是一个 PDA，</p>
+<ol>
+<li>L(P) 是能够转移到末状态的 string</li>
+<li>N(P) 是能够使栈中元素为空的 string</li>
+</ol>
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/02/05/Hexo-美化/" rel="next" title="Hexo 美化">
+                <i class="fa fa-chevron-left"></i> Hexo 美化
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="Steve">
+            
+              <p class="site-author-name" itemprop="name">Steve</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">8</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/stevelee477" title="GitHub &rarr; https://github.com/stevelee477" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="mailto:lyh@lyh.moe" title="E-Mail &rarr; mailto:lyh@lyh.moe"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction-to-context-free-grammars"><span class="nav-number">1.</span> <span class="nav-text">Introduction to context-free grammars</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#定义"><span class="nav-number">1.1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BNF-Backus-Naur-Form-Notation"><span class="nav-number">1.2.</span> <span class="nav-text">BNF(Backus-Naur Form) Notation</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Leftmost-and-Rightmost-Derivations"><span class="nav-number">1.2.1.</span> <span class="nav-text">Leftmost and Rightmost Derivations</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Parse-tree"><span class="nav-number">2.</span> <span class="nav-text">Parse tree</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#定义-1"><span class="nav-number">2.1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Ambiguous-Grammars"><span class="nav-number">2.2.</span> <span class="nav-text">Ambiguous Grammars</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Normal-forms-for-context-free-grammars"><span class="nav-number">3.</span> <span class="nav-text">Normal forms for context-free grammars</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Variables-That-Derive-Nothing"><span class="nav-number">3.1.</span> <span class="nav-text">Variables That Derive Nothing</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#定义-2"><span class="nav-number">3.1.1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Algorithm-to-Eliminate-Variables-That-Derive-Nothing"><span class="nav-number">3.1.2.</span> <span class="nav-text">Algorithm to Eliminate Variables That Derive Nothing</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Unreachable-Symbols"><span class="nav-number">3.2.</span> <span class="nav-text">Unreachable Symbols</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Eliminating-Useless-Symbols"><span class="nav-number">3.3.</span> <span class="nav-text">Eliminating Useless Symbols</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Epsilon-Productions"><span class="nav-number">3.4.</span> <span class="nav-text">Epsilon Productions</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Nullable-Symbols"><span class="nav-number">3.4.1.</span> <span class="nav-text">Nullable Symbols</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Eliminating-ε-Productions"><span class="nav-number">3.4.2.</span> <span class="nav-text">Eliminating ε-Productions</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Unit-Productions"><span class="nav-number">3.5.</span> <span class="nav-text">Unit Productions</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Cleaning-Up-a-Grammar"><span class="nav-number">3.6.</span> <span class="nav-text">Cleaning Up a Grammar</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Chomsky-Normal-Form"><span class="nav-number">3.7.</span> <span class="nav-text">Chomsky Normal Form</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Pushdown-automata"><span class="nav-number">4.</span> <span class="nav-text">Pushdown automata</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Steve</span>
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    
+    <span title="站点总字数">27k</span>
+  
+
+  
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    
+    <span title="站点阅读时长">24 分钟</span>
+  
+</div>
+
+
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动</div>
+
+
+
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="//cdn.jsdelivr.net/npm/jquery@2/dist/jquery.min.js"></script>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/velocity-animate@1/velocity.min.js"></script>
+
+  
+  <script src="//cdn.jsdelivr.net/npm/velocity-animate@1/velocity.ui.min.js"></script>
+
+
+  
+
+
+  <script src="/js/src/utils.js?v=7.0.0"></script>
+
+  <script src="/js/src/motion.js?v=7.0.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/src/affix.js?v=7.0.0"></script>
+
+  <script src="/js/src/schemes/pisces.js?v=7.0.0"></script>
+
+
+
+  
+  <script src="/js/src/scrollspy.js?v=7.0.0"></script>
+<script src="/js/src/post-details.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  <script src="/js/src/bootstrap.js?v=7.0.0"></script>
+
+
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+  
+
+  
+  
+
+  
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+  
+    
+  
+  <script src="//cdn.jsdelivr.net/npm/pangu@3/dist/browser/pangu.min.js"></script>
+  <script>pangu.spacingPage();</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
