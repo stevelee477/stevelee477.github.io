@@ -55,25 +55,23 @@
 
 
 
-
-
   
 
 <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/font-awesome@4/css/font-awesome.min.css">
 
-<link rel="stylesheet" href="/css/main.css?v=7.0.0">
+<link rel="stylesheet" href="/css/main.css?v=7.0.1">
 
 
-  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.0.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.0.1">
 
 
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.0.0">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.0.1">
 
 
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.0.0">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.0.1">
 
 
-  <link rel="mask-icon" href="/images/logo.svg?v=7.0.0" color="#222">
+  <link rel="mask-icon" href="/images/logo.svg?v=7.0.1" color="#222">
 
 
 
@@ -86,8 +84,10 @@
   var CONFIG = {
     root: '/',
     scheme: 'Pisces',
-    version: '7.0.0',
-    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    version: '7.0.1',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
     fancybox: false,
     fastclick: false,
     lazyload: false,
@@ -121,7 +121,8 @@
 
 
 
-
+  
+  
   <link rel="canonical" href="http://lyh.moe/tags/ASM/">
 
 
@@ -388,6 +389,7 @@
   
 
 
+
           </div>
           
 
@@ -404,7 +406,6 @@
   </div>
 
   <aside id="sidebar" class="sidebar">
-    
     <div class="sidebar-inner">
 
       
@@ -418,7 +419,7 @@
               <img class="site-author-image" itemprop="image" src="/images/avatar.png" alt="Steve">
             
               <p class="site-author-name" itemprop="name">Steve</p>
-              <p class="site-description motion-element" itemprop="description"></p>
+              <div class="site-description motion-element" itemprop="description"></div>
           </div>
 
           
@@ -428,7 +429,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">8</span>
+                    <span class="site-state-item-count">9</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -440,7 +441,11 @@
                 
                 
                 <div class="site-state-item site-state-tags">
-                  <a href="/tags/index.html">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
                     
                     
                       
@@ -467,6 +472,8 @@
                 </div>
               
             </nav>
+          
+
           
 
           
@@ -518,6 +525,7 @@
 
     </div>
   </aside>
+  
 
 
         
@@ -538,7 +546,7 @@
       <i class="fa fa-area-chart"></i>
     </span>
     
-    <span title="站点总字数">27k</span>
+    <span title="站点总字数">28k</span>
   
 
   
@@ -547,7 +555,7 @@
       <i class="fa fa-coffee"></i>
     </span>
     
-    <span title="站点阅读时长">24 分钟</span>
+    <span title="站点阅读时长">25 分钟</span>
   
 </div>
 
@@ -638,37 +646,19 @@
   
 
 
-  <script src="/js/src/utils.js?v=7.0.0"></script>
+  <script src="/js/src/utils.js?v=7.0.1"></script>
 
-  <script src="/js/src/motion.js?v=7.0.0"></script>
-
-
-
-  
-  
-
-
-  <script src="/js/src/affix.js?v=7.0.0"></script>
-
-  <script src="/js/src/schemes/pisces.js?v=7.0.0"></script>
+  <script src="/js/src/motion.js?v=7.0.1"></script>
 
 
 
   
-
   
 
 
-  <script src="/js/src/bootstrap.js?v=7.0.0"></script>
+  <script src="/js/src/affix.js?v=7.0.1"></script>
 
-
-
-  
-
-
-
-  
-
+  <script src="/js/src/schemes/pisces.js?v=7.0.1"></script>
 
 
 
@@ -676,14 +666,39 @@
 
   
 
+
+  <script src="/js/src/next-boot.js?v=7.0.1"></script>
+
+
   
+
+  
+
+  
+
+  
+
+
+
+  
+
+
+
+
+  
+
   
 
   
   
 
   
+  
 
+  
+
+
+  
 
   
 
