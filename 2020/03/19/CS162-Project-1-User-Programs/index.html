@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"lyh.moe","root":"/","scheme":"Pisces","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="时隔一年多终于等到了更新，域名还经历过没钱付费。 最近开了新坑，是Berkeley的CS 162: Operating Systems and System Programming，教授讲的还是挺有意思的。">
+<meta name="keywords" content="CS162,OS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CS162 Project 1: User Programs">
+<meta property="og:url" content="http://lyh.moe/2020/03/19/CS162-Project-1-User-Programs/index.html">
+<meta property="og:site_name" content="Steve&#39;s">
+<meta property="og:description" content="时隔一年多终于等到了更新，域名还经历过没钱付费。 最近开了新坑，是Berkeley的CS 162: Operating Systems and System Programming，教授讲的还是挺有意思的。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://lyh.moe/2020/03/19/CS162-Project-1-User-Programs/1.png">
+<meta property="og:updated_time" content="2020-03-19T15:06:05.262Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CS162 Project 1: User Programs">
+<meta name="twitter:description" content="时隔一年多终于等到了更新，域名还经历过没钱付费。 最近开了新坑，是Berkeley的CS 162: Operating Systems and System Programming，教授讲的还是挺有意思的。">
+<meta name="twitter:image" content="http://lyh.moe/2020/03/19/CS162-Project-1-User-Programs/1.png">
+
+<link rel="canonical" href="http://lyh.moe/2020/03/19/CS162-Project-1-User-Programs/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>CS162 Project 1: User Programs | Steve's</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Steve's</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+  </ul>
+
+</nav>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://lyh.moe/2020/03/19/CS162-Project-1-User-Programs/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Steve">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Steve's">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CS162 Project 1: User Programs
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-03-19 21:58:21 / 修改时间：23:06:05" itemprop="dateCreated datePublished" datetime="2020-03-19T21:58:21+08:00">2020-03-19</time>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>0</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>1 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>这次的<a href="https://cs162.eecs.berkeley.edu/static/projects/proj1.pdf" target="_blank" rel="noopener">Project 1</a>分为了三个小任务，分别是：</p>
+<ul>
+<li>Argument Passing 传递参数</li>
+<li>Process Control Syscalls 实现进程控制相关系统调用</li>
+<li>File Operation Syscalls 实现文件操作系统调用</li>
+</ul>
+<h2 id="参数传递"><a href="#参数传递" class="headerlink" title="参数传递"></a>参数传递</h2><p>首先要完成的是main函数的参数传递，有了参数传递就可以在main函数中使用argc和argv了。</p>
+<p>参数传递的就是把程序的参数依次放到用户栈空间中，具体的栈空间如图，可以在<a href="https://cs162.eecs.berkeley.edu/static/projects/proj1_pregame.pdf" target="_blank" rel="noopener">这里</a>找到。</p>
+<p><img src="/2020/03/19/CS162-Project-1-User-Programs/1.png" alt=""></p>
+<p>按照次序把每一个参数放到栈中，然后注意一下栈对齐(对齐到16字节)，最后把argv和argc放进去。</p>
+<p>了解了栈空间的样子后，这一部分就很好实现了。</p>
+<p>我们主要在userprog/process.c文件中<code>start_process</code>修改</p>
+<h3 id="文件名修改"><a href="#文件名修改" class="headerlink" title="文件名修改"></a>文件名修改</h3><p>首先是考虑到诸如<code>ls -la</code>的情况，这时候<code>ls</code>是我们的程序名，所以应该先把程序名分离出来作为参数传递给<code>load</code>函数来读取ELF。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span> *args[<span class="number">128</span>];</span><br><span class="line"><span class="keyword">size_t</span> argc = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">char</span> *save_ptr;</span><br><span class="line"><span class="keyword">char</span> *token = strtok_r(file_name, <span class="string">" "</span>, &amp;save_ptr);</span><br><span class="line">...</span><br><span class="line">success = load (token, &amp;if_.eip, &amp;if_.esp);</span><br></pre></td></tr></table></figure>
+<h3 id="参数分离"><a href="#参数分离" class="headerlink" title="参数分离"></a>参数分离</h3><p>当成功的读取可执行文件后，接下来就要把每一个参数分离出来，注意要使用<code>strtok_r</code>而不是<code>strtok</code>。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> (token != <span class="literal">NULL</span>)</span><br><span class="line">&#123;</span><br><span class="line">    args[argc++] = token;</span><br><span class="line">    token = strtok_r(<span class="literal">NULL</span>, <span class="string">" "</span>, &amp;save_ptr);</span><br><span class="line">&#125;</span><br><span class="line">args[argc] = <span class="literal">NULL</span>;</span><br></pre></td></tr></table></figure>
+<p>注意<strong>argv[argc]</strong>应该为NULL。</p>
+<h3 id="参数复制"><a href="#参数复制" class="headerlink" title="参数复制"></a>参数复制</h3><p>然后把argv依次复制到用户栈空间中，注意复制的长度应该为字符串长度+1(末尾的<strong>\0</strong>).</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">size_t</span> len;</span><br><span class="line"><span class="keyword">int</span> i;</span><br><span class="line"><span class="keyword">for</span> (i = argc<span class="number">-1</span>; i &gt;= <span class="number">0</span>; i--)</span><br><span class="line">&#123;</span><br><span class="line">    len = <span class="built_in">strlen</span>(args[i]);</span><br><span class="line">    if_.esp -= len + <span class="number">1</span>;</span><br><span class="line">    <span class="built_in">memcpy</span>(if_.esp, args[i], len+<span class="number">1</span>);</span><br><span class="line">    args[i] = (<span class="keyword">char</span> *)if_.esp;  <span class="comment">//save stack args address</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>if_就是一个<strong>interrupt frame</strong>，因为我们要假装是从一个中断返回到程序中，这样就可以恢复程序的eip、esp等。</p>
+<h3 id="栈对齐"><a href="#栈对齐" class="headerlink" title="栈对齐"></a>栈对齐</h3><p>接下来我们来处理栈空间对齐的问题，需要注意的是栈空间是16字节，同时看上边的那张图中，是argc的地址对齐到16字节。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> ((<span class="keyword">uint32_t</span>)(if_.esp - <span class="keyword">sizeof</span>(<span class="keyword">char</span> **)*(argc+<span class="number">1</span>) - <span class="number">2</span>*<span class="keyword">sizeof</span>(<span class="keyword">void</span> *)) % <span class="number">16</span> != <span class="number">0</span>)</span><br><span class="line">&#123;</span><br><span class="line">    if_.esp -= <span class="number">1</span>;</span><br><span class="line">    *((<span class="keyword">uint8_t</span> *) if_.esp) = (<span class="keyword">uint8_t</span>)<span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这就是为什么<code>if_.esp</code>后边还需要减去那一堆东西。</p>
+<h3 id="入栈"><a href="#入栈" class="headerlink" title="入栈"></a>入栈</h3><p>下边没什么好说的，依次放进栈就好了.</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (i = argc; i &gt;= <span class="number">0</span>; i--)</span><br><span class="line">&#123;</span><br><span class="line">    if_.esp -= <span class="keyword">sizeof</span>(<span class="keyword">char</span> **);</span><br><span class="line">    *((<span class="keyword">char</span> **)if_.esp) = args[i];</span><br><span class="line">&#125;</span><br><span class="line">if_.esp -= <span class="keyword">sizeof</span>(<span class="keyword">char</span> **);</span><br><span class="line">*((<span class="keyword">char</span> ***) if_.esp) = if_.esp + <span class="keyword">sizeof</span>(<span class="keyword">char</span> **);  <span class="comment">// argv</span></span><br><span class="line">if_.esp -= <span class="keyword">sizeof</span>(<span class="keyword">int</span>);</span><br><span class="line"><span class="built_in">memcpy</span>(if_.esp, &amp;argc, <span class="keyword">sizeof</span>(<span class="keyword">size_t</span>));             <span class="comment">// argc</span></span><br><span class="line">if_.esp -= <span class="keyword">sizeof</span>(<span class="keyword">void</span> (*)());</span><br><span class="line"><span class="function"><span class="keyword">typedef</span> <span class="title">void</span> <span class="params">(*ret_func)</span><span class="params">()</span></span>;</span><br><span class="line">*((ret_func *) if_.esp) = <span class="literal">NULL</span>;                     <span class="comment">// return adress (NULL)</span></span><br></pre></td></tr></table></figure>
+<p>至此argument passing和stack align的几个测试点是可以过的。</p>
+<h2 id="进程相关系统调用"><a href="#进程相关系统调用" class="headerlink" title="进程相关系统调用"></a>进程相关系统调用</h2><h3 id="系统调用流程"><a href="#系统调用流程" class="headerlink" title="系统调用流程"></a>系统调用流程</h3><p>我打算把<code>exec</code>和<code>wait</code>放到最后来说，所以这里先实现<code>halt</code>和<code>practice</code>，我们先来研究下一个用户程序是怎么调用syscall的。</p>
+<p>首先是在用户态下的lib/user/syscall.c中，使用了一些内嵌汇编来把系统调用的参数入栈，并且调用<code>0x30</code>中断。</p>
+<p><code>0x30</code>中断的处理程序在userprog/syscall.c中，<code>syscall_init</code>中向系统注册了中断，使用<code>syscall_handler</code>来处理。</p>
+<p><code>syscall_handler</code>中，使用interrupt frame中的esp来访问用户栈。我们可以通过args来访问系统调用的参数。</p>
+<h3 id="参数验证"><a href="#参数验证" class="headerlink" title="参数验证"></a>参数验证</h3><p>但是注意，我们现在是在内核态，用户传来的参数很有可能是有问题的，所以我们需要验证一下用户的参数，确保用户的参数是在用户的空间内，并且是处于已经分配的page。</p>
+<p>这里实现了三个函数。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">vaild_uaddr</span><span class="params">(<span class="keyword">void</span> *uaddr)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (!is_user_vaddr(uaddr) || !pagedir_get_page(thread_current()-&gt;pagedir, uaddr) )</span><br><span class="line">    syscall_exit(<span class="number">-1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">vaild_ptr</span><span class="params">(<span class="keyword">void</span> *ptr, <span class="keyword">size_t</span> size)</span> </span>&#123;</span><br><span class="line">  vaild_uaddr(ptr);</span><br><span class="line">  vaild_uaddr(ptr+size<span class="number">-1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">vaild_str</span><span class="params">(<span class="keyword">char</span> *ptr)</span> </span>&#123;</span><br><span class="line">  vaild_uaddr((<span class="keyword">void</span> *)ptr);</span><br><span class="line">  <span class="keyword">void</span> *kaddr = pagedir_get_page(thread_current()-&gt;pagedir, ptr);</span><br><span class="line">  vaild_ptr((<span class="keyword">void</span> *)ptr, <span class="keyword">sizeof</span>(<span class="keyword">char</span>)*(<span class="built_in">strlen</span>(kaddr)+<span class="number">1</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>vaild_uaddr</code>是用来验证参数是否在用户空间内，并且page已经分配。</li>
+<li><code>vaild_ptr</code>是验证一段内存是否都在用户空间内。</li>
+<li><code>vaild_str</code>是验证一个字符串，注意我们不能在用户给的字符串地址上使用strlen，因为很可能用户给的字符串在遇到\0之前就已经超出了用户空间或者是未分配的page。</li>
+</ul>
+<h3 id="halt和"><a href="#halt和" class="headerlink" title="halt和"></a>halt和</h3>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/CS162/" rel="tag"># CS162</a>
+              <a href="/tags/OS/" rel="tag"># OS</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019/03/23/Automata-Week-4-笔记/" rel="prev" title="Automata Week 4 笔记">
+      <i class="fa fa-chevron-left"></i> Automata Week 4 笔记
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#参数传递"><span class="nav-number">1.</span> <span class="nav-text">参数传递</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#文件名修改"><span class="nav-number">1.1.</span> <span class="nav-text">文件名修改</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参数分离"><span class="nav-number">1.2.</span> <span class="nav-text">参数分离</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参数复制"><span class="nav-number">1.3.</span> <span class="nav-text">参数复制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#栈对齐"><span class="nav-number">1.4.</span> <span class="nav-text">栈对齐</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#入栈"><span class="nav-number">1.5.</span> <span class="nav-text">入栈</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#进程相关系统调用"><span class="nav-number">2.</span> <span class="nav-text">进程相关系统调用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#系统调用流程"><span class="nav-number">2.1.</span> <span class="nav-text">系统调用流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参数验证"><span class="nav-number">2.2.</span> <span class="nav-text">参数验证</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#halt和"><span class="nav-number">2.3.</span> <span class="nav-text">halt和</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Steve</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">11</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Steve</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-area-chart"></i>
+    </span>
+    <span title="站点总字数">31k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">28 分钟</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> 强力驱动 v3.9.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">主题 – <a href="https://pisces.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> v7.7.2
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
