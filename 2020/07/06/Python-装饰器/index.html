@@ -9,6 +9,8 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
   <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta http-equiv="Cache-Control" content="no-transform">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
 
 <link rel="stylesheet" href="/css/main.css">
 
@@ -17,7 +19,7 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"blog.lyh.moe","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+    var CONFIG = {"hostname":"blog.lyh.moe","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
   <meta name="description" content="原来的域名终于回来了，目前blog还是在GitHub Pages上，等以后有机会迁移到国外的VPS上果然期末考试期间摸鱼效率最高。 最近在看Python相关的内容，发现Python远比自己之前认识的要强大所以又开了新坑，写这篇文章的目的也是相当于笔记了。">
@@ -28,7 +30,7 @@
 <meta property="og:site_name" content="Steve&#39;s">
 <meta property="og:description" content="原来的域名终于回来了，目前blog还是在GitHub Pages上，等以后有机会迁移到国外的VPS上果然期末考试期间摸鱼效率最高。 最近在看Python相关的内容，发现Python远比自己之前认识的要强大所以又开了新坑，写这篇文章的目的也是相当于笔记了。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-07-06T12:41:44.193Z">
+<meta property="og:updated_time" content="2020-07-06T13:22:03.427Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Python 装饰器">
 <meta name="twitter:description" content="原来的域名终于回来了，目前blog还是在GitHub Pages上，等以后有机会迁移到国外的VPS上果然期末考试期间摸鱼效率最高。 最近在看Python相关的内容，发现Python远比自己之前认识的要强大所以又开了新坑，写这篇文章的目的也是相当于笔记了。">
@@ -48,6 +50,15 @@
 
   <title>Python 装饰器 | Steve's</title>
   
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-161464241-1"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-161464241-1');
+      }
+    </script>
 
 
 
@@ -137,6 +148,9 @@
     <i class="fa fa-arrow-up"></i>
     <span>0%</span>
   </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/stevelee477" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
 
 
     <main class="main">
@@ -154,7 +168,7 @@
     <link itemprop="mainEntityOfPage" href="https://blog.lyh.moe/2020/07/06/Python-装饰器/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="image" content="/images/avatar.png">
       <meta itemprop="name" content="Steve">
       <meta itemprop="description" content="">
     </span>
@@ -175,10 +189,17 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2020-07-06 20:12:19 / 修改时间：20:41:44" itemprop="dateCreated datePublished" datetime="2020-07-06T20:12:19+08:00">2020-07-06</time>
+              <time title="创建时间：2020-07-06 20:12:19 / 修改时间：21:22:03" itemprop="dateCreated datePublished" datetime="2020-07-06T20:12:19+08:00">2020-07-06</time>
             </span>
 
           
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
 
         </div>
       </header>
@@ -199,8 +220,20 @@
 <p>此时的<code>foo</code>就是<code>wrapper</code>，当我们调用<code>foo</code>的时候实际上在调用<code>wrapper</code>。我们便实现了一次对编程的”编程”，所以装饰器也叫元编程Meta Programmming。</p>
 <p>不过每次这样重新赋值的使用方法比较繁琐，所以Python为我们提供了<code>@</code>语法糖，我们只需要在函数之前加上<code>@</code>就可以使用装饰器了。</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@log</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">()</span>:</span></span><br><span class="line">    print(<span class="string">'foo'</span>)</span><br></pre></td></tr></table></figure>
-<h1 id="接受参数的修饰器"><a href="#接受参数的修饰器" class="headerlink" title="接受参数的修饰器"></a>接受参数的修饰器</h1><p>就按照刚才的<code>log</code>修饰器来说，我们可能需要在输出log时附带有其他的信息，所以我们</p>
-<h1 id="functools-wraps"><a href="#functools-wraps" class="headerlink" title="functools.wraps"></a>functools.wraps</h1><p>在刚才的例子中我们使用了一个<code>functools.wraps</code>的修饰器，这个修饰器</p>
+<h1 id="接受参数的修饰器"><a href="#接受参数的修饰器" class="headerlink" title="接受参数的修饰器"></a>接受参数的修饰器</h1><p>就按照刚才的<code>log</code>修饰器来说，我们可能需要在输出log时附带有其他的信息，所以需要一个能接受参数的修饰器，他是长这样的</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> functools <span class="keyword">import</span> wraps</span><br><span class="line"><span class="keyword">import</span> logging</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">logged</span><span class="params">(level, name=None, message=None)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    Add logging to a function. level is the logging</span></span><br><span class="line"><span class="string">    level, name is the logger name, and message is the</span></span><br><span class="line"><span class="string">    log message. If name and message aren't specified,</span></span><br><span class="line"><span class="string">    they default to the function's module and name.</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">decorate</span><span class="params">(func)</span>:</span></span><br><span class="line">        logname = name <span class="keyword">if</span> name <span class="keyword">else</span> func.__module__</span><br><span class="line">        log = logging.getLogger(logname)</span><br><span class="line">        logmsg = message <span class="keyword">if</span> message <span class="keyword">else</span> func.__name__</span><br><span class="line"></span><br><span class="line"><span class="meta">        @wraps(func)</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">wrapper</span><span class="params">(*args, **kwargs)</span>:</span></span><br><span class="line">            log.log(level, logmsg)</span><br><span class="line">            <span class="keyword">return</span> func(*args, **kwargs)</span><br><span class="line">        <span class="keyword">return</span> wrapper</span><br><span class="line">    <span class="keyword">return</span> decorate</span><br><span class="line"></span><br><span class="line"><span class="comment"># Example use</span></span><br><span class="line"><span class="meta">@logged(logging.DEBUG)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add</span><span class="params">(x, y)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> x + y</span><br><span class="line"></span><br><span class="line"><span class="meta">@logged(logging.CRITICAL, 'example')</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">spam</span><span class="params">()</span>:</span></span><br><span class="line">    print(<span class="string">'Spam!'</span>)</span><br></pre></td></tr></table></figure>
+<p>这是<a href="https://python3-cookbook.readthedocs.io/zh_CN/latest/c09/p04_define_decorator_that_takes_arguments.html" target="_blank" rel="noopener">Python Cookbook</a>上面的例子</p>
+<p>而当我们调用add时，相当于是</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">add = logged(logging.DEBUG)(add)</span><br></pre></td></tr></table></figure>
+<p>所以在函数中多了一层嵌套，<code>logged(logging.DEBUG)</code>返回一个函数，这个函数接受一个函数，并且将其封装返回。</p>
+<h1 id="functools-wraps"><a href="#functools-wraps" class="headerlink" title="functools.wraps"></a>functools.wraps</h1><p>在刚才的例子中我们使用了一个<code>functools.wraps</code>的修饰器，那么这个修饰器是做什么用的。</p>
+<p>我们在创建一个函数的同时也会生成与之关联的元数据，比如说:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">print(foo.__name__)</span><br></pre></td></tr></table></figure>
+<p>但是如果我们使用了装饰器，再去访问<code>__name__</code>属性，会发现函数的名称变成了内层的<code>wrapper</code>，这是错误的，而<code>functools.wraps(func)</code>的作用就是将func函数的元信息传递给<code>wrapper</code>这个函数。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">WRAPPER_ASSIGNMENTS = (<span class="string">'__module__'</span>, <span class="string">'__name__'</span>, <span class="string">'__qualname__'</span>, <span class="string">'__doc__'</span>,</span><br><span class="line">                       <span class="string">'__annotations__'</span>)</span><br><span class="line">WRAPPER_UPDATES = (<span class="string">'__dict__'</span>,)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">update_wrapper</span><span class="params">(wrapper,</span></span></span><br><span class="line"><span class="function"><span class="params">                   wrapped,</span></span></span><br><span class="line"><span class="function"><span class="params">                   assigned = WRAPPER_ASSIGNMENTS,</span></span></span><br><span class="line"><span class="function"><span class="params">                   updated = WRAPPER_UPDATES)</span>:</span></span><br><span class="line">    <span class="string">"""Update a wrapper function to look like the wrapped function</span></span><br><span class="line"><span class="string">       wrapper is the function to be updated</span></span><br><span class="line"><span class="string">       wrapped is the original function</span></span><br><span class="line"><span class="string">       assigned is a tuple naming the attributes assigned directly</span></span><br><span class="line"><span class="string">       from the wrapped function to the wrapper function (defaults to</span></span><br><span class="line"><span class="string">       functools.WRAPPER_ASSIGNMENTS)</span></span><br><span class="line"><span class="string">       updated is a tuple naming the attributes of the wrapper that</span></span><br><span class="line"><span class="string">       are updated with the corresponding attribute from the wrapped</span></span><br><span class="line"><span class="string">       function (defaults to functools.WRAPPER_UPDATES)</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    <span class="keyword">for</span> attr <span class="keyword">in</span> assigned:</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            value = getattr(wrapped, attr)</span><br><span class="line">        <span class="keyword">except</span> AttributeError:</span><br><span class="line">            <span class="keyword">pass</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            setattr(wrapper, attr, value)</span><br><span class="line">    <span class="keyword">for</span> attr <span class="keyword">in</span> updated:</span><br><span class="line">        getattr(wrapper, attr).update(getattr(wrapped, attr, &#123;&#125;))</span><br><span class="line">    <span class="comment"># Issue #17482: set __wrapped__ last so we don't inadvertently copy it</span></span><br><span class="line">    <span class="comment"># from the wrapped function when updating __dict__</span></span><br><span class="line">    wrapper.__wrapped__ = wrapped</span><br><span class="line">    <span class="comment"># Return the wrapper so this can be used as a decorator via partial()</span></span><br><span class="line">    <span class="keyword">return</span> wrapper</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">wraps</span><span class="params">(wrapped,</span></span></span><br><span class="line"><span class="function"><span class="params">          assigned = WRAPPER_ASSIGNMENTS,</span></span></span><br><span class="line"><span class="function"><span class="params">          updated = WRAPPER_UPDATES)</span>:</span></span><br><span class="line">    <span class="string">"""Decorator factory to apply update_wrapper() to a wrapper function</span></span><br><span class="line"><span class="string">       Returns a decorator that invokes update_wrapper() with the decorated</span></span><br><span class="line"><span class="string">       function as the wrapper argument and the arguments to wraps() as the</span></span><br><span class="line"><span class="string">       remaining arguments. Default arguments are as for update_wrapper().</span></span><br><span class="line"><span class="string">       This is a convenience function to simplify applying partial() to</span></span><br><span class="line"><span class="string">       update_wrapper().</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    <span class="keyword">return</span> partial(update_wrapper, wrapped=wrapped,</span><br><span class="line">                   assigned=assigned, updated=updated)</span><br></pre></td></tr></table></figure>
+<p>以上是<code>functools.wraps</code>的<a href="https://github.com/python/cpython/blob/master/Lib/functools.py" target="_blank" rel="noopener">源码</a>，核心部分是<code>update_wrapper</code>中的设置属性，将<code>wrapped</code>的属性设置给<code>wrapper</code>，并且将<code>wrapper.__wrapped__</code>设置为<code>wrapped</code>。</p>
+<p>所以也可以通过<code>add.__wrapped__</code>来访问原始函数</p>
+<h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><p><a href="https://python3-cookbook.readthedocs.io/zh_CN/latest/c0" target="_blank" rel="noopener">Python Cookbook</a></p>
     </div>
 
     
@@ -280,12 +313,14 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#什么是装饰器Decorator"><span class="nav-number">1.</span> <span class="nav-text">什么是装饰器Decorator</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#接受参数的修饰器"><span class="nav-number">2.</span> <span class="nav-text">接受参数的修饰器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#functools-wraps"><span class="nav-number">3.</span> <span class="nav-text">functools.wraps</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#什么是装饰器Decorator"><span class="nav-number">1.</span> <span class="nav-text">什么是装饰器Decorator</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#接受参数的修饰器"><span class="nav-number">2.</span> <span class="nav-text">接受参数的修饰器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#functools-wraps"><span class="nav-number">3.</span> <span class="nav-text">functools.wraps</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考链接"><span class="nav-number">4.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
       <div class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Steve"
+      src="/images/avatar.png">
   <p class="site-author-name" itemprop="name">Steve</p>
   <div class="site-description" itemprop="description"></div>
 </div>
@@ -305,6 +340,14 @@
       </div>
   </nav>
 </div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/stevelee477" title="GitHub → https://github.com/stevelee477" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:stevelee477@gmail.com" title="E-Mail → mailto:stevelee477@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
 
 
 
@@ -326,17 +369,35 @@
 
 <div class="copyright">
   
-  &copy; 
+  &copy; 2018 – 
   <span itemprop="copyrightYear">2020</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">Steve</span>
 </div>
-  <div class="powered-by">由 <a href="https://hexo.io" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
-  </div>
 
         
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
 
 
 
@@ -351,10 +412,11 @@
 
   
   <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
   <script src="/lib/velocity/velocity.min.js"></script>
   <script src="/lib/velocity/velocity.ui.min.js"></script>
 <script src="/js/utils.js"></script><script src="/js/motion.js"></script>
-<script src="/js/schemes/muse.js"></script>
+<script src="/js/schemes/pisces.js"></script>
 <script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 
 
@@ -374,6 +436,8 @@
 
 
 
+
+  
 
   
 
