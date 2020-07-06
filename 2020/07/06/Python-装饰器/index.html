@@ -20,19 +20,20 @@
     var CONFIG = {"hostname":"blog.lyh.moe","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="这是第一篇文章，我们先来试一试Markdown">
+  <meta name="description" content="原来的域名终于回来了，目前blog还是在GitHub Pages上，等以后有机会迁移到国外的VPS上果然期末考试期间摸鱼效率最高。 最近在看Python相关的内容，发现Python远比自己之前认识的要强大所以又开了新坑，写这篇文章的目的也是相当于笔记了。">
+<meta name="keywords" content="Python">
 <meta property="og:type" content="article">
-<meta property="og:title" content="hello-world">
-<meta property="og:url" content="https://blog.lyh.moe/2018/12/04/hello-world/index.html">
+<meta property="og:title" content="Python 装饰器">
+<meta property="og:url" content="https://blog.lyh.moe/2020/07/06/Python-装饰器/index.html">
 <meta property="og:site_name" content="Steve&#39;s">
-<meta property="og:description" content="这是第一篇文章，我们先来试一试Markdown">
+<meta property="og:description" content="原来的域名终于回来了，目前blog还是在GitHub Pages上，等以后有机会迁移到国外的VPS上果然期末考试期间摸鱼效率最高。 最近在看Python相关的内容，发现Python远比自己之前认识的要强大所以又开了新坑，写这篇文章的目的也是相当于笔记了。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2018-12-05T04:13:19.000Z">
+<meta property="og:updated_time" content="2020-07-06T12:41:44.193Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="hello-world">
-<meta name="twitter:description" content="这是第一篇文章，我们先来试一试Markdown">
+<meta name="twitter:title" content="Python 装饰器">
+<meta name="twitter:description" content="原来的域名终于回来了，目前blog还是在GitHub Pages上，等以后有机会迁移到国外的VPS上果然期末考试期间摸鱼效率最高。 最近在看Python相关的内容，发现Python远比自己之前认识的要强大所以又开了新坑，写这篇文章的目的也是相当于笔记了。">
 
-<link rel="canonical" href="https://blog.lyh.moe/2018/12/04/hello-world/">
+<link rel="canonical" href="https://blog.lyh.moe/2020/07/06/Python-装饰器/">
 
 
 <script id="page-configurations">
@@ -45,7 +46,7 @@
   };
 </script>
 
-  <title>hello-world | Steve's</title>
+  <title>Python 装饰器 | Steve's</title>
   
 
 
@@ -150,7 +151,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://blog.lyh.moe/2018/12/04/hello-world/">
+    <link itemprop="mainEntityOfPage" href="https://blog.lyh.moe/2020/07/06/Python-装饰器/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -163,7 +164,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          hello-world
+          Python 装饰器
         </h1>
 
         <div class="post-meta">
@@ -172,16 +173,10 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
+              
 
-              <time title="创建时间：2018-12-04 20:47:53" itemprop="dateCreated datePublished" datetime="2018-12-04T20:47:53+08:00">2018-12-04</time>
+              <time title="创建时间：2020-07-06 20:12:19 / 修改时间：20:41:44" itemprop="dateCreated datePublished" datetime="2020-07-06T20:12:19+08:00">2020-07-06</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2018-12-05 12:13:19" itemprop="dateModified" datetime="2018-12-05T12:13:19+08:00">2018-12-05</time>
-              </span>
 
           
 
@@ -194,21 +189,18 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="我是一级标题"><a href="#我是一级标题" class="headerlink" title="我是一级标题"></a>我是一级标题</h1><h2 id="我是二级标题"><a href="#我是二级标题" class="headerlink" title="我是二级标题"></a>我是二级标题</h2><h3 id="我是三级标题"><a href="#我是三级标题" class="headerlink" title="我是三级标题"></a>我是三级标题</h3><p>试试<strong>粗体</strong>，再试试<em>强调</em></p>
-<p>下面是代码</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">print(<span class="string">"hello world"</span>)</span><br></pre></td></tr></table></figure>
-<p>当然还有<a href="http://lyh.moe" target="_blank" rel="noopener">链接</a></p>
-<ul>
-<li>我是无序列表的第一项</li>
-</ul>
-<ol>
-<li>我是有序列表的第一项</li>
-<li>我是有序列表的第二项</li>
-</ol>
-<blockquote>
-<p>这是个引用</p>
-</blockquote>
-<p>这就是第一篇啦，待会唠叨一下搭建博客的步骤<del>并不是因为没什么可以写的</del></p>
+        <h1 id="什么是装饰器Decorator"><a href="#什么是装饰器Decorator" class="headerlink" title="什么是装饰器Decorator"></a>什么是装饰器Decorator</h1><p>在写Django代码的时候经常用的装饰器，装饰器可以在不对代码本身该懂的前提下给代码添加更多的功能。</p>
+<p>最简单的例子就是我们现在有一个函数<code>foo</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">()</span>:</span></span><br><span class="line">    print(<span class="string">'foo'</span>)</span><br></pre></td></tr></table></figure>
+<p>现在我们想给<code>foo</code>函数添加日志功能，当然可以直接修改<code>foo</code>的代码，但是日志功能这个代码显然是需要复用的，直接修改代码还不够“抽象”。所以就产生了修饰器，所谓修饰器，就是生成函数的函数。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">log</span><span class="params">(func)</span>:</span></span><br><span class="line"><span class="meta">    @functools.wraps(func)</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">wrapper</span><span class="params">(*args, **kwargs)</span>:</span></span><br><span class="line">        print(func.__name__, <span class="string">'is running'</span>)</span><br><span class="line">        <span class="keyword">return</span> func(*args, **kwargs)</span><br><span class="line">    <span class="keyword">return</span> wrapper</span><br></pre></td></tr></table></figure>
+<p><code>log</code>是一个函数，这个函数接受一个参数，这个参数是一个函数，在wrapper里，把原来的参数包装一遍返回，实际上，使用就是这样的过程</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">foo = log(foo)</span><br></pre></td></tr></table></figure>
+<p>此时的<code>foo</code>就是<code>wrapper</code>，当我们调用<code>foo</code>的时候实际上在调用<code>wrapper</code>。我们便实现了一次对编程的”编程”，所以装饰器也叫元编程Meta Programmming。</p>
+<p>不过每次这样重新赋值的使用方法比较繁琐，所以Python为我们提供了<code>@</code>语法糖，我们只需要在函数之前加上<code>@</code>就可以使用装饰器了。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@log</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">foo</span><span class="params">()</span>:</span></span><br><span class="line">    print(<span class="string">'foo'</span>)</span><br></pre></td></tr></table></figure>
+<h1 id="接受参数的修饰器"><a href="#接受参数的修饰器" class="headerlink" title="接受参数的修饰器"></a>接受参数的修饰器</h1><p>就按照刚才的<code>log</code>修饰器来说，我们可能需要在输出log时附带有其他的信息，所以我们</p>
+<h1 id="functools-wraps"><a href="#functools-wraps" class="headerlink" title="functools.wraps"></a>functools.wraps</h1><p>在刚才的例子中我们使用了一个<code>functools.wraps</code>的修饰器，这个修饰器</p>
     </div>
 
     
@@ -216,17 +208,20 @@
     
 
       <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Python/" rel="tag"># Python</a>
+          </div>
 
         
 
 
         
     <div class="post-nav">
-      <div class="post-nav-item"></div>
       <div class="post-nav-item">
-    <a href="/2018/12/04/「Hexo其实很简单」/" rel="next" title="「Hexo其实很简单」">
-      「Hexo其实很简单」 <i class="fa fa-chevron-right"></i>
+    <a href="/2020/03/19/CS162-Project-1-User-Programs/" rel="prev" title="CS162 Project 1: User Programs">
+      <i class="fa fa-chevron-left"></i> CS162 Project 1: User Programs
     </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -285,7 +280,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#我是一级标题"><span class="nav-number">1.</span> <span class="nav-text">我是一级标题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#我是二级标题"><span class="nav-number">1.1.</span> <span class="nav-text">我是二级标题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#我是三级标题"><span class="nav-number">1.1.1.</span> <span class="nav-text">我是三级标题</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#什么是装饰器Decorator"><span class="nav-number">1.</span> <span class="nav-text">什么是装饰器Decorator</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#接受参数的修饰器"><span class="nav-number">2.</span> <span class="nav-text">接受参数的修饰器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#functools-wraps"><span class="nav-number">3.</span> <span class="nav-text">functools.wraps</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
