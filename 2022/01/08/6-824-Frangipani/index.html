@@ -22,20 +22,22 @@
     var CONFIG = {"hostname":"blog.lyh.moe","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="CSAPP 的 Bomb Lab 非常有意思，做到第六个的时候发现网上没有很好的解释，只好一点一点扣了一下午终于弄明白了 发现每次总是快到考试摸鱼效率就特别高">
-<meta name="keywords" content="CSAPP,ASM,Reverse Engineer">
+  <meta name="description" content="这次是6.824课程的Frangipani。">
+<meta name="keywords" content="6.824,Distribute System">
 <meta property="og:type" content="article">
-<meta property="og:title" content="[CSAPP Lab]-II Bomb Lab">
-<meta property="og:url" content="https://blog.lyh.moe/2019/01/04/CSAPP-Lab-II-Bomb-Lab/index.html">
+<meta property="og:title" content="6.824-Frangipani">
+<meta property="og:url" content="https://blog.lyh.moe/2022/01/08/6-824-Frangipani/index.html">
 <meta property="og:site_name" content="Steve&#39;s">
-<meta property="og:description" content="CSAPP 的 Bomb Lab 非常有意思，做到第六个的时候发现网上没有很好的解释，只好一点一点扣了一下午终于弄明白了 发现每次总是快到考试摸鱼效率就特别高">
+<meta property="og:description" content="这次是6.824课程的Frangipani。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2019-01-04T08:27:28.000Z">
+<meta property="og:image" content="https://blog.lyh.moe/2022/01/08/6-824-Frangipani/026C9FD8-3C90-48F2-91B4-F68FBCF04FE3.jpeg">
+<meta property="og:updated_time" content="2022-01-08T05:58:15.681Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="[CSAPP Lab]-II Bomb Lab">
-<meta name="twitter:description" content="CSAPP 的 Bomb Lab 非常有意思，做到第六个的时候发现网上没有很好的解释，只好一点一点扣了一下午终于弄明白了 发现每次总是快到考试摸鱼效率就特别高">
+<meta name="twitter:title" content="6.824-Frangipani">
+<meta name="twitter:description" content="这次是6.824课程的Frangipani。">
+<meta name="twitter:image" content="https://blog.lyh.moe/2022/01/08/6-824-Frangipani/026C9FD8-3C90-48F2-91B4-F68FBCF04FE3.jpeg">
 
-<link rel="canonical" href="https://blog.lyh.moe/2019/01/04/CSAPP-Lab-II-Bomb-Lab/">
+<link rel="canonical" href="https://blog.lyh.moe/2022/01/08/6-824-Frangipani/">
 
 
 <script id="page-configurations">
@@ -48,7 +50,7 @@
   };
 </script>
 
-  <title>[CSAPP Lab]-II Bomb Lab | Steve's</title>
+  <title>6.824-Frangipani | Steve's</title>
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-161464241-1"></script>
     <script>
@@ -165,7 +167,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://blog.lyh.moe/2019/01/04/CSAPP-Lab-II-Bomb-Lab/">
+    <link itemprop="mainEntityOfPage" href="https://blog.lyh.moe/2022/01/08/6-824-Frangipani/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
@@ -178,7 +180,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          [CSAPP Lab]-II Bomb Lab
+          6.824-Frangipani
         </h1>
 
         <div class="post-meta">
@@ -189,7 +191,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2019-01-04 16:26:25 / 修改时间：16:27:28" itemprop="dateCreated datePublished" datetime="2019-01-04T16:26:25+08:00">2019-01-04</time>
+              <time title="创建时间：2022-01-08 13:54:01 / 修改时间：13:58:15" itemprop="dateCreated datePublished" datetime="2022-01-08T13:54:01+08:00">2022-01-08</time>
             </span>
 
           
@@ -210,88 +212,67 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="Phase-6"><a href="#Phase-6" class="headerlink" title="Phase 6"></a>Phase 6</h2><p>Phase 6 的汇编<del>又臭又长</del>，先把 Phase 6 反汇编出来</p>
-<p>完整的代码就不放了，先来一段段分析</p>
-<h3 id="Section-1"><a href="#Section-1" class="headerlink" title="Section 1"></a>Section 1</h3><script src="https://gist.github.com/stevelee477/2a22736011fc154f0fd969f1042a9c51.js"></script>
-
-<p>这一段是函数调用相关的，不用过多的在意，不过注意最后一行调用了 <code>read_six_numbers</code> ，根据之前的练习中，这个函数会读取 6 个数字并放在 <code>%rsp~%rsp+0x14</code> 中（这里可以用 <em>GDB</em> 的 <code>x/d</code> 打印检查）</p>
-<h3 id="Section-2"><a href="#Section-2" class="headerlink" title="Section 2"></a>Section 2</h3><p>下面开始正文了，先上代码</p>
-<script src="https://gist.github.com/stevelee477/9155348e36ffac013932cb7bece66901.js"></script>
-
-<p>最后一行的 <code>401151</code> 可以看出外层嵌套了一个大的循环，<code>401117</code> 中，将 <code>eax</code> 赋值为 <code>r13</code> 指向的地址，也就是第<code>r12d</code>个输入变量，然后 <code>40111e</code> 的比较确保了输入变量是小于 6 的</p>
-<p>内层循环中，则是取出第 <code>r12d</code> 个输入变量后边的，依次与 <code>eax</code> 比较，确保每个变量都不相同</p>
-<h3 id="Section-3"><a href="#Section-3" class="headerlink" title="Section 3"></a>Section 3</h3><script src="https://gist.github.com/stevelee477/02e3985995e13e9db01985cf461c130a.js"></script>
-
-<p><code>rax</code> 每次增加 4 个 Byte 来读取下一个 Int ，并且将 <code>rax</code> 与 <code>rsp+0x18</code> 比较<br>每次用 <code>0x7</code> 减去</p>
-<h3 id="Section-4"><a href="#Section-4" class="headerlink" title="Section 4"></a>Section 4</h3><script src="https://gist.github.com/stevelee477/c519973bccf807f9515941cb1d4dd6c8.js"></script>
-
-<p>这里就开始比较恶心了，先看里边有个 Magic Number <strong>0x6032d0</strong> ，用 <em>GDB</em> 打印出来发现是这样的：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">(gdb) x/24 0x6032d0</span><br><span class="line">0x6032d0 &lt;node1&gt;:	332	1	6304480	0</span><br><span class="line">0x6032e0 &lt;node2&gt;:	168	2	6304496	0</span><br><span class="line">0x6032f0 &lt;node3&gt;:	924	3	6304512	0</span><br><span class="line">0x603300 &lt;node4&gt;:	691	4	6304528	0</span><br><span class="line">0x603310 &lt;node5&gt;:	477	5	6304544	0</span><br><span class="line">0x603320 &lt;node6&gt;:	443	6	0	0</span><br></pre></td></tr></table></figure>
-<p>说实话我也不懂这个是什么(???)，一番<del>百度</del> Google 后发现这是一个链表，结构大概是这样的</p>
-<p>注意这里的<code>Next地址</code>是十进制表示的，要记得把它转换成十六进制</p>
-<div class="table-container">
-<table>
-<thead>
-<tr>
-<th>地址</th>
-<th>值</th>
-<th>序号</th>
-<th>Next地址</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>0x6032d0</td>
-<td>332</td>
-<td>1</td>
-<td>0x6032e0</td>
-</tr>
-<tr>
-<td>0x6032e0</td>
-<td>168</td>
-<td>2</td>
-<td>0x6032f0</td>
-</tr>
-<tr>
-<td>0x6032f0</td>
-<td>924</td>
-<td>3</td>
-<td>0x603300</td>
-</tr>
-<tr>
-<td>0x603300</td>
-<td>691</td>
-<td>4</td>
-<td>0x603310</td>
-</tr>
-<tr>
-<td>0x603310</td>
-<td>477</td>
-<td>5</td>
-<td>0x603320</td>
-</tr>
-<tr>
-<td>0x603320</td>
-<td>443</td>
-<td>6</td>
-<td>0</td>
-</tr>
-</tbody>
-</table>
-</div>
-<p>循环中， <code>ecx</code> 用来存取当前所读取的输入变量，最后一行跳转到 <code>401176</code> ，因为链表的每个 Node 都是两个 Int 和一个 Pointer 组成的，所以 <code>401176</code> 中获得下一个 Node 的地址，并且用 <code>eax</code> 来做计数变量，可以看出这几行的作用就是使得 <code>rdx</code> 中存的是第 <code>ecx</code> 个链表元素</p>
-<p>然后下边的就是在 <code>0x20+rsp+rsi*2</code> 后边添加上第 <code>ecx</code> 个 Node 的地址</p>
-<p>举个例子，如果输入是 <code>6 5 4 3 2 1</code> 这一步就会把链表第六个 Node 的地址放到栈顶第一位，第五个放到第二位…</p>
-<h3 id="Section-5"><a href="#Section-5" class="headerlink" title="Section 5"></a>Section 5</h3><script src="https://gist.github.com/stevelee477/b287419ebe0912b06bb4d6342c6c7ff5.js"></script>
-
-<p>这里的工作就像注释所说的：把新的链表重新连接起来</p>
-<h3 id="Section-6"><a href="#Section-6" class="headerlink" title="Section 6"></a>Section 6</h3><script src="https://gist.github.com/stevelee477/09de2bed7155a199f50b109e2ed64afa.js"></script>
-
-<p>这里比较的是新链接的链表的前一个元素的 Value 大于后一个元素的</p>
-<h3 id="Final"><a href="#Final" class="headerlink" title="Final"></a>Final</h3><p>综上，这个逻辑总算是理清楚了：首先从输入读取 6 个数字，确保每个数字都是小于等于 6 并且只出现一次，然后将链表重新排序为按照输入的顺序，最后验证新的链表的前一项大于后一项</p>
-<p>链表中的值分别是 <code>332 168 924 691 477 433</code> ，所以输入就是 <code>4 3 2 1 6 5</code></p>
-<p>有时间把之前的 Phase 补齐吧(Flag)</p>
-<p>EOF.</p>
+        <h1 id="Structure"><a href="#Structure" class="headerlink" title="Structure"></a>Structure</h1><p><img src="/2022/01/08/6-824-Frangipani/026C9FD8-3C90-48F2-91B4-F68FBCF04FE3.jpeg" alt=""></p>
+<ol>
+<li>直到<code>fsync</code>前文件不保证写入nonvolatile存储</li>
+<li>原数据在syscall返回时保证写入到nonvolatile(optional)</li>
+<li>文件last-access时间不保证准确，避免每次读取访问metadata write</li>
+</ol>
+<p>所有Frangipani Server写入相同的Petal Disk，redo log在Petal Disk隔离的区域存储。当Frangipani Server crash的时候，其他的Server可以recover。</p>
+<p>lock service提供了多读单写锁。</p>
+<p>Pros:</p>
+<ol>
+<li>支持透明的Server添加、删除、failover recovery</li>
+<li>系统运行时创建backup</li>
+</ol>
+<p>Cons:</p>
+<ol>
+<li>Logging发生两次，一次在Frangipani，一次在Petal</li>
+<li>Frangipani无法利用磁盘位置信息(因为Petal没有只是虚拟磁盘)</li>
+<li>Frangipani锁整个文件系统而不是某个block</li>
+</ol>
+<h1 id="Disk-Layout"><a href="#Disk-Layout" class="headerlink" title="Disk Layout"></a>Disk Layout</h1><p>Petal的虚拟磁盘有$2^64$寻址空间。使用了64KB的块大小。</p>
+<ul>
+<li>第一个区域保存了configuration</li>
+<li>第二个区域保存了logs，分成了256个区域</li>
+<li>第三个区域用来存储allocation bitmap</li>
+<li>第四个区域保存inodes，每个inode 512 bytes</li>
+<li>第三个区域保存了小data block，每个4KB，每个文件的最初64KB保存在这个区域，如果超过了64KB，其余的保存在large block</li>
+<li>剩余的区域保存了large block，每个large block需要1 TB的空间保存寻址空间</li>
+</ul>
+<h1 id="Logging-and-Recovery"><a href="#Logging-and-Recovery" class="headerlink" title="Logging and Recovery"></a>Logging and Recovery</h1><p>使用write-ahead redo logging for metadata，user data没有log。<br>每一个Frangipani server有着自己的log。<br>当Server需要进行元数据更新时，先在内存中创建record，log record周期性写入Petal。只有log写入到Petal后才会对metadata进行操作。</p>
+<p>log使用循环buffer，回收最旧的25%的log用来存储新的。</p>
+<p>如果Frangipani crash，系统最终会发现crash并启动recovery demon。demon隐式的拥有了crash的server的log与locks。demon找到log的开始与结尾，重新排序，redo。之后释放所有的锁与清空log。只要Petal不损坏，Frangipani可以承受任意数量的server failures。</p>
+<p>Frangipani使用了以下来处理单个文件多个log的情况：</p>
+<ol>
+<li>write lock只有在将dirty data写入到Petal后才可以改变所有者。（无论是lock holder还是recover demon）</li>
+<li>Frangipani只redo从拥有lock之后的操作。为了保证locking protocol的序列化不被改变。每一个metadata block有着版本号，每次执行操作版本号+1同时记录在log中。只有block的版本号早于log的才会执行recover。（为了避免replay的情况：因为redo的时候只能看到一个server的log）</li>
+<li>在同一时间只有一个recovery demon</li>
+</ol>
+<p>只有metadata有log，user data没有，所以在用户的视角file system在failure之后失去了一致性。（磁盘文件系统的journal一般也是这样，log只记录metadata的改变，可以使用<code>fsync</code>等）</p>
+<p>Frangipani在lock被revoke的时候才会讲本地的log与cache写回（如果写入log之前crash，log也会丢失，不过只会丢失这一次的写入，不会影响整个文件系统）。</p>
+<h1 id="Synchronization-and-Cache-Coherence"><a href="#Synchronization-and-Cache-Coherence" class="headerlink" title="Synchronization and Cache Coherence"></a>Synchronization and Cache Coherence</h1><p>多个Frangipani server修改相同的disk，需要谨慎处理同步问题。<br>Frangipani使用multiple-reader/single-writer锁。当lock service检测到冲突的锁请求，现有的holder被要求释放或者降级。</p>
+<p>read lock允许server从disk中读取文件并且缓存，当释放锁时，需要invalid缓存。<br>write lock允许server read或者write并且缓存。只有获得write lock时，缓存中的内容才可以于disk中不同。所以当一个server被要求释放或者降级时，需要将dirty data写回。如果降级为read lock可以保留缓存内容。</p>
+<h2 id="Coherence-Protocol"><a href="#Coherence-Protocol" class="headerlink" title="Coherence  Protocol:"></a>Coherence  Protocol:</h2><ol>
+<li>request  (WS -&gt; LS)</li>
+<li>grant (LS -&gt; WS)</li>
+<li>revoke (LS -&gt; WS)</li>
+<li>release (WS -&gt; LS)</li>
+</ol>
+<p>locks保证了读取时可以看到最后的写</p>
+<p>虽然可以直接将cache传输到requester，但是为了简便没有这样设计。因为Frangipani之间互相不会通讯，只会与Petal和lock service通讯；同时当server crash时，只需要处理对应server的log即可。</p>
+<p>bitmap划分成为了segment，每一个segment可以单独上lock。未分配的data block或者inode通过对应的bitmap的lock来保护。每一个文件、目录、符号连接都是一个segment，每一个lock保护inode与其对应的文件。</p>
+<h2 id="Atomicity"><a href="#Atomicity" class="headerlink" title="Atomicity"></a>Atomicity</h2><p>有些操作需要原子性的更新多个被不同lock覆盖的磁盘结构（如创建文件需要修改inode，目录，data），为了避免死锁使用两阶段。首先server决定自身需要获得什么锁，其次将需要获得的锁按照inode地址排序，按顺序获取。server检查第一阶段是否有对象数据改变（我的理解是比如有对目录的操作，目录的锁被其他的server释放后会有目录文件的改变，所以需要重新获得一边所有的锁），如果有，则释放锁并重新执行第一阶段。</p>
+<p>user在执行操作前获取全部的lock，获得全部的lock后才会执行操作。<br>当完成后释放lock。</p>
+<h1 id="Lock-Service"><a href="#Lock-Service" class="headerlink" title="Lock Service"></a>Lock Service</h1><p>提供multiple-reader/single-writer锁。锁是sticky的，一个client会持续保持锁直到冲突。</p>
+<p>lock service使用租约，当client获取lock时，同时也获取了一个lease。每个lease有过期时间，client需要在过期前renew，否则client处于crash。</p>
+<h1 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h1><p>Frangipani将server放到了user一侧来执行，减少了系统瓶颈。</p>
+<p>Frangipani的lock做了两件事：</p>
+<ol>
+<li>Cache Coherence</li>
+<li>Atomic Transaction</li>
+</ol>
+<h1 id="Ideas-to-remember"><a href="#Ideas-to-remember" class="headerlink" title="Ideas to remember"></a>Ideas to remember</h1><p>complex clients sharing simple storage — maybe scalable<br>cache coherence<br>distributed transactions<br>distributed crash recovery<br>interactions among the above</p>
     </div>
 
     
@@ -300,9 +281,8 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/CSAPP/" rel="tag"># CSAPP</a>
-              <a href="/tags/ASM/" rel="tag"># ASM</a>
-              <a href="/tags/Reverse-Engineer/" rel="tag"># Reverse Engineer</a>
+              <a href="/tags/6-824/" rel="tag"># 6.824</a>
+              <a href="/tags/Distribute-System/" rel="tag"># Distribute System</a>
           </div>
 
         
@@ -311,13 +291,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2018/12/04/「Hexo其实很简单」/" rel="prev" title="「Hexo其实很简单」">
-      <i class="fa fa-chevron-left"></i> 「Hexo其实很简单」
+    <a href="/2022/01/02/整了个小东西-Canokey/" rel="prev" title="整了个小东西: Canokey">
+      <i class="fa fa-chevron-left"></i> 整了个小东西: Canokey
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2019/01/04/CSAPP-Lab-III-Attack-Lab/" rel="next" title="[CSAPP Lab]-III Attack Lab">
-      [CSAPP Lab]-III Attack Lab <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
@@ -376,7 +353,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Phase-6"><span class="nav-number">1.</span> <span class="nav-text">Phase 6</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Section-1"><span class="nav-number">1.1.</span> <span class="nav-text">Section 1</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Section-2"><span class="nav-number">1.2.</span> <span class="nav-text">Section 2</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Section-3"><span class="nav-number">1.3.</span> <span class="nav-text">Section 3</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Section-4"><span class="nav-number">1.4.</span> <span class="nav-text">Section 4</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Section-5"><span class="nav-number">1.5.</span> <span class="nav-text">Section 5</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Section-6"><span class="nav-number">1.6.</span> <span class="nav-text">Section 6</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Final"><span class="nav-number">1.7.</span> <span class="nav-text">Final</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Structure"><span class="nav-number">1.</span> <span class="nav-text">Structure</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Disk-Layout"><span class="nav-number">2.</span> <span class="nav-text">Disk Layout</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Logging-and-Recovery"><span class="nav-number">3.</span> <span class="nav-text">Logging and Recovery</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Synchronization-and-Cache-Coherence"><span class="nav-number">4.</span> <span class="nav-text">Synchronization and Cache Coherence</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Coherence-Protocol"><span class="nav-number">4.1.</span> <span class="nav-text">Coherence  Protocol:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Atomicity"><span class="nav-number">4.2.</span> <span class="nav-text">Atomicity</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Lock-Service"><span class="nav-number">5.</span> <span class="nav-text">Lock Service</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Conclusion"><span class="nav-number">6.</span> <span class="nav-text">Conclusion</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Ideas-to-remember"><span class="nav-number">7.</span> <span class="nav-text">Ideas to remember</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
