@@ -23,7 +23,7 @@
   </script>
 
   <meta name="description" content="在3A中我们实现了分布式的KV服务，但是有一个问题：如果执行的Put/Append操作过多，那么Raft的log会非常长，会占用大量的内存，并且当节点从错误中恢复时需要传输大量的数据。 注意到事实上log没有必要全部保存，我们只需要定期的保存整个数据库中的数据即可（aka快照），这一次的实验就是要实现KVRaft的快照功能">
-<meta name="keywords" content="6.824,Raft,Distribute System">
+<meta name="keywords" content="6.824,Distribute System,Raft">
 <meta property="og:type" content="article">
 <meta property="og:title" content="6.824 Lab3B: KVRaft with log compaction">
 <meta property="og:url" content="https://blog.lyh.moe/2021/02/16/6-824-Lab3B-KVRaft-with-log-compaction/index.html">
@@ -248,8 +248,8 @@
       <footer class="post-footer">
           <div class="post-tags">
               <a href="/tags/6-824/" rel="tag"># 6.824</a>
-              <a href="/tags/Raft/" rel="tag"># Raft</a>
               <a href="/tags/Distribute-System/" rel="tag"># Distribute System</a>
+              <a href="/tags/Raft/" rel="tag"># Raft</a>
           </div>
 
         
@@ -339,7 +339,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">20</span>
+          <span class="site-state-item-count">21</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
