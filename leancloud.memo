@@ -8,6 +8,7 @@
 {"title":"Hexo 美化","url":"/2019/02/05/Hexo-美化/"},
 {"title":"Automata Week 3 笔记","url":"/2019/03/02/Automata-Week-3-笔记/"},
 {"title":"Automata Week 4 笔记","url":"/2019/03/23/Automata-Week-4-笔记/"},
+{"title":"CS162 Project 1: User Programs","url":"/2020/03/19/CS162-Project-1-User-Programs/"},
 {"title":"Python 装饰器","url":"/2020/07/06/Python-装饰器/"},
 {"title":"Google File System","url":"/2020/12/16/GFS/"},
 {"title":"6.824 Lab2A: Raft Leader选举","url":"/2021/01/12/6-824-Lab2A-Raft-Leader选举/"},
@@ -17,5 +18,6 @@
 {"title":"6.824 Lab3B: KVRaft with log compaction","url":"/2021/02/16/6-824-Lab3B-KVRaft-with-log-compaction/"},
 {"title":"搭建Bitwarden密码服务器","url":"/2022/01/01/搭建Bitwarden密码服务器/"},
 {"title":"整了个小东西: Canokey","url":"/2022/01/02/整了个小东西-Canokey/"},
+{"title":"6.824-Frangipani","url":"/2022/01/08/6-824-Frangipani/"},
 {"title":"6.824-Spanner","url":"/2022/01/26/6-824-Spanner/"},
 ]
