@@ -132,6 +132,11 @@
     <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
 
   </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
         <li class="menu-item menu-item-archives">
 
     <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
@@ -213,27 +218,42 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="FIDO2"><a href="#FIDO2" class="headerlink" title="FIDO2"></a>FIDO2</h1><h2 id="网站二步验证"><a href="#网站二步验证" class="headerlink" title="网站二步验证"></a>网站二步验证</h2><p>最常用的功能还是FIDO2了，像是Google/Github/Onedrive之类的网站都支持FIDO2，只需要在账户设置中添加Canokey即可。</p>
+        <h1 id="fido2">FIDO2</h1>
+<h2 id="网站二步验证">网站二步验证</h2>
+<p>最常用的功能还是FIDO2了，像是Google/Github/Onedrive之类的网站都支持FIDO2，只需要在账户设置中添加Canokey即可。</p>
 <p>FIDO2的好处是节约了打开Authnticator/Authy之类App手动复制的时间。</p>
-<p><img src="/2022/01/02/整了个小东西-Canokey/FIDO1.png" alt=""></p>
-<p><img src="/2022/01/02/整了个小东西-Canokey/FIDO2.png" alt=""></p>
+<p><img src="/2022/01/02/整了个小东西-Canokey/FIDO1.png"></p>
+<p><img src="/2022/01/02/整了个小东西-Canokey/FIDO2.png"></p>
 <p>登录的时候只需要触摸Button即可。</p>
-<h2 id="SSH"><a href="#SSH" class="headerlink" title="SSH"></a>SSH</h2><p>自OpenSSH 8.2开始，添加了对FIDO2的支持。可以使用FIDO2来登录SSH，只需要添加相应的Public Key即可。</p>
+<h2 id="ssh">SSH</h2>
+<p>自OpenSSH
+8.2开始，添加了对FIDO2的支持。可以使用FIDO2来登录SSH，只需要添加相应的Public
+Key即可。</p>
 <p>需要注意的是macOS自带的OpenSSH或许是因为版本较老的原因，需要使用brew安装新版才可以使用FIDO2。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">$ brew install openssh</span><br><span class="line">$ /usr/local/Cellar/openssh/8.8p1_2/bin/ssh-keygen -t ecdsa-sk //需要手动调用下brew安装的ssh-keygen</span><br><span class="line">Generating public/private ecdsa-sk key pair.</span><br><span class="line">You may need to touch your authenticator to authorize key generation.</span><br><span class="line">Enter PIN for authenticator:</span><br><span class="line">You may need to touch your authenticator (again) to authorize key generation.</span><br><span class="line">Enter file in which to save the key (/Users/example/.ssh/id_ecdsa_sk):</span><br><span class="line">Enter passphrase (empty for no passphrase):</span><br><span class="line">Enter same passphrase again:</span><br><span class="line">Your identification has been saved in /Users/example/.ssh/id_ecdsa_sk</span><br><span class="line">Your public key has been saved in /Users/example/.ssh/id_ecdsa_sk.pub</span><br><span class="line">The key fingerprint is:</span><br><span class="line">SHA256:/tpCT+qjX8gP4TOxwiNLjYe794gRKUUOPxcQhy9AjJw example@example.local</span><br><span class="line">The key&apos;s randomart image is:</span><br><span class="line">+-[ECDSA-SK 256]--+</span><br><span class="line">|.++ ++o          |</span><br><span class="line">|.Eo=.. .         |</span><br><span class="line">|   .=..          |</span><br><span class="line">|   ..+.          |</span><br><span class="line">|  . o.  S        |</span><br><span class="line">|   . * +.=.      |</span><br><span class="line">|    * *.X+.      |</span><br><span class="line">|   . B.++O.      |</span><br><span class="line">|    =oo==++      |</span><br><span class="line">+----[SHA256]-----+</span><br></pre></td></tr></table></figure>
 <p>生成之后把Public Key添加到服务器的authorized_keys文件中即可。</p>
 <p>之后<code>ssh</code>就可以使用FIDO2了。</p>
-<h1 id="OPENPGP"><a href="#OPENPGP" class="headerlink" title="OPENPGP"></a>OPENPGP</h1><p>GPG最常用的就是签名Git Commit了，将Private Key存在Canokey中。写入后就不能导出了。</p>
+<h1 id="openpgp">OPENPGP</h1>
+<p>GPG最常用的就是签名Git Commit了，将Private
+Key存在Canokey中。写入后就不能导出了。</p>
 <p>Canokey支持的算法在<a href="https://docs.canokeys.org/userguide/openpgp/#supported-algorithm" target="_blank" rel="noopener">这里</a>，需要注意的是RSA4096只能导入不能在Canokey上生成，所以这里我将我的Key导入到Canokey中。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line">➜ gpg --edit-key 506E61294EEFA189051358B8F2AFB96ECBE9933F</span><br><span class="line">gpg (GnuPG) 2.3.3; Copyright (C) 2021 Free Software Foundation, Inc.</span><br><span class="line">This is free software: you are free to change and redistribute it.</span><br><span class="line">There is NO WARRANTY, to the extent permitted by law.</span><br><span class="line"></span><br><span class="line">Secret key is available.</span><br><span class="line"></span><br><span class="line">sec  rsa4096/F2AFB96ECBE9933F</span><br><span class="line">     created: 2019-06-28  expires: 2022-11-08  usage: SC</span><br><span class="line">     trust: full          validity: unknown</span><br><span class="line">ssb  rsa4096/E16D4C191B78D8D3</span><br><span class="line">     created: 2019-06-28  expires: 2022-11-08  usage: E</span><br><span class="line">[ unknown] (1). stevelee477 &lt;hi.whoareyou12@gmail.com&gt;</span><br><span class="line"></span><br><span class="line">gpg&gt; keytocard</span><br><span class="line">#需要输入PIN和Admin PIN，在Canokey上默认是123456和12345678</span><br><span class="line">Really move the primary key? (y/N) y</span><br><span class="line">Please select where to store the key:</span><br><span class="line">   (1) Signature key</span><br><span class="line">   (3) Authentication key</span><br><span class="line">Your selection? 1</span><br><span class="line"></span><br><span class="line">sec  rsa4096/F2AFB96ECBE9933F</span><br><span class="line">     created: 2019-06-28  expires: 2022-11-08  usage: SC</span><br><span class="line">     trust: full          validity: unknown</span><br><span class="line">ssb  rsa4096/E16D4C191B78D8D3</span><br><span class="line">     created: 2019-06-28  expires: 2022-11-08  usage: E</span><br><span class="line">[ unknown] (1). stevelee477 &lt;hi.whoareyou12@gmail.com&gt;</span><br><span class="line"></span><br><span class="line">gpg&gt; key 1</span><br><span class="line"></span><br><span class="line">sec  rsa4096/F2AFB96ECBE9933F</span><br><span class="line">     created: 2019-06-28  expires: 2022-11-08  usage: SC</span><br><span class="line">     trust: full          validity: unknown</span><br><span class="line">ssb* rsa4096/E16D4C191B78D8D3</span><br><span class="line">     created: 2019-06-28  expires: 2022-11-08  usage: E</span><br><span class="line">[ unknown] (1). stevelee477 &lt;hi.whoareyou12@gmail.com&gt;</span><br><span class="line"></span><br><span class="line">gpg&gt; keytocard</span><br><span class="line">Please select where to store the key:</span><br><span class="line">   (2) Encryption key</span><br><span class="line">Your selection? 2</span><br><span class="line"></span><br><span class="line">sec  rsa4096/F2AFB96ECBE9933F</span><br><span class="line">     created: 2019-06-28  expires: 2022-11-08  usage: SC</span><br><span class="line">     trust: full          validity: unknown</span><br><span class="line">ssb* rsa4096/E16D4C191B78D8D3</span><br><span class="line">     created: 2019-06-28  expires: 2022-11-08  usage: E</span><br><span class="line">[ unknown] (1). stevelee477 &lt;hi.whoareyou12@gmail.com&gt;</span><br><span class="line"></span><br><span class="line">gpg&gt; save</span><br></pre></td></tr></table></figure>
 <p>之后<code>git commit</code>的时候就可以愉快的使用Canokey来签名了</p>
-<h1 id="TOTP"><a href="#TOTP" class="headerlink" title="TOTP"></a>TOTP</h1><p>Canokey可以存一些TOTP的Secret Key：在iOS上下载Yubikey Authenticator，使用NFC识别然后就可以管理TOTP了。同时在<a href="console.canokeys.org">Web Console</a>中可以查看到TOTP。</p>
-<p><img src="/2022/01/02/整了个小东西-Canokey/TOTP.jpeg" alt="TOTP"></p>
+<h1 id="totp">TOTP</h1>
+<p>Canokey可以存一些TOTP的Secret Key：在iOS上下载Yubikey
+Authenticator，使用NFC识别然后就可以管理TOTP了。同时在<a href="console.canokeys.org">Web Console</a>中可以查看到TOTP。</p>
+<figure>
+<img src="/2022/01/02/整了个小东西-Canokey/TOTP.jpeg" alt="TOTP">
+<figcaption aria-hidden="true">TOTP</figcaption>
+</figure>
 <p>需要注意的是Canokey的NFC天线相比Yubikey还是有一定差距，在移动设备上使用NFC可能需要一些<a href="https://github.com/canokeys/canokey-pigeon/discussions/4" target="_blank" rel="noopener">技巧</a>。</p>
 <p>在macOS上可以使用Yubikey-Authenticator。</p>
-<h1 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h1><p>Canokey还支持PIV，可以在macOS上实现<a href="https://developers.yubico.com/PIV/Guides/Smart_card-only_authentication_on_macOS.html" target="_blank" rel="noopener">登录验证</a>，但是启用了SmartCard后就不能使用密码了，我感觉不太靠谱。</p>
-<p>Canokey我入手的价格是169，相比Yubikey 5NFC的$45便宜了不少，同时实现了Yubikey的大部分功能。完成度也很高。</p>
-<h1 id="更多链接"><a href="#更多链接" class="headerlink" title="更多链接"></a>更多链接</h1><p><a href="https://www.canokeys.org" target="_blank" rel="noopener">Canokey官网</a></p>
+<h1 id="其他">其他</h1>
+<p>Canokey还支持PIV，可以在macOS上实现<a href="https://developers.yubico.com/PIV/Guides/Smart_card-only_authentication_on_macOS.html" target="_blank" rel="noopener">登录验证</a>，但是启用了SmartCard后就不能使用密码了，我感觉不太靠谱。</p>
+<p>Canokey我入手的价格是169，相比Yubikey
+5NFC的$45便宜了不少，同时实现了Yubikey的大部分功能。完成度也很高。</p>
+<h1 id="更多链接">更多链接</h1>
+<p><a href="https://www.canokeys.org" target="_blank" rel="noopener">Canokey官网</a></p>
     </div>
 
     
@@ -313,7 +333,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#FIDO2"><span class="nav-number">1.</span> <span class="nav-text">FIDO2</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#网站二步验证"><span class="nav-number">1.1.</span> <span class="nav-text">网站二步验证</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SSH"><span class="nav-number">1.2.</span> <span class="nav-text">SSH</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#OPENPGP"><span class="nav-number">2.</span> <span class="nav-text">OPENPGP</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#TOTP"><span class="nav-number">3.</span> <span class="nav-text">TOTP</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#其他"><span class="nav-number">4.</span> <span class="nav-text">其他</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#更多链接"><span class="nav-number">5.</span> <span class="nav-text">更多链接</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#fido2"><span class="nav-number">1.</span> <span class="nav-text">FIDO2</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#网站二步验证"><span class="nav-number">1.1.</span> <span class="nav-text">网站二步验证</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ssh"><span class="nav-number">1.2.</span> <span class="nav-text">SSH</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#openpgp"><span class="nav-number">2.</span> <span class="nav-text">OPENPGP</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#totp"><span class="nav-number">3.</span> <span class="nav-text">TOTP</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#其他"><span class="nav-number">4.</span> <span class="nav-text">其他</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#更多链接"><span class="nav-number">5.</span> <span class="nav-text">更多链接</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -335,6 +355,7 @@
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
+          
         <span class="site-state-item-count">17</span>
         <span class="site-state-item-name">标签</span></a>
       </div>

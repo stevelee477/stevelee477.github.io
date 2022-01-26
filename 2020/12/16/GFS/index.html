@@ -132,6 +132,11 @@
     <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
 
   </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
         <li class="menu-item menu-item-archives">
 
     <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
@@ -213,7 +218,8 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="GFS的主要需求"><a href="#GFS的主要需求" class="headerlink" title="GFS的主要需求"></a>GFS的主要需求</h2><p>在论文的一开始首先提出了系统的需求：</p>
+        <h2 id="gfs的主要需求">GFS的主要需求</h2>
+<p>在论文的一开始首先提出了系统的需求：</p>
 <ul>
 <li>组件失效是正常的事情而不是异常(exception)，因为在GFS中使用了成百上千台普通的机器。所以需要持续的检测错误，并且能够自动恢复。</li>
 <li>文件巨大，数个GB的文件是非常常见的。</li>
@@ -221,22 +227,35 @@
 <li>支持原子追加操作，多个客户端可以同时对文件进行追加而不需要额外的同步。</li>
 <li>高带宽比低延迟更加重要。</li>
 </ul>
-<h2 id="GFS的设计"><a href="#GFS的设计" class="headerlink" title="GFS的设计"></a>GFS的设计</h2><h3 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h3><p>GFS集群包括了单个<em>Master</em>和多个<em>Chunkserver</em>，他们会作为用户级程序运行在Linux系统上。</p>
-<p>文件在存储时会划分成固定大小的<em>chunks</em>，每一个chunk都是通过由<em>Master</em>分配的一个不可变且全局唯一的64bit<em>chunk handle</em>来标识。chunkserver通过Linux文件读写的方式来处理chunk。每个chunk在多个chunkserver中储存来提高可靠性。</p>
-<p>master维护整个文件系统的元数据，包括了namespace(文件名)、access control(权限)、从文件到chunk的映射表以及每个chunk的位置。master还负责了系统级任务比如chunk lease 管理(后文会涉及)、垃圾回收、chunkserver之间的chunk迁移。master通过心跳包(<em>Heartbeat</em>)与chunkserver进行通信来下达指令或收集状态。</p>
+<h2 id="gfs的设计">GFS的设计</h2>
+<h3 id="结构">结构</h3>
+<p>GFS集群包括了单个<em>Master</em>和多个<em>Chunkserver</em>，他们会作为用户级程序运行在Linux系统上。</p>
+<p>文件在存储时会划分成固定大小的<em>chunks</em>，每一个chunk都是通过由<em>Master</em>分配的一个不可变且全局唯一的64bit<em>chunk
+handle</em>来标识。chunkserver通过Linux文件读写的方式来处理chunk。每个chunk在多个chunkserver中储存来提高可靠性。</p>
+<p>master维护整个文件系统的元数据，包括了namespace(文件名)、access
+control(权限)、从文件到chunk的映射表以及每个chunk的位置。master还负责了系统级任务比如chunk
+lease
+管理(后文会涉及)、垃圾回收、chunkserver之间的chunk迁移。master通过心跳包(<em>Heartbeat</em>)与chunkserver进行通信来下达指令或收集状态。</p>
 <p>client通过向master通信来获得文件的原数据，但是所有的数据都是直接传输到chunkserver。</p>
 <p>client和chunkserver都不缓存数据，因此简化了设计难度。因为client需要的是顺序读取而chunkserver中Linux自身的缓存已经足够了。</p>
-<h3 id="Master"><a href="#Master" class="headerlink" title="Master"></a>Master</h3><p>因为只有一个master，所以我们需要在文件的读写中减少master的参与程度来避免瓶颈。client并不从master中获取数据。</p>
+<h3 id="master">Master</h3>
+<p>因为只有一个master，所以我们需要在文件的读写中减少master的参与程度来避免瓶颈。client并不从master中获取数据。</p>
 <p>当client需要读取数据时，通过向master发送请求来获得chunkserver的位置，之后client将chunkserver的位置缓存以供以后使用。</p>
 <p>当client获得chunk对应的位置后，client直接向对应的chunkserver发送请求来获得数据。</p>
-<h3 id="元数据"><a href="#元数据" class="headerlink" title="元数据"></a>元数据</h3><p>master存储的元数据有：文件和chunk的命名空间、从文件到chunk的映射以及每个chunk副本的位置。所有的元数据都是储存在内存中，前两个（命名空间以及映射）都是通过log来持久化储存的，而chunk副本的位置则在每次启动master时向每个chunkserver收集。</p>
+<h3 id="元数据">元数据</h3>
+<p>master存储的元数据有：文件和chunk的命名空间、从文件到chunk的映射以及每个chunk副本的位置。所有的元数据都是储存在内存中，前两个（命名空间以及映射）都是通过log来持久化储存的，而chunk副本的位置则在每次启动master时向每个chunkserver收集。</p>
 <p>master中不持久存储chunk的位置避免了两者的同步问题，master通过与chunkserver的心跳包来监控chunk。</p>
-<h4 id="log"><a href="#log" class="headerlink" title="log"></a>log</h4><p>log包括了关键元数据的历史记录，同时log也作为并发操作的时间线。</p>
+<h4 id="log">log</h4>
+<p>log包括了关键元数据的历史记录，同时log也作为并发操作的时间线。</p>
 <p>在对文件元数据进行操作前首先写入log(类似WAL)，同时定期保存检查点(checkpoint)来减少启动时间：只需要从最后一个没有损坏的检查点开始重做log即可。</p>
 <p>在建立检查点的过程中转换到新的log文件并且在另一个线程中穿件检查点。</p>
-<h3 id="一致性模型"><a href="#一致性模型" class="headerlink" title="一致性模型"></a>一致性模型</h3><p>GFS的一致性模型比较宽松以提高效率。</p>
+<h3 id="一致性模型">一致性模型</h3>
+<p>GFS的一致性模型比较宽松以提高效率。</p>
 <p>对文件元数据的操作(如创建文件)是原子的，通过在master中对元数据进行加锁来实现。</p>
-<p><img src="/2020/12/16/GFS/table1.png" alt="table1"></p>
+<figure>
+<img src="/2020/12/16/GFS/table1.png" alt="table1">
+<figcaption aria-hidden="true">table1</figcaption>
+</figure>
 <p>在GFS中提出了两个一致性概念：consistent与defined</p>
 <ul>
 <li>consitent指client读取文件的任何一个副本(replica)都是一样的</li>
@@ -249,58 +268,78 @@
 <li>失败的写入是unconsistent：不同的client看到的数据不同</li>
 </ul>
 <p>对文件的修改包括了overwrite和追加append，注意这里的追加与文件的追加不同：追加数据时GFS保证数据在文件中<strong>至少出现一次</strong>，而数据的偏移量是由GFS返回。GFS可能在数据之间插入padding或者重复数据。</p>
-<h3 id="对应用的要求"><a href="#对应用的要求" class="headerlink" title="对应用的要求"></a>对应用的要求</h3><p>因为会出现重复或padding，所以文件的校验需要由上层应用通过添加额外的字段来完成。</p>
-<h2 id="GFS的操作"><a href="#GFS的操作" class="headerlink" title="GFS的操作"></a>GFS的操作</h2><h3 id="租约Lease与文件修改顺序"><a href="#租约Lease与文件修改顺序" class="headerlink" title="租约Lease与文件修改顺序"></a>租约Lease与文件修改顺序</h3><p>mater会把lease给一个chunk的副本，称这个chunk为<em>primary</em>。primary决定文件修改的执行顺序，其他的副本按照primary的顺序进行修改。</p>
+<h3 id="对应用的要求">对应用的要求</h3>
+<p>因为会出现重复或padding，所以文件的校验需要由上层应用通过添加额外的字段来完成。</p>
+<h2 id="gfs的操作">GFS的操作</h2>
+<h3 id="租约lease与文件修改顺序">租约Lease与文件修改顺序</h3>
+<p>mater会把lease给一个chunk的副本，称这个chunk为<em>primary</em>。primary决定文件修改的执行顺序，其他的副本按照primary的顺序进行修改。</p>
 <p>租约机制的用来减少master的开销，租约的默认时间为60s，但是primary可以向master申请延长时间，延长请求通过心跳包与所有的chunkserver通信。所以即使是chunkserver失去了与primary的通信依然可以吊销其租约。</p>
-<h3 id="写文件流程"><a href="#写文件流程" class="headerlink" title="写文件流程"></a>写文件流程</h3><p><img src="/2020/12/16/GFS/fig2.png" alt="fig2"></p>
-<ol>
+<h3 id="写文件流程">写文件流程</h3>
+<figure>
+<img src="/2020/12/16/GFS/fig2.png" alt="fig2">
+<figcaption aria-hidden="true">fig2</figcaption>
+</figure>
+<ol type="1">
 <li>client向master请求哪一台chunkserver持有了要修改的chunk的租约，如果没有租约则master会分配一个</li>
 <li>master返回primary与其他副本的位置，client缓存位置信息供以后修改。当下次无法联系到primary或者租约过期时再向master请求</li>
-<li>client向所有的副本<strong>推送</strong>数据，chunkserver会把接收到的数据缓存下来(注意这时候还没有对文件进行修改) &lt;—这是数据流</li>
+<li>client向所有的副本<strong>推送</strong>数据，chunkserver会把接收到的数据缓存下来(注意这时候还没有对文件进行修改)
+&lt;--这是数据流</li>
 <li>在所有的副本都收到了数据后，client发送写请求给primary。写请求中标识了之前推送的数据，primary为写请求安排序列号用来表示执行的顺序。之后按照顺序对本地文件进行修改</li>
 <li>primary将写请求转发到其他的副本中，每一个副本按照相同顺序执行操作</li>
 <li>副本向primary返回完成操作</li>
 <li>primary向用户返回。如果操作失败(数据在不同副本间不一致，此时为inconsistent)，client会重新尝试执行操作。</li>
 </ol>
 <p>如果对数据的操作超过了一个chunk，client会将其分为多个请求。切分后的多个请求可能会与其他的文件操作交织(interleaved)运行，导致在文件中可能交错出现不同的数据，此时文件为undefined。</p>
-<h3 id="数据流"><a href="#数据流" class="headerlink" title="数据流"></a>数据流</h3><p>在以上过程中很重要的一点就是解藕(decouple)了控制流和数据流，由此可以有效地利用网络带宽。</p>
+<h3 id="数据流">数据流</h3>
+<p>在以上过程中很重要的一点就是解藕(decouple)了控制流和数据流，由此可以有效地利用网络带宽。</p>
 <p>在推送数据的过程中，按照拓扑顺序推送，由此推送数据可以并行执行。</p>
-<h3 id="原子文件追加"><a href="#原子文件追加" class="headerlink" title="原子文件追加"></a>原子文件追加</h3><p>文件追加与写文件类似，不同的是primary收到追加的请求后会检查追加文件是否会使chunk超过预设大小，如果会，会将chunk的剩余部分填充空白，并要求client重新执行操作，将数据追加到新的chunk后。</p>
+<h3 id="原子文件追加">原子文件追加</h3>
+<p>文件追加与写文件类似，不同的是primary收到追加的请求后会检查追加文件是否会使chunk超过预设大小，如果会，会将chunk的剩余部分填充空白，并要求client重新执行操作，将数据追加到新的chunk后。</p>
 <p>如果追加操作在任意一个副本上失败，client重新执行该操作，这时会出现同一个chunk但是不同副本间不一致的问题。GFS并不保证所有副本间的文件完全一致，只保证数据至少写一次。所以当追加操作执行时可以保证数据必然写入到所有副本的相同偏移量上。下一次的追加操作会在更高的偏移量执行，</p>
-<h3 id="快照"><a href="#快照" class="headerlink" title="快照"></a>快照</h3><p>快照可以为文件或者目录创建副本。</p>
+<h3 id="快照">快照</h3>
+<p>快照可以为文件或者目录创建副本。</p>
 <p>快照的创建使用了CoW(copy-on-write)技术：当master收到创建快照的请求后，master吊销涉及chunk的租约，确保了下一次的对文件的写操作需要请求master，此时master便有机会创建chunk的拷贝。</p>
 <p>创建chunk的拷贝是在本地的，因为硬盘的读取速度相比网络要快。</p>
-<h2 id="Master操作"><a href="#Master操作" class="headerlink" title="Master操作"></a>Master操作</h2><h3 id="Namespace管理与锁"><a href="#Namespace管理与锁" class="headerlink" title="Namespace管理与锁"></a>Namespace管理与锁</h3><p>文件的元数据由master管理，所以master需要锁机制来确保正确的串行化。</p>
-<p>所有的master操作在执行钱都需要获取锁，如果需要操作<code>/d1/d2/.../dn/leaf</code>文件，需要对<code>/d1</code>,<code>/d1/d2/</code>, <code>...</code>, <code>/d1/d2/.../dn</code>加read lock，对<code>/d1/d2/.../dn/leaf</code>加上对应的read或write lock。</p>
+<h2 id="master操作">Master操作</h2>
+<h3 id="namespace管理与锁">Namespace管理与锁</h3>
+<p>文件的元数据由master管理，所以master需要锁机制来确保正确的串行化。</p>
+<p>所有的master操作在执行钱都需要获取锁，如果需要操作<code>/d1/d2/.../dn/leaf</code>文件，需要对<code>/d1</code>,<code>/d1/d2/</code>,
+<code>...</code>, <code>/d1/d2/.../dn</code>加read
+lock，对<code>/d1/d2/.../dn/leaf</code>加上对应的read或write lock。</p>
 <p>由此设计的锁机制可以允许对同一目录的不同文件进行同时操作。</p>
 <p>所有的锁只要在需要时才创建，在不需要时被销毁。同时所有的锁都是按照顺序获取以避免死锁。</p>
-<h3 id="Replica管理"><a href="#Replica管理" class="headerlink" title="Replica管理"></a>Replica管理</h3><p>chunk副本的放置为了实现两个目标：最大文件可靠性与最大化带宽利用率。所以单纯的将副本放置在不同的机器上是不够的，我们需要将chunk放置在不同的机架中，这不仅可以避免整个机架的损坏，也可以利用多个机架的带宽和进行文件读。但是在写文件时流量需要流过许多个机架，在Google看来这是个合理的tradeoff。</p>
+<h3 id="replica管理">Replica管理</h3>
+<p>chunk副本的放置为了实现两个目标：最大文件可靠性与最大化带宽利用率。所以单纯的将副本放置在不同的机器上是不够的，我们需要将chunk放置在不同的机架中，这不仅可以避免整个机架的损坏，也可以利用多个机架的带宽和进行文件读。但是在写文件时流量需要流过许多个机架，在Google看来这是个合理的tradeoff。</p>
 <p>当master创建chunk时，对于机器的选择有三个因素：</p>
-<ol>
+<ol type="1">
 <li>将chunk放置在硬盘使用率较低的机器上</li>
 <li>限制每个机器中<em>最近</em>创建chunk的数量，如果一个机器中最近创建了很多chunk，那么接下来将会有很多的写操作</li>
 <li>同时根据上边说的原因，将chunk分布在不同机架中</li>
 </ol>
 <p>当副本的数量少于用户设定的值时，进行副本的重建，需要重建的chunk按照如下顺序：</p>
-<ol>
+<ol type="1">
 <li>距离用户指定数量的差距</li>
 <li>优先为未删除的文件进行重建</li>
 <li>优先为阻塞的client操作进行重建</li>
 </ol>
 <p>master按照优先级对chunk进行重建，master限制重建任务的数量与带宽使用避免对client操作影响。</p>
 <p>最后，master周期性对副本进行浮躁均衡</p>
-<h3 id="垃圾回收"><a href="#垃圾回收" class="headerlink" title="垃圾回收"></a>垃圾回收</h3><p>在文件进行删除后，GFS不会立刻回收空间。对文件和chunk进行lazy垃圾回收。</p>
+<h3 id="垃圾回收">垃圾回收</h3>
+<p>在文件进行删除后，GFS不会立刻回收空间。对文件和chunk进行lazy垃圾回收。</p>
 <p>当文件删除后，master记录log，然后将文件名重命名为隐藏名字并且带有删除时间戳。在master的周期性扫描中会清理超过一定时间的标记为隐藏的文件。在此之前，仍然可以通过重命名来恢复文件。同时在master的扫描中，master能够发现孤儿chunk。在与master的心跳包中，chunkserver会报告其拥有的chunk，master会回复不再需要的chunk。</p>
 <p>这种垃圾回收机制有几点好处：</p>
-<ol>
+<ol type="1">
 <li>在大型分布式系统中简单可靠。chunk的创建在某些chunkserver可能成功了，但是在其他上可能失败了，导致留下了master不知道是否存在的chunk。删除副本的请求可能会丢失，master要记录并且重发。相比之下垃圾回收提供了一种统一的方式来清理无用的副本</li>
 <li>将存储空间回收与日常后台任务合并，可以在master空闲时进行</li>
 <li>删除请求的延迟提供了错误恢复</li>
 </ol>
 <p>同时允许用户手动删除文件</p>
-<h2 id="容错"><a href="#容错" class="headerlink" title="容错"></a>容错</h2><p>设计系统的最大挑战就是组件时常失效。</p>
-<h3 id="高可用性"><a href="#高可用性" class="headerlink" title="高可用性"></a>高可用性</h3><p>在集群中提供<em>影子master</em>，影子master只提供只读操作。影子master可能会相较master延迟一段时间。</p>
-<h3 id="数据完整性"><a href="#数据完整性" class="headerlink" title="数据完整性"></a>数据完整性</h3><p>chunkserver使用校验来检测文件损坏。</p>
+<h2 id="容错">容错</h2>
+<p>设计系统的最大挑战就是组件时常失效。</p>
+<h3 id="高可用性">高可用性</h3>
+<p>在集群中提供<em>影子master</em>，影子master只提供只读操作。影子master可能会相较master延迟一段时间。</p>
+<h3 id="数据完整性">数据完整性</h3>
+<p>chunkserver使用校验来检测文件损坏。</p>
 <p>每一个chunk分为64K的块，每个块计算32bit校验和，保存在log中。</p>
 <p>在读操作时，chunkserver会在返回数据前检查校验和。如果校验失败chunkserver会返回失败，client会去读取另一份副本，同时master对副本进行重建。重建完成后master会通知chunkserver删除掉损坏的副本。</p>
 <p>校验和的计算方式为文件追加进行优化，校验和可以进行增量更新。追加的最后一块在下一次读取时能够检测到损坏。</p>
@@ -388,7 +427,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#GFS的主要需求"><span class="nav-number">1.</span> <span class="nav-text">GFS的主要需求</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GFS的设计"><span class="nav-number">2.</span> <span class="nav-text">GFS的设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#结构"><span class="nav-number">2.1.</span> <span class="nav-text">结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Master"><span class="nav-number">2.2.</span> <span class="nav-text">Master</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#元数据"><span class="nav-number">2.3.</span> <span class="nav-text">元数据</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#log"><span class="nav-number">2.3.1.</span> <span class="nav-text">log</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#一致性模型"><span class="nav-number">2.4.</span> <span class="nav-text">一致性模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#对应用的要求"><span class="nav-number">2.5.</span> <span class="nav-text">对应用的要求</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GFS的操作"><span class="nav-number">3.</span> <span class="nav-text">GFS的操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#租约Lease与文件修改顺序"><span class="nav-number">3.1.</span> <span class="nav-text">租约Lease与文件修改顺序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#写文件流程"><span class="nav-number">3.2.</span> <span class="nav-text">写文件流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数据流"><span class="nav-number">3.3.</span> <span class="nav-text">数据流</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#原子文件追加"><span class="nav-number">3.4.</span> <span class="nav-text">原子文件追加</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#快照"><span class="nav-number">3.5.</span> <span class="nav-text">快照</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Master操作"><span class="nav-number">4.</span> <span class="nav-text">Master操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Namespace管理与锁"><span class="nav-number">4.1.</span> <span class="nav-text">Namespace管理与锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Replica管理"><span class="nav-number">4.2.</span> <span class="nav-text">Replica管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#垃圾回收"><span class="nav-number">4.3.</span> <span class="nav-text">垃圾回收</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#容错"><span class="nav-number">5.</span> <span class="nav-text">容错</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#高可用性"><span class="nav-number">5.1.</span> <span class="nav-text">高可用性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数据完整性"><span class="nav-number">5.2.</span> <span class="nav-text">数据完整性</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#gfs的主要需求"><span class="nav-number">1.</span> <span class="nav-text">GFS的主要需求</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#gfs的设计"><span class="nav-number">2.</span> <span class="nav-text">GFS的设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#结构"><span class="nav-number">2.1.</span> <span class="nav-text">结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#master"><span class="nav-number">2.2.</span> <span class="nav-text">Master</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#元数据"><span class="nav-number">2.3.</span> <span class="nav-text">元数据</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#log"><span class="nav-number">2.3.1.</span> <span class="nav-text">log</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#一致性模型"><span class="nav-number">2.4.</span> <span class="nav-text">一致性模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#对应用的要求"><span class="nav-number">2.5.</span> <span class="nav-text">对应用的要求</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#gfs的操作"><span class="nav-number">3.</span> <span class="nav-text">GFS的操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#租约lease与文件修改顺序"><span class="nav-number">3.1.</span> <span class="nav-text">租约Lease与文件修改顺序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#写文件流程"><span class="nav-number">3.2.</span> <span class="nav-text">写文件流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数据流"><span class="nav-number">3.3.</span> <span class="nav-text">数据流</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#原子文件追加"><span class="nav-number">3.4.</span> <span class="nav-text">原子文件追加</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#快照"><span class="nav-number">3.5.</span> <span class="nav-text">快照</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#master操作"><span class="nav-number">4.</span> <span class="nav-text">Master操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#namespace管理与锁"><span class="nav-number">4.1.</span> <span class="nav-text">Namespace管理与锁</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#replica管理"><span class="nav-number">4.2.</span> <span class="nav-text">Replica管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#垃圾回收"><span class="nav-number">4.3.</span> <span class="nav-text">垃圾回收</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#容错"><span class="nav-number">5.</span> <span class="nav-text">容错</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#高可用性"><span class="nav-number">5.1.</span> <span class="nav-text">高可用性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数据完整性"><span class="nav-number">5.2.</span> <span class="nav-text">数据完整性</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -410,6 +449,7 @@
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
+          
         <span class="site-state-item-count">17</span>
         <span class="site-state-item-name">标签</span></a>
       </div>

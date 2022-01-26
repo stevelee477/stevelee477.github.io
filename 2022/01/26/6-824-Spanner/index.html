@@ -23,13 +23,14 @@
   </script>
 
   <meta name="description" content="Spanner是Google提出的跨全球的数据库，使用了TrueTime的方式解决了2PC Commit的效率低的问题。">
+<meta name="keywords" content="6.824,Distribute System">
 <meta property="og:type" content="article">
 <meta property="og:title" content="6.824-Spanner">
 <meta property="og:url" content="https://blog.lyh.moe/2022/01/26/6-824-Spanner/index.html">
 <meta property="og:site_name" content="Steve&#39;s">
 <meta property="og:description" content="Spanner是Google提出的跨全球的数据库，使用了TrueTime的方式解决了2PC Commit的效率低的问题。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2022-01-26T05:38:07.104Z">
+<meta property="og:updated_time" content="2022-01-26T05:51:01.329Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="6.824-Spanner">
 <meta name="twitter:description" content="Spanner是Google提出的跨全球的数据库，使用了TrueTime的方式解决了2PC Commit的效率低的问题。">
@@ -128,6 +129,11 @@
     <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
 
   </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
         <li class="menu-item menu-item-archives">
 
     <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
@@ -188,7 +194,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2022-01-26 13:34:12 / 修改时间：13:38:07" itemprop="dateCreated datePublished" datetime="2022-01-26T13:34:12+08:00">2022-01-26</time>
+              <time title="创建时间：2022-01-26 13:34:12 / 修改时间：13:51:01" itemprop="dateCreated datePublished" datetime="2022-01-26T13:34:12+08:00">2022-01-26</time>
             </span>
 
           
@@ -209,37 +215,83 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="Intro"><a href="#Intro" class="headerlink" title="Intro"></a>Intro</h1><p>Highest-level: a database that shards data across many sets of Paxos state machines in datacenters spread all over the world</p>
-<p>Spanner has evolved from a Bigtable-like versioned key-value store into a temporal multi-version database.</p>
-<p>Features:</p>
-<ol>
-<li>Replication dynamic controlled by application</li>
-<li>Externally consistent reads and writes(?), globally-consistent reads across the database at a timestamp</li>
-</ol>
-<p>External Consistency(linearizability): if a transaction $T_1$ commits before another transaction $T_2$ starts, then $T_1$ ‘s commit timestamp is smaller than $T_2$ ‘s.</p>
+        <h1 id="intro">Intro</h1>
+<p>Highest-level: a database that shards data across many sets of Paxos
+state machines in datacenters spread all over the world</p>
+<p>Spanner has evolved from a Bigtable-like versioned key-value store
+into a temporal multi-version database.</p>
+<p>Features: 1. Replication dynamic controlled by application 2.
+Externally consistent reads and writes(?), globally-consistent reads
+across the database at a timestamp</p>
+<p>External Consistency(linearizability): if a transaction <span class="math inline">\(T_1\)</span> commits before another transaction
+<span class="math inline">\(T_2\)</span> starts, then <span class="math inline">\(T_1\)</span> 's commit timestamp is smaller than
+<span class="math inline">\(T_2\)</span> 's.</p>
 <p>TrueTime API: directly expose clock uncertainty.</p>
-<h1 id="Implementation"><a href="#Implementation" class="headerlink" title="Implementation"></a>Implementation</h1><p>Spanner is organized as a set of <em>zones</em>. </p>
-<p>每个zone包括一个<code>zonemaster</code>和数百个<code>spanservers</code>，前者将数据分配给spanservers，后者向用户提供数据。<code>location proxies</code>用来给用户提供spanservers的位置。<code>universe master</code>和<code>placement driver</code>目前是单机的。universe master是用来希纳是系统信息和debug的console。placement driver周期性与spanservers通信来找到需要转移的数据。</p>
-<p>如果一个Transaction只包含一个Paxos Group，那么这个Paxos的leader通过lock table就可以处理。如果Transaction包含多个Paxos Group，这些leader需要2-Phase Commit。</p>
-<h2 id="Directory"><a href="#Directory" class="headerlink" title="Directory"></a>Directory</h2><p>Directory是包含相同前缀的key的集合，可以提高局部性。<br>同一个directory的key有着相同的placement config。</p>
-<h1 id="Concurrency-Control"><a href="#Concurrency-Control" class="headerlink" title="Concurrency Control"></a>Concurrency Control</h1><h2 id="Timestamp-Management"><a href="#Timestamp-Management" class="headerlink" title="Timestamp Management"></a>Timestamp Management</h2><h3 id="Read-only"><a href="#Read-only" class="headerlink" title="Read-only"></a>Read-only</h3><ul>
+<h1 id="implementation">Implementation</h1>
+<p>Spanner is organized as a set of <em>zones</em>.</p>
+<p>每个zone包括一个<code>zonemaster</code>和数百个<code>spanservers</code>，前者将数据分配给spanservers，后者向用户提供数据。<code>location
+proxies</code>用来给用户提供spanservers的位置。<code>universe
+master</code>和<code>placement driver</code>目前是单机的。universe
+master是用来希纳是系统信息和debug的console。placement
+driver周期性与spanservers通信来找到需要转移的数据。</p>
+<p>如果一个Transaction只包含一个Paxos
+Group，那么这个Paxos的leader通过lock
+table就可以处理。如果Transaction包含多个Paxos
+Group，这些leader需要2-Phase Commit。</p>
+<h2 id="directory">Directory</h2>
+<p>Directory是包含相同前缀的key的集合，可以提高局部性。
+同一个directory的key有着相同的placement config。</p>
+<h1 id="concurrency-control">Concurrency Control</h1>
+<h2 id="timestamp-management">Timestamp Management</h2>
+<h3 id="read-only">Read-only</h3>
+<ul>
 <li>read-only transaction: 不需要锁，不会阻塞之后的写</li>
-<li>snapshot read: 过去某一时刻的读取<h3 id="Leader-Lease"><a href="#Leader-Lease" class="headerlink" title="Leader Lease"></a>Leader Lease</h3>leader通过vote获得leader lease。在成功的write之后lease延长。<br><code>leader lease interval</code>从获得多数vote后开始，到lease vote失效截止。<br>Spanner的不变性：<code>leader lease interval</code>的不相交性，同一时刻不能有两个leader。<h3 id="RW-Transaction"><a href="#RW-Transaction" class="headerlink" title="RW Transaction"></a>RW Transaction</h3>RW Transaction需要被赋予一个timestamp。使用2-Phase locking。当在获取所有锁之后，释放锁之前添加timestamp。</li>
+<li>snapshot read: 过去某一时刻的读取 ### Leader Lease
+leader通过vote获得leader lease。在成功的write之后lease延长。
+<code>leader lease interval</code>从获得多数vote后开始，到lease
+vote失效截止。 Spanner的不变性：<code>leader lease
+interval</code>的不相交性，同一时刻不能有两个leader。 ### RW Transaction
+RW Transaction需要被赋予一个timestamp。使用2-Phase
+locking。当在获取所有锁之后，释放锁之前添加timestamp。</li>
 </ul>
-<p>在每个Paxos Group中，Spanner赋予Paxos write单调增加的timestamp（即使是多个leader的情况）：单个leader是容易实现的，多个leader之间由于leader interval的不相交，timestamp必须在自己的leader lease中赋予时间戳。</p>
-<p>Spanner遵守外部一致性：如果$T<em>2$的到达时间大于$T_1$的提交时间，则$T_2$的commit timestamp大于$T_1$的commit timestamp。Spanner保证了$t</em>{abs}(e<em>{1}^{commit}) \lt t</em>{abs}(e_{2}^{start}) \implies s_1 \lt s_2$。</p>
-<h3 id="Serving-Reads"><a href="#Serving-Reads" class="headerlink" title="Serving Reads"></a>Serving Reads</h3><p>每一个副本跟踪$t<em>{safe}$，代表着当前副本中最大的timestamp，即当前副本可以满足$t \le t</em>{safe}$的读取。</p>
-<p>$t<em>{safe}=min(t</em>{safe}^{Paxos}, t_{safe}^{TM})$</p>
-<p>其中，$t<em>{safe}^{Paxos}$是最后一次Paxos write的时间戳，因为Paxos保证了不会有小于$t</em>{safe}^{Paxos}$的write。$t<em>{safe}^{TM}$是所有处于prepare的participant的时间戳的最小值-1：因为commit protocol保证了每一个participant知道transaction timestamp的下界，coordinator leader保证了在所有的participant中$s_i \ge s</em>{i,g}^{prepare}$，所以$t<em>{safe}^{TM} = min</em>{i}(s_{i,g}^{prepare}) -1$ 。</p>
-<h3 id="RO-Transaction"><a href="#RO-Transaction" class="headerlink" title="RO Transaction"></a>RO Transaction</h3><p>只读事务分为两步：首先赋予只读事务一个时间戳$s<em>{read}$，之后就可以在（足够新的）副本上执行快照读。<br>最简单的就是$s</em>{read}=TT.now().lastest$，即可保证外部一致性。然而因为$t_{safe}$这样的设定可能会导致阻塞。所以Spanner会选择能够保证外部一致性的最老的时间戳（Section 4.2.2）。</p>
-<h2 id="Details"><a href="#Details" class="headerlink" title="Details"></a>Details</h2><h3 id="Read-Write-Transaction"><a href="#Read-Write-Transaction" class="headerlink" title="Read-Write Transaction"></a>Read-Write Transaction</h3><p>事务中的写入直到commit之前会缓存在客户端中。</p>
+<p>在每个Paxos Group中，Spanner赋予Paxos
+write单调增加的timestamp（即使是多个leader的情况）：单个leader是容易实现的，多个leader之间由于leader
+interval的不相交，timestamp必须在自己的leader lease中赋予时间戳。</p>
+<p>Spanner遵守外部一致性：如果<span class="math inline">\(T_2\)</span>的到达时间大于<span class="math inline">\(T_1\)</span>的提交时间，则<span class="math inline">\(T_2\)</span>的commit timestamp大于<span class="math inline">\(T_1\)</span>的commit timestamp。Spanner保证了<span class="math inline">\(t_{abs}(e_{1}^{commit}) \lt t_{abs}(e_{2}^{start})
+\implies s_1 \lt s_2\)</span>。 ### Serving Reads 每一个副本跟踪<span class="math inline">\(t_{safe}\)</span>，代表着当前副本中最大的timestamp，即当前副本可以满足<span class="math inline">\(t \le t_{safe}\)</span>的读取。</p>
+<p><span class="math inline">\(t_{safe}=min(t_{safe}^{Paxos},
+t_{safe}^{TM})\)</span></p>
+<p>其中，<span class="math inline">\(t_{safe}^{Paxos}\)</span>是最后一次Paxos
+write的时间戳，因为Paxos保证了不会有小于<span class="math inline">\(t_{safe}^{Paxos}\)</span>的write。<span class="math inline">\(t_{safe}^{TM}\)</span>是所有处于prepare的participant的时间戳的最小值-1：因为commit
+protocol保证了每一个participant知道transaction
+timestamp的下界，coordinator leader保证了在所有的participant中<span class="math inline">\(s_i \ge s_{i,g}^{prepare}\)</span>，所以<span class="math inline">\(t_{safe}^{TM} = min_{i}(s_{i,g}^{prepare})
+-1\)</span> 。 ### RO Transaction
+只读事务分为两步：首先赋予只读事务一个时间戳<span class="math inline">\(s_{read}\)</span>，之后就可以在（足够新的）副本上执行快照读。
+最简单的就是<span class="math inline">\(s_{read}=TT.now().lastest\)</span>，即可保证外部一致性。然而因为<span class="math inline">\(t_{safe}\)</span>这样的设定可能会导致阻塞。所以Spanner会选择能够保证外部一致性的最老的时间戳（Section
+4.2.2）。</p>
+<h2 id="details">Details</h2>
+<h3 id="read-write-transaction">Read-Write Transaction</h3>
+<p>事务中的写入直到commit之前会缓存在客户端中。</p>
 <p>Read-Write事务锁使用[[wound-wait]]来解决死锁。客户端将读请求发送给leader来获取最新的数据。</p>
-<p>客户端在执行事务时与相对应的leader保持keepalive连接避免超时。当客户端完成了所有的读取并且完成了写入的缓存后，开始2-Phase Commit。客户端选择Coordinator Group并且将commit信息、coordinator身份与写入信息发送给每个leader，避免了多次传输。</p>
-<p>非coordinator leader首先获取写入锁，选取一个prepare时间戳，这个时间戳需要大于之前所有事务的时间戳（以保证单调性），之后通过paxos记录下prepare record。每一个participant通知coordinator自身的prepare timestamp。</p>
-<p>coordinator leader首先获取写入锁，但是跳过了prepare阶段。commit时间戳需要大于所有的prepare时间戳，大于收到commit时的$TT.now().lastest$，大于之前所有事务的时间戳。之后coordinator通过paxos记录下commit记录。</p>
-<p>在允许其他的coordinator replica（区别于leader）apply之前，leader等待直到$TT.after(s)$来遵守commit-wait规则。因为leader通过$TT.now()$来确定的s，leader等待来确保这个时间戳已经过去，期望等待时间是$2*\epsilon$。等待后，coordinator将commit时间戳发送给client与其他的participant leader。其他的participant leader通过paxos记录下时间戳，在相同的时间戳apply并且释放锁。</p>
-<h3 id="Read-Only-Transaction"><a href="#Read-Only-Transaction" class="headerlink" title="Read-Only Transaction"></a>Read-Only Transaction</h3><p>只读事务读取的key有scope，如果scope只在一个Paxos组中，只需要向leader发送请求即可。leader选择一个$s<em>{read}$并且执行读操作。<br>如果涉及到多个Paxos组，目前Spanner使用的是$s</em>{read}=TT.now().lastest$的方法。</p>
-<h1 id="Reading"><a href="#Reading" class="headerlink" title="Reading"></a>Reading</h1><p><a href="https://zhuanlan.zhihu.com/p/44254954" target="_blank" rel="noopener">简单解释Spanner的TrueTime在分布式事务中的作用 - 阿莱克西斯的文章 - 知乎</a><br><a href="https://zhuanlan.zhihu.com/p/47870235" target="_blank" rel="noopener">Spanner十问 - 知乎 (zhihu.com)</a></p>
+<p>客户端在执行事务时与相对应的leader保持keepalive连接避免超时。当客户端完成了所有的读取并且完成了写入的缓存后，开始2-Phase
+Commit。客户端选择Coordinator
+Group并且将commit信息、coordinator身份与写入信息发送给每个leader，避免了多次传输。</p>
+<p>非coordinator
+leader首先获取写入锁，选取一个prepare时间戳，这个时间戳需要大于之前所有事务的时间戳（以保证单调性），之后通过paxos记录下prepare
+record。每一个participant通知coordinator自身的prepare timestamp。</p>
+<p>coordinator
+leader首先获取写入锁，但是跳过了prepare阶段。commit时间戳需要大于所有的prepare时间戳，大于收到commit时的<span class="math inline">\(TT.now().lastest\)</span>，大于之前所有事务的时间戳。之后coordinator通过paxos记录下commit记录。</p>
+<p>在允许其他的coordinator
+replica（区别于leader）apply之前，leader等待直到<span class="math inline">\(TT.after(s)\)</span>来遵守commit-wait规则。因为leader通过<span class="math inline">\(TT.now()\)</span>来确定的s，leader等待来确保这个时间戳已经过去，期望等待时间是<span class="math inline">\(2*\epsilon\)</span>。等待后，coordinator将commit时间戳发送给client与其他的participant
+leader。其他的participant
+leader通过paxos记录下时间戳，在相同的时间戳apply并且释放锁。</p>
+<h3 id="read-only-transaction">Read-Only Transaction</h3>
+<p>只读事务读取的key有scope，如果scope只在一个Paxos组中，只需要向leader发送请求即可。leader选择一个<span class="math inline">\(s_{read}\)</span>并且执行读操作。
+如果涉及到多个Paxos组，目前Spanner使用的是<span class="math inline">\(s_{read}=TT.now().lastest\)</span>的方法。</p>
+<h1 id="reading">Reading</h1>
+<p><a href="https://zhuanlan.zhihu.com/p/44254954" target="_blank" rel="noopener">简单解释Spanner的TrueTime在分布式事务中的作用
+- 阿莱克西斯的文章 - 知乎</a> <a href="https://zhuanlan.zhihu.com/p/47870235" target="_blank" rel="noopener">Spanner十问 - 知乎
+(zhihu.com)</a></p>
     </div>
 
     
@@ -247,6 +299,10 @@
     
 
       <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/6-824/" rel="tag"># 6.824</a>
+              <a href="/tags/Distribute-System/" rel="tag"># Distribute System</a>
+          </div>
 
         
 
@@ -316,7 +372,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Intro"><span class="nav-number">1.</span> <span class="nav-text">Intro</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Implementation"><span class="nav-number">2.</span> <span class="nav-text">Implementation</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Directory"><span class="nav-number">2.1.</span> <span class="nav-text">Directory</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Concurrency-Control"><span class="nav-number">3.</span> <span class="nav-text">Concurrency Control</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Timestamp-Management"><span class="nav-number">3.1.</span> <span class="nav-text">Timestamp Management</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Read-only"><span class="nav-number">3.1.1.</span> <span class="nav-text">Read-only</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Leader-Lease"><span class="nav-number">3.1.2.</span> <span class="nav-text">Leader Lease</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RW-Transaction"><span class="nav-number">3.1.3.</span> <span class="nav-text">RW Transaction</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Serving-Reads"><span class="nav-number">3.1.4.</span> <span class="nav-text">Serving Reads</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RO-Transaction"><span class="nav-number">3.1.5.</span> <span class="nav-text">RO Transaction</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Details"><span class="nav-number">3.2.</span> <span class="nav-text">Details</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Read-Write-Transaction"><span class="nav-number">3.2.1.</span> <span class="nav-text">Read-Write Transaction</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Read-Only-Transaction"><span class="nav-number">3.2.2.</span> <span class="nav-text">Read-Only Transaction</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Reading"><span class="nav-number">4.</span> <span class="nav-text">Reading</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#intro"><span class="nav-number">1.</span> <span class="nav-text">Intro</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#implementation"><span class="nav-number">2.</span> <span class="nav-text">Implementation</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#directory"><span class="nav-number">2.1.</span> <span class="nav-text">Directory</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#concurrency-control"><span class="nav-number">3.</span> <span class="nav-text">Concurrency Control</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#timestamp-management"><span class="nav-number">3.1.</span> <span class="nav-text">Timestamp Management</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#read-only"><span class="nav-number">3.1.1.</span> <span class="nav-text">Read-only</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#details"><span class="nav-number">3.2.</span> <span class="nav-text">Details</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#read-write-transaction"><span class="nav-number">3.2.1.</span> <span class="nav-text">Read-Write Transaction</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#read-only-transaction"><span class="nav-number">3.2.2.</span> <span class="nav-text">Read-Only Transaction</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#reading"><span class="nav-number">4.</span> <span class="nav-text">Reading</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -338,6 +394,7 @@
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
+          
         <span class="site-state-item-count">17</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
@@ -420,7 +477,7 @@
   <script src="/lib/velocity/velocity.ui.min.js"></script>
 <script src="/js/utils.js"></script><script src="/js/motion.js"></script>
 <script src="/js/schemes/pisces.js"></script>
-<script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+<script src="/js/next-boot.js"></script>
 
 
 
@@ -443,6 +500,59 @@
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+    
 
   
 

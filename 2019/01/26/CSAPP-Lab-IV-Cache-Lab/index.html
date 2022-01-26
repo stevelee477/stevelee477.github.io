@@ -129,6 +129,11 @@
     <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
 
   </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
         <li class="menu-item menu-item-archives">
 
     <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
@@ -216,25 +221,38 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="Part-A-缓存模拟"><a href="#Part-A-缓存模拟" class="headerlink" title="Part A: 缓存模拟"></a>Part A: 缓存模拟</h2><p>第一个任务是要模拟缓存，首先用一个结构体定义缓存的结构</p>
-<h3 id="缓存结构"><a href="#缓存结构" class="headerlink" title="缓存结构"></a>缓存结构</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="keyword">bool</span> vaild;</span><br><span class="line">    <span class="keyword">uint64_t</span> tag;</span><br><span class="line">    <span class="keyword">uint64_t</span> time_counter;</span><br><span class="line">&#125;line;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> line *entry_of_lines;</span><br><span class="line"><span class="keyword">typedef</span> entry_of_lines *entry_of_sets;</span><br></pre></td></tr></table></figure>
-<h3 id="处理输入"><a href="#处理输入" class="headerlink" title="处理输入"></a>处理输入</h3><p>我们需要在 <code>main</code> 函数中处理输入的指令，这里需要用到 <code>getopt()</code> 函数， getopt 的使用方法<a href="http://www.gnu.org/software/libc/manual/html_node/Example-of-Getopt.html#Example-of-Getopt" target="_blank" rel="noopener">在这里</a></p>
-<p>我们要为 <code>cache</code> 申请内存空间，这里使用 <code>calloc</code> 而不是 <code>malloc</code>，两者的区别在<a href="https://www.geeksforgeeks.org/calloc-versus-malloc/" target="_blank" rel="noopener">这里</a></p>
+        <h2 id="part-a-缓存模拟">Part A: 缓存模拟</h2>
+<p>第一个任务是要模拟缓存，首先用一个结构体定义缓存的结构</p>
+<h3 id="缓存结构">缓存结构</h3>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="keyword">bool</span> vaild;</span><br><span class="line">    <span class="keyword">uint64_t</span> tag;</span><br><span class="line">    <span class="keyword">uint64_t</span> time_counter;</span><br><span class="line">&#125;line;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> line *entry_of_lines;</span><br><span class="line"><span class="keyword">typedef</span> entry_of_lines *entry_of_sets;</span><br></pre></td></tr></table></figure>
+<h3 id="处理输入">处理输入</h3>
+<p>我们需要在 <code>main</code> 函数中处理输入的指令，这里需要用到
+<code>getopt()</code> 函数， getopt 的使用方法<a href="http://www.gnu.org/software/libc/manual/html_node/Example-of-Getopt.html#Example-of-Getopt" target="_blank" rel="noopener">在这里</a></p>
+<p>我们要为 <code>cache</code> 申请内存空间，这里使用
+<code>calloc</code> 而不是 <code>malloc</code>，两者的区别在<a href="https://www.geeksforgeeks.org/calloc-versus-malloc/" target="_blank" rel="noopener">这里</a></p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">entry_of_sets <span class="title">InitializeCache</span> <span class="params">(<span class="keyword">uint64_t</span> S, <span class="keyword">uint64_t</span> E)</span> </span>&#123;</span><br><span class="line">    entry_of_sets cache;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ((cache = <span class="built_in">calloc</span>(S, <span class="keyword">sizeof</span>(entry_of_lines))) == <span class="literal">NULL</span>) &#123;</span><br><span class="line">        perror(<span class="string">"Failed to calloc entry_of_sets"</span>);</span><br><span class="line">        <span class="built_in">exit</span>(EXIT_FAILURE);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; S; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span> ((cache[i] = <span class="built_in">calloc</span>(E, <span class="keyword">sizeof</span>(line))) == <span class="literal">NULL</span>) &#123;</span><br><span class="line">            perror(<span class="string">"Failed to calloc line in sets"</span>);</span><br><span class="line">            <span class="built_in">exit</span>(EXIT_FAILURE);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> cache;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>首先根据 S 申请一个数组，数组的元素是指向 lines 的指针，然后循环 S 次，每次申请 E 个 line</p>
+<p>首先根据 S 申请一个数组，数组的元素是指向 lines 的指针，然后循环 S
+次，每次申请 E 个 line</p>
 <p>既然申请了内存就要记得释放</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">ReleaseMemory</span> <span class="params">(entry_of_sets cache, <span class="keyword">uint64_t</span> S, <span class="keyword">uint64_t</span> E)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">uint64_t</span> i = <span class="number">0</span>; i &lt; S; i++) &#123;</span><br><span class="line">        <span class="built_in">free</span>(cache[i]);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">free</span>(cache);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="模拟缓存"><a href="#模拟缓存" class="headerlink" title="模拟缓存"></a>模拟缓存</h3><p>主要的工作是处理 tracefile 中的三个指令， <em>L</em> <em>S</em> <em>M</em>，分别对应着读取、写入、读取后写入</p>
-<p>不过首先应该获得到 <strong>line</strong> <strong>tag</strong> <strong>block</strong> </p>
-<ol>
+<h3 id="模拟缓存">模拟缓存</h3>
+<p>主要的工作是处理 tracefile 中的三个指令， <em>L</em> <em>S</em>
+<em>M</em>，分别对应着读取、写入、读取后写入</p>
+<p>不过首先应该获得到 <strong>line</strong> <strong>tag</strong>
+<strong>block</strong></p>
+<ol type="1">
 <li><strong>line</strong> 的获取方式使用了<a href="https://en.wikipedia.org/wiki/Mask_(computing)" target="_blank" rel="noopener">演码</a></li>
-<li><strong>tag</strong> 和 <strong>block</strong> 只需要位操作就可以了</li>
+<li><strong>tag</strong> 和 <strong>block</strong>
+只需要位操作就可以了</li>
 </ol>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">uint64_t</span> set_index_mask = (<span class="number">1</span> &lt;&lt; s) - <span class="number">1</span>;</span><br><span class="line"><span class="keyword">uint64_t</span> set_index = (address &gt;&gt; b) &amp; set_index_mask;</span><br><span class="line"><span class="keyword">uint64_t</span> tag = (address &gt;&gt; b) &gt;&gt; s;</span><br></pre></td></tr></table></figure>
-<p>然后就可以计算 hit 和 miss 了<br>但是当我们遇到 miss 的时候，应该更新缓存，这里使用的是 <a href="https://en.wikipedia.org/wiki/Cache_replacement_policies#Least_recently_used_(LRU)" target="_blank" rel="noopener">LRU</a>，就是遇到 miss 时，更改时间戳最久远的 cache 中的内容</p>
+<p>然后就可以计算 hit 和 miss 了 但是当我们遇到 miss
+的时候，应该更新缓存，这里使用的是 <a href="https://en.wikipedia.org/wiki/Cache_replacement_policies#Least_recently_used_(LRU)" target="_blank" rel="noopener">LRU</a>，就是遇到
+miss 时，更改时间戳最久远的 cache 中的内容</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (!hit_flag) &#123;</span><br><span class="line">    <span class="keyword">if</span> (verbose) <span class="built_in">printf</span>(<span class="string">"miss"</span>);</span><br><span class="line">    Result.miss++;</span><br><span class="line">    <span class="keyword">uint64_t</span> i;</span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; E; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (search_line[i].time_counter &lt; oldest_time) &#123;</span><br><span class="line">            oldest_time = search_line[i].time_counter;</span><br><span class="line">            oldest_block = i;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (search_line[i].time_counter &gt; youngest_time) &#123;</span><br><span class="line">            youngest_time = search_line[i].time_counter;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    search_line[oldest_block].time_counter = youngest_time + <span class="number">1</span>;</span><br><span class="line">    search_line[oldest_block].tag = tag;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (search_line[oldest_block].vaild) &#123;</span><br><span class="line">        <span class="keyword">if</span> (verbose) <span class="built_in">printf</span>(<span class="string">"and eviction\n"</span>);</span><br><span class="line">        Result.eviction++;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (verbose) <span class="built_in">printf</span>(<span class="string">"\n"</span>);</span><br><span class="line">        search_line[oldest_block].vaild = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>原始代码在<a href="https://gist.github.com/stevelee477/2c91dccedcfee65e17183be9c4e761f9" target="_blank" rel="noopener">这里</a></p>
-<h2 id="Part-B-矩阵转制优化"><a href="#Part-B-矩阵转制优化" class="headerlink" title="Part B:矩阵转制优化"></a>Part B:矩阵转制优化</h2><p>使用 <strong>Blocking</strong> 的方法，提高 Cache 命中率</p>
+<h2 id="part-b矩阵转制优化">Part B:矩阵转制优化</h2>
+<p>使用 <strong>Blocking</strong> 的方法，提高 Cache 命中率</p>
 <p>直接上代码<a href="https://gist.github.com/stevelee477/3701a846de25a7ec7112162c7ccb3e8b" target="_blank" rel="noopener">在这</a></p>
     </div>
 
@@ -319,7 +337,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Part-A-缓存模拟"><span class="nav-number">1.</span> <span class="nav-text">Part A: 缓存模拟</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#缓存结构"><span class="nav-number">1.1.</span> <span class="nav-text">缓存结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#处理输入"><span class="nav-number">1.2.</span> <span class="nav-text">处理输入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#模拟缓存"><span class="nav-number">1.3.</span> <span class="nav-text">模拟缓存</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Part-B-矩阵转制优化"><span class="nav-number">2.</span> <span class="nav-text">Part B:矩阵转制优化</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#part-a-缓存模拟"><span class="nav-number">1.</span> <span class="nav-text">Part A: 缓存模拟</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#缓存结构"><span class="nav-number">1.1.</span> <span class="nav-text">缓存结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#处理输入"><span class="nav-number">1.2.</span> <span class="nav-text">处理输入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#模拟缓存"><span class="nav-number">1.3.</span> <span class="nav-text">模拟缓存</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#part-b矩阵转制优化"><span class="nav-number">2.</span> <span class="nav-text">Part B:矩阵转制优化</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -341,6 +359,7 @@
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
+          
         <span class="site-state-item-count">17</span>
         <span class="site-state-item-name">标签</span></a>
       </div>

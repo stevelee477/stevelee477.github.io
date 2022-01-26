@@ -131,6 +131,11 @@
     <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
 
   </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
         <li class="menu-item menu-item-archives">
 
     <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
@@ -218,30 +223,34 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="Equivalence-of-PDAs-and-CFGs"><a href="#Equivalence-of-PDAs-and-CFGs" class="headerlink" title="Equivalence of PDAs and CFGs"></a>Equivalence of PDAs and CFGs</h1><ul>
+        <h1 id="equivalence-of-pdas-and-cfgs">Equivalence of PDAs and CFGs</h1>
+<ul>
 <li>使用 PDA 可以更为容易的发现 regular language 的性质</li>
 <li>使用 PDA 来描述 language 更为简单，例如之前提到的合法括号序列</li>
 </ul>
-<h2 id="CFG-to-PDA"><a href="#CFG-to-PDA" class="headerlink" title="CFG to PDA"></a>CFG to PDA</h2><p>从L = L(G) 开始，由此来构建 N(P) = L，使得接受时为空栈<br>P有:</p>
-<ul>
-<li>一个状态 q</li>
-<li>输入的 symbols 是 G 的 terminal</li>
-<li>栈中的 symbols 是 G 的所有 symbols 和 variables</li>
-<li>P 和 G 的开始状态相同</li>
-</ul>
-<p>转换规则如下:</p>
-<ol>
-<li>对于 A =&gt; a， 有(q, $\epsilon$, A) $\mapsto$ (q, a), 即将 a 压入栈中</li>
-<li>对于 symbol <code>a</code> 有(q, a, a) $\mapsto$ (q, $\epsilon$), 即将栈顶的 a 弹出</li>
+<h2 id="cfg-to-pda">CFG to PDA</h2>
+<p>从L = L(G) 开始，由此来构建 N(P) = L，使得接受时为空栈 P有: -
+一个状态 q - 输入的 symbols 是 G 的 terminal - 栈中的 symbols 是 G
+的所有 symbols 和 variables - P 和 G 的开始状态相同</p>
+<p>转换规则如下: 1. 对于 A =&gt; a， 有(q, <span class="math inline">\(\epsilon\)</span>, A) <span class="math inline">\(\mapsto\)</span> (q, a), 即将 a 压入栈中 2. 对于
+symbol <code>a</code> 有(q, a, a) <span class="math inline">\(\mapsto\)</span> (q, <span class="math inline">\(\epsilon\)</span>), 即将栈顶的 a 弹出</p>
+<h2 id="pda-to-cfg">PDA to CFG</h2>
+<p>构建 G 使得 G 与 P 等价，G 的 variable 都是形如[pXq], 指弹出栈顶
+symbol X，会使得状态 p 转换为状态 q，这同时也说明了栈不会到 X
+以下，如图</p>
+<p><img src="/2019/03/23/Automata-Week-4-笔记/1.png"></p>
+<ol type="1">
+<li>如果 δ(p, a, X) 包含 (q, ε)，则 [pXq] -&gt; a,，因为只有读取到 a
+才能从 p 到 q 且弹出 X</li>
+<li>如果 δ(p, a, X) 包含 (r, Y)，则 [pXq] -&gt; a[rYq]，现在的问题已经从
+p 到 q 转化为从 r 到 q，且弹出栈顶元素 Y</li>
 </ol>
-<h2 id="PDA-to-CFG"><a href="#PDA-to-CFG" class="headerlink" title="PDA to CFG"></a>PDA to CFG</h2><p>构建 G 使得 G 与 P 等价，G 的 variable 都是形如[pXq], 指弹出栈顶 symbol X，会使得状态 p 转换为状态 q，这同时也说明了栈不会到 X 以下，如图</p>
-<p><img src="/2019/03/23/Automata-Week-4-笔记/1.png" alt=""></p>
-<ol>
-<li>如果 δ(p, a, X) 包含 (q, ε)，则 [pXq] -&gt; a,，因为只有读取到 a 才能从 p 到 q 且弹出 X</li>
-<li>如果 δ(p, a, X) 包含 (r, Y)，则 [pXq] -&gt; a[rYq]，现在的问题已经从 p 到 q 转化为从 r 到 q，且弹出栈顶元素 Y</li>
-</ol>
-<p>根据上边两条，我们可以把 δ(p, a, X) 包含 (r, Y1,…Yk)，转化为 [pXq] -&gt; a[rY1s1][s1Y2s2]…[sk-2Yk-1sk-1][sk-1Ykq]</p>
-<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="http://www.cs.nuim.ie/~jpower/Courses/Previous/parsing/node35.html" target="_blank" rel="noopener">Converting a CFG to a PDA</a><br><a href="https://appsrv.cse.cuhk.edu.hk/~siuon/csci3130-f18/" target="_blank" rel="noopener">CSCI3130: Formal Languages and Automata Theory</a></p>
+<p>根据上边两条，我们可以把 δ(p, a, X) 包含 (r, Y1,…Yk)，转化为 [pXq]
+-&gt; a[rY1s1][s1Y2s2]…[sk-2Yk-1sk-1][sk-1Ykq]</p>
+<h1 id="参考">参考</h1>
+<p><a href="http://www.cs.nuim.ie/~jpower/Courses/Previous/parsing/node35.html" target="_blank" rel="noopener">Converting
+a CFG to a PDA</a> <a href="https://appsrv.cse.cuhk.edu.hk/~siuon/csci3130-f18/" target="_blank" rel="noopener">CSCI3130:
+Formal Languages and Automata Theory</a></p>
     </div>
 
     
@@ -326,7 +335,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Equivalence-of-PDAs-and-CFGs"><span class="nav-number">1.</span> <span class="nav-text">Equivalence of PDAs and CFGs</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#CFG-to-PDA"><span class="nav-number">1.1.</span> <span class="nav-text">CFG to PDA</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PDA-to-CFG"><span class="nav-number">1.2.</span> <span class="nav-text">PDA to CFG</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">2.</span> <span class="nav-text">参考</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#equivalence-of-pdas-and-cfgs"><span class="nav-number">1.</span> <span class="nav-text">Equivalence of PDAs and CFGs</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#cfg-to-pda"><span class="nav-number">1.1.</span> <span class="nav-text">CFG to PDA</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#pda-to-cfg"><span class="nav-number">1.2.</span> <span class="nav-text">PDA to CFG</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">2.</span> <span class="nav-text">参考</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -348,6 +357,7 @@
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
+          
         <span class="site-state-item-count">17</span>
         <span class="site-state-item-name">标签</span></a>
       </div>

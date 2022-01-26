@@ -23,7 +23,7 @@
   </script>
 
   <meta name="description" content="这是Raft最后一个Lab，主要是Persisitent和一些可靠性测试">
-<meta name="keywords" content="6.824,Distribute System,Raft">
+<meta name="keywords" content="6.824,Raft,Distribute System">
 <meta property="og:type" content="article">
 <meta property="og:title" content="6.824 Lab2C: Raft Persistent &amp; more">
 <meta property="og:url" content="https://blog.lyh.moe/2021/01/24/6-824-Lab2C-Raft-Persistent-more/index.html">
@@ -131,6 +131,11 @@
     <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
 
   </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
         <li class="menu-item menu-item-archives">
 
     <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
@@ -218,31 +223,40 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><ul>
+        <h2 id="测试">测试</h2>
+<ul>
 <li>TestPersist12C：测试持久化</li>
 <li>TestPersist22C：更多的持久化</li>
 <li>TestPersist32C：处理Leader分区及Follower重启</li>
 <li>TestFigure82C：处理论文中Figure8的场景，（只能commit当前term的log）</li>
 <li>TestUnreliableAgree2C：在不可靠网络环境下的共识</li>
 <li>TestFigure8Unreliable2C：在不可靠环境下的Figure8情况</li>
-<li>TestReliableChurn2C：这个应该是…乱搅？</li>
+<li>TestReliableChurn2C：这个应该是...乱搅？</li>
 <li>TestUnreliableChurn2C</li>
 </ul>
-<h2 id="测试脚本"><a href="#测试脚本" class="headerlink" title="测试脚本"></a>测试脚本</h2><p>因为很多问题只有在多次的运行中才会出现，所以这里有一个测试脚本可以快速的进行数次测试</p>
+<h2 id="测试脚本">测试脚本</h2>
+<p>因为很多问题只有在多次的运行中才会出现，所以这里有一个测试脚本可以快速的进行数次测试</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"></span><br><span class="line">rm -rf res</span><br><span class="line">mkdir res</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> ((i = 0; i &lt; 10; i++))</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> ((c = $((i*30)); c &lt; $(( (i+1)*30)); c++))</span><br><span class="line">    <span class="keyword">do</span>                  <span class="comment">#replace job name here</span></span><br><span class="line">         (go <span class="built_in">test</span> -run TestUnreliableChurn2C ) &amp;&gt; ./res/<span class="variable">$c</span> &amp; </span><br><span class="line">    <span class="keyword">done</span></span><br><span class="line">    </span><br><span class="line">    sleep 40</span><br><span class="line">    </span><br><span class="line">    grep -nr <span class="string">"FAIL.*raft.*"</span> res</span><br><span class="line"></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
-<h2 id="持久化"><a href="#持久化" class="headerlink" title="持久化"></a>持久化</h2><p>持久化主要是<code>persist</code>与<code>readPresist</code>两个函数，按照示例来实现就可以了</p>
+<h2 id="持久化">持久化</h2>
+<p>持久化主要是<code>persist</code>与<code>readPresist</code>两个函数，按照示例来实现就可以了</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(rf *Raft)</span> <span class="title">persist</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="comment">// Your code here (2C).</span></span><br><span class="line">    <span class="comment">// Example:</span></span><br><span class="line">    w := <span class="built_in">new</span>(bytes.Buffer)</span><br><span class="line">    e := labgob.NewEncoder(w)</span><br><span class="line">    e.Encode(rf.currentTerm)</span><br><span class="line">    e.Encode(rf.votedFor)</span><br><span class="line">    e.Encode(rf.log)</span><br><span class="line">    data := w.Bytes()</span><br><span class="line">    rf.persister.SaveRaftState(data)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(rf *Raft)</span> <span class="title">readPersist</span><span class="params">(data []<span class="keyword">byte</span>)</span></span> &#123;</span><br><span class="line">    <span class="keyword">if</span> data == <span class="literal">nil</span> || <span class="built_in">len</span>(data) &lt; <span class="number">1</span> &#123; <span class="comment">// bootstrap without any state?</span></span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// Your code here (2C).</span></span><br><span class="line">    <span class="comment">// Example:</span></span><br><span class="line">    r := bytes.NewBuffer(data)</span><br><span class="line">    d := labgob.NewDecoder(r)</span><br><span class="line">    <span class="keyword">var</span> currentTerm <span class="keyword">int</span></span><br><span class="line">    <span class="keyword">var</span> votedFor <span class="keyword">int</span></span><br><span class="line">    <span class="keyword">var</span> log []LogEntry</span><br><span class="line">    <span class="keyword">if</span> d.Decode(&amp;currentTerm) != <span class="literal">nil</span> ||</span><br><span class="line">        d.Decode(&amp;votedFor) != <span class="literal">nil</span> ||</span><br><span class="line">        d.Decode(&amp;log) != <span class="literal">nil</span> &#123;</span><br><span class="line">        DPrintf(<span class="string">"read persist error\n"</span>)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        rf.currentTerm = currentTerm</span><br><span class="line">        rf.votedFor = votedFor</span><br><span class="line">        rf.log = log</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>然后记得要在修改了non-volatile状态后调用函数进行持久化</p>
-<h2 id="Unreliable"><a href="#Unreliable" class="headerlink" title="Unreliable"></a>Unreliable</h2><p>首先增加persist相关的代码，通过了前边几个测试</p>
-<p>然后挂在了TestUnreliableAgree2C，再去仔细阅读下Student’s guide</p>
+<h2 id="unreliable">Unreliable</h2>
+<p>首先增加persist相关的代码，通过了前边几个测试</p>
+<p>然后挂在了TestUnreliableAgree2C，再去仔细阅读下Student's guide</p>
 <blockquote>
-<p>Follow Figure 2’s directions as to when you should start an election. In particular, note that if you are a candidate (i.e., you are currently running an election), but the election timer fires, you should start another election. This is important to avoid the system stalling due to delayed or dropped RPCs.</p>
+<p>Follow Figure 2’s directions as to when you should start an election.
+In particular, note that if you are a candidate (i.e., you are currently
+running an election), but the election timer fires, you should start
+another election. This is important to avoid the system stalling due to
+delayed or dropped RPCs.</p>
 </blockquote>
 <p>当electionTimer触发时，应该创建一个goroutine来运行election函数，然后还是不行。。。。</p>
 <p>经过检查log，发现在follower上出现了</p>
 <blockquote>
-<p>[{1 3} {1 301} {1 300} {1 302} {1 303} {1 303} {1 4} {1 401} {1 400} {1 402}]</p>
+<p>[{1 3} {1 301} {1 300} {1 302} {1 303} {1 303} {1 4} {1 401} {1 400}
+{1 402}]</p>
 </blockquote>
 <p>中间303的log重复了</p>
 <p>经过debug发现是这里有问题</p>
@@ -257,25 +271,42 @@
 <p>这里的conflictindex应该是冲突的term第一个log，但是我一开始忘记了break。。。</p>
 <p>然后再仔细读了下，有三种重置electionTimer的情况</p>
 <blockquote>
-<p>a) you get an AppendEntries RPC from the current leader (i.e., if the term in the AppendEntries arguments is outdated, you should not reset your timer);<br>b) you are starting an election; or<br>c) you grant a vote to another peer.</p>
+<ol type="a">
+<li>you get an AppendEntries RPC from the current leader (i.e., if the
+term in the AppendEntries arguments is outdated, you should not reset
+your timer);</li>
+<li>you are starting an election; or</li>
+<li>you grant a vote to another peer.</li>
+</ol>
 </blockquote>
 <p>其中第三条是投票给其他人时应该重置计时器</p>
 <p>还有一点是</p>
 <blockquote>
-<p>Ensure that you follow the second rule in “Rules for Servers” before handling an incoming RPC. The second rule states:<br>If RPC request or response contains term T &gt; currentTerm: set currentTerm = T, convert to follower (§5.1)</p>
+<p>Ensure that you follow the second rule in “Rules for Servers” before
+handling an incoming RPC. The second rule states: If RPC request or
+response contains term T &gt; currentTerm: set currentTerm = T, convert
+to follower (§5.1)</p>
 </blockquote>
 <p>我在Append Entries忘记了stepDown的过程</p>
-<p>然后查看log，发现因为unreliable RPC导致了投票需要很久才能选举出Leader(因为Request Vote的返回丢失，虽然Follower同意投票但是Candidate没有接收到投票导致失败)，所以我增加了重复发送RPC的机制。</p>
-<p>将Request Vote和Append Entries都增加了重复发送机制后(同时要增加处理重复过时RPC的机制)，总算是通过了这个test(1200次零错误)。</p>
-<h2 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h2><p><img src="/2021/01/24/6-824-Lab2C-Raft-Persistent-more/race.png" alt="race"></p>
-<h2 id="后记"><a href="#后记" class="headerlink" title="后记"></a>后记</h2><p>这次Lab也算是踩了不少坑，总结一下</p>
-<ol>
+<p>然后查看log，发现因为unreliable
+RPC导致了投票需要很久才能选举出Leader(因为Request
+Vote的返回丢失，虽然Follower同意投票但是Candidate没有接收到投票导致失败)，所以我增加了重复发送RPC的机制。</p>
+<p>将Request Vote和Append
+Entries都增加了重复发送机制后(同时要增加处理重复过时RPC的机制)，总算是通过了这个test(1200次零错误)。</p>
+<h2 id="结果">结果</h2>
+<figure>
+<img src="/2021/01/24/6-824-Lab2C-Raft-Persistent-more/race.png" alt="race">
+<figcaption aria-hidden="true">race</figcaption>
+</figure>
+<h2 id="后记">后记</h2>
+<p>这次Lab也算是踩了不少坑，总结一下</p>
+<ol type="1">
 <li>一定一定要把Figure2A每一个字仔细读</li>
-<li>记得要看Student’s guide</li>
+<li>记得要看Student's guide</li>
 <li>出现问题打log一个个分析</li>
 <li>使用小黄鸭调试法</li>
 </ol>
-<p>等到以后再来重构下这次的代码吧…</p>
+<p>等到以后再来重构下这次的代码吧...</p>
     </div>
 
     
@@ -285,8 +316,8 @@
       <footer class="post-footer">
           <div class="post-tags">
               <a href="/tags/6-824/" rel="tag"># 6.824</a>
-              <a href="/tags/Distribute-System/" rel="tag"># Distribute System</a>
               <a href="/tags/Raft/" rel="tag"># Raft</a>
+              <a href="/tags/Distribute-System/" rel="tag"># Distribute System</a>
           </div>
 
         
@@ -360,7 +391,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#测试"><span class="nav-number">1.</span> <span class="nav-text">测试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#测试脚本"><span class="nav-number">2.</span> <span class="nav-text">测试脚本</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#持久化"><span class="nav-number">3.</span> <span class="nav-text">持久化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Unreliable"><span class="nav-number">4.</span> <span class="nav-text">Unreliable</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结果"><span class="nav-number">5.</span> <span class="nav-text">结果</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后记"><span class="nav-number">6.</span> <span class="nav-text">后记</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#测试"><span class="nav-number">1.</span> <span class="nav-text">测试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#测试脚本"><span class="nav-number">2.</span> <span class="nav-text">测试脚本</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#持久化"><span class="nav-number">3.</span> <span class="nav-text">持久化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#unreliable"><span class="nav-number">4.</span> <span class="nav-text">Unreliable</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结果"><span class="nav-number">5.</span> <span class="nav-text">结果</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后记"><span class="nav-number">6.</span> <span class="nav-text">后记</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -382,6 +413,7 @@
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
+          
         <span class="site-state-item-count">17</span>
         <span class="site-state-item-name">标签</span></a>
       </div>

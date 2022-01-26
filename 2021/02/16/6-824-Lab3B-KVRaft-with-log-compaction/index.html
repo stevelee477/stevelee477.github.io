@@ -23,7 +23,7 @@
   </script>
 
   <meta name="description" content="在3A中我们实现了分布式的KV服务，但是有一个问题：如果执行的Put/Append操作过多，那么Raft的log会非常长，会占用大量的内存，并且当节点从错误中恢复时需要传输大量的数据。 注意到事实上log没有必要全部保存，我们只需要定期的保存整个数据库中的数据即可（aka快照），这一次的实验就是要实现KVRaft的快照功能">
-<meta name="keywords" content="6.824,Distribute System,Raft">
+<meta name="keywords" content="6.824,Raft,Distribute System">
 <meta property="og:type" content="article">
 <meta property="og:title" content="6.824 Lab3B: KVRaft with log compaction">
 <meta property="og:url" content="https://blog.lyh.moe/2021/02/16/6-824-Lab3B-KVRaft-with-log-compaction/index.html">
@@ -131,6 +131,11 @@
     <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
 
   </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
         <li class="menu-item menu-item-archives">
 
     <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
@@ -218,27 +223,36 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="什么时候做快照"><a href="#什么时候做快照" class="headerlink" title="什么时候做快照"></a>什么时候做快照</h2><p>当persister.RaftStateSize()大于maxraftstate时需要打快照，快照由几部分组成：</p>
-<ol>
+        <h2 id="什么时候做快照">什么时候做快照</h2>
+<p>当persister.RaftStateSize()大于maxraftstate时需要打快照，快照由几部分组成：</p>
+<ol type="1">
 <li>KVServer产生快照数据传送给Raft</li>
 <li>Raft记录快照信息</li>
-<li>当Follower需要从故障中恢复或者AppendEntries需要的Log在LastSnapshotIndex之前时接受InstallSnapshot RPC</li>
+<li>当Follower需要从故障中恢复或者AppendEntries需要的Log在LastSnapshotIndex之前时接受InstallSnapshot
+RPC</li>
 </ol>
-<h2 id="快照会改变什么"><a href="#快照会改变什么" class="headerlink" title="快照会改变什么"></a>快照会改变什么</h2><p>增加了快照后，会改变原来的直接访问Log下标的方式，需要在原来的Index上减去一个LastSnapshotIndex，所以这里需要几个辅助函数</p>
+<h2 id="快照会改变什么">快照会改变什么</h2>
+<p>增加了快照后，会改变原来的直接访问Log下标的方式，需要在原来的Index上减去一个LastSnapshotIndex，所以这里需要几个辅助函数</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(rf *Raft)</span> <span class="title">getLogByIndex</span><span class="params">(logIndex <span class="keyword">int</span>)</span> <span class="title">LogEntry</span></span> &#123;</span><br><span class="line">    idx := logIndex - rf.lastIncludedIndex</span><br><span class="line">    <span class="keyword">return</span> rf.log[idx]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(rf *Raft)</span> <span class="title">getIndex</span><span class="params">(logIndex <span class="keyword">int</span>)</span> <span class="title">int</span></span> &#123;</span><br><span class="line">    idx := logIndex - rf.lastIncludedIndex</span><br><span class="line">    <span class="keyword">return</span> idx</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>然后需要在所有访问Log的地方将直接的下标访问改成通过这两个函数访问</p>
-<h2 id="KVRaft——-gt-Raft"><a href="#KVRaft——-gt-Raft" class="headerlink" title="KVRaft——&gt;Raft"></a>KVRaft——&gt;Raft</h2><p>在KVRaft执行每一个Apply操作后，会检测日志文件的大小，如果超过预设值(maxrfstate)，会向Raft发送创建Snapshot请求</p>
+<h2 id="kvraft----raft">KVRaft----&gt;Raft</h2>
+<p>在KVRaft执行每一个Apply操作后，会检测日志文件的大小，如果超过预设值(maxrfstate)，会向Raft发送创建Snapshot请求</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(kv *KVServer)</span> <span class="title">saveSnapshot</span><span class="params">(appliedId <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">    <span class="keyword">if</span> kv.maxraftstate == <span class="number">-1</span> &#123;</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> kv.persister.RaftStateSize() &gt; kv.maxraftstate*<span class="number">9</span>/<span class="number">10</span> &#123;</span><br><span class="line">        DPrintf(<span class="string">"triggered snapshot"</span>)</span><br><span class="line">        data := kv.encodeSnapshot()</span><br><span class="line">        kv.rf.SaveSnapshot(appliedId, data)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>在Raft接收到Snapshot请求后，需要使用Persister保存当前状态，删除Log</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(rf *Raft)</span> <span class="title">SaveSnapshot</span><span class="params">(appliedId <span class="keyword">int</span>, data []<span class="keyword">byte</span>)</span></span> &#123;</span><br><span class="line">    rf.mu.Lock()</span><br><span class="line">    <span class="keyword">defer</span> rf.mu.Unlock()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> appliedId &lt;= rf.lastIncludedIndex &#123;</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    lastLog := rf.getLogByIndex(appliedId)</span><br><span class="line">    rf.log = rf.log[rf.getIndex(appliedId):]</span><br><span class="line">    rf.lastIncludedIndex = appliedId</span><br><span class="line">    rf.lastIncludedTerm = lastLog.Term</span><br><span class="line">    persistState := rf.getPersistState()</span><br><span class="line">    rf.persister.SaveStateAndSnapshot(persistState, data)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="InstallSnapshot"><a href="#InstallSnapshot" class="headerlink" title="InstallSnapshot"></a>InstallSnapshot</h2><p>在节点重新接入Raft网络后，此时该节点的Log与当前Log相差很多，所以需要发送InstallSnapshot</p>
+<h2 id="installsnapshot">InstallSnapshot</h2>
+<p>在节点重新接入Raft网络后，此时该节点的Log与当前Log相差很多，所以需要发送InstallSnapshot</p>
 <p>在节点接收到InstallSnapshot后，使用Persister保存快照，讲快照请求发送到ApplyCh以通知上层KVRaft</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(rf *Raft)</span> <span class="title">InstallSnapshot</span><span class="params">(args *InstallSnapshotArgs, reply *InstallSnapshotReply)</span></span> &#123;</span><br><span class="line">    DPrintf(<span class="string">"%d get snapshot to %v\n"</span>, rf.me, args.LastIncludedIndex)</span><br><span class="line">    rf.mu.Lock()</span><br><span class="line">    <span class="keyword">defer</span> rf.mu.Unlock()</span><br><span class="line"></span><br><span class="line">    reply.Term = rf.currentTerm</span><br><span class="line">    <span class="keyword">if</span> args.Term &lt; rf.currentTerm &#123;</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> args.Term &gt; rf.currentTerm || rf.role != Folllower &#123;</span><br><span class="line">        rf.stepDown(args.Term)</span><br><span class="line">    &#125;</span><br><span class="line">    rf.resetElectionTimer()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> rf.lastIncludedIndex &gt;= args.LastIncludedIndex &#123;</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    start := args.LastIncludedIndex - rf.lastIncludedIndex</span><br><span class="line">    <span class="keyword">if</span> start &gt;= <span class="built_in">len</span>(rf.log) &#123;</span><br><span class="line">        rf.log = <span class="built_in">make</span>([]LogEntry, <span class="number">1</span>)</span><br><span class="line">        rf.log[<span class="number">0</span>].Term = args.LastIncludedTerm</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        rf.log = rf.log[start:]</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    rf.lastIncludedIndex = args.LastIncludedIndex</span><br><span class="line">    rf.lastIncludedTerm = args.LastIncludedTerm</span><br><span class="line">    rf.persister.SaveStateAndSnapshot(rf.getPersistState(), args.Data)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>上层KVRaft接收到Snapshot请求后，使用Persister读取数据</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> !msg.CommandValid &#123;</span><br><span class="line">    <span class="comment">//是一个Snapshot</span></span><br><span class="line">    kv.mu.Lock()</span><br><span class="line">    kv.readPersist(kv.persister.ReadSnapshot())</span><br><span class="line">    kv.mu.Unlock()</span><br><span class="line">    <span class="keyword">continue</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p>现在的问题是节点之间通信正常下KVRaft执行操作的时间会特别长…</p>
+<h2 id="问题">问题</h2>
+<p>现在的问题是节点之间通信正常下KVRaft执行操作的时间会特别长...</p>
 <p>3B的第二个Test使用了80s才完成，还需要找找实现的问题</p>
-<p><img src="/2021/02/16/6-824-Lab3B-KVRaft-with-log-compaction/result.png" alt="result"></p>
+<figure>
+<img src="/2021/02/16/6-824-Lab3B-KVRaft-with-log-compaction/result.png" alt="result">
+<figcaption aria-hidden="true">result</figcaption>
+</figure>
     </div>
 
     
@@ -248,8 +262,8 @@
       <footer class="post-footer">
           <div class="post-tags">
               <a href="/tags/6-824/" rel="tag"># 6.824</a>
-              <a href="/tags/Distribute-System/" rel="tag"># Distribute System</a>
               <a href="/tags/Raft/" rel="tag"># Raft</a>
+              <a href="/tags/Distribute-System/" rel="tag"># Distribute System</a>
           </div>
 
         
@@ -323,7 +337,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#什么时候做快照"><span class="nav-number">1.</span> <span class="nav-text">什么时候做快照</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#快照会改变什么"><span class="nav-number">2.</span> <span class="nav-text">快照会改变什么</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#KVRaft——-gt-Raft"><span class="nav-number">3.</span> <span class="nav-text">KVRaft——&gt;Raft</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#InstallSnapshot"><span class="nav-number">4.</span> <span class="nav-text">InstallSnapshot</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#问题"><span class="nav-number">5.</span> <span class="nav-text">问题</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#什么时候做快照"><span class="nav-number">1.</span> <span class="nav-text">什么时候做快照</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#快照会改变什么"><span class="nav-number">2.</span> <span class="nav-text">快照会改变什么</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#kvraft----raft"><span class="nav-number">3.</span> <span class="nav-text">KVRaft----&gt;Raft</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#installsnapshot"><span class="nav-number">4.</span> <span class="nav-text">InstallSnapshot</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#问题"><span class="nav-number">5.</span> <span class="nav-text">问题</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -345,6 +359,7 @@
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
+          
         <span class="site-state-item-count">17</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
