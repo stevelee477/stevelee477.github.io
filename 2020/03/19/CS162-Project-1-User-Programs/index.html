@@ -32,7 +32,7 @@
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="https://blog.lyh.moe/2020/03/19/CS162-Project-1-User-Programs/1.png">
 <meta property="og:image" content="https://blog.lyh.moe/2020/03/19/CS162-Project-1-User-Programs/2.png">
-<meta property="og:updated_time" content="2020-03-19T16:27:27.683Z">
+<meta property="og:updated_time" content="2020-03-19T16:27:27.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="CS162 Project 1: User Programs">
 <meta name="twitter:description" content="时隔一年多终于等到了更新，域名还经历过没钱付费。 最近开了新坑，是Berkeley的CS 162: Operating Systems and System Programming，教授讲的还是挺有意思的。">
@@ -246,8 +246,7 @@
 <p>了解了栈空间的样子后，这一部分就很好实现了。</p>
 <p>我们主要在userprog/process.c文件中<code>start_process</code>修改</p>
 <h3 id="文件名修改">文件名修改</h3>
-<p>首先是考虑到诸如<code>ls
--la</code>的情况，这时候<code>ls</code>是我们的程序名，所以应该先把程序名分离出来作为参数传递给<code>load</code>函数来读取ELF。</p>
+<p>首先是考虑到诸如<code>ls -la</code>的情况，这时候<code>ls</code>是我们的程序名，所以应该先把程序名分离出来作为参数传递给<code>load</code>函数来读取ELF。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">char</span> *args[<span class="number">128</span>];</span><br><span class="line"><span class="keyword">size_t</span> argc = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">char</span> *save_ptr;</span><br><span class="line"><span class="keyword">char</span> *token = strtok_r(file_name, <span class="string">" "</span>, &amp;save_ptr);</span><br><span class="line">...</span><br><span class="line">success = load (token, &amp;if_.eip, &amp;if_.esp);</span><br></pre></td></tr></table></figure>
 <h3 id="参数分离">参数分离</h3>
 <p>当成功的读取可执行文件后，接下来就要把每一个参数分离出来，注意要使用<code>strtok_r</code>而不是<code>strtok</code>。</p>
@@ -290,8 +289,7 @@ frame中的esp来访问用户栈。我们可以通过args来访问系统调用�
 <h3 id="添加file_elem">添加file_elem</h3>
 <p>我们需要在userprog/thread.h中对线程结构进行一些修改，把每个线程的文件分开。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">thread</span> &#123;</span></span><br><span class="line">    ...</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list</span> <span class="title">file_list</span>;</span></span><br><span class="line">    <span class="keyword">int</span> fd_count;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">lock</span> <span class="title">file_list_lock</span>;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">file_elem</span> &#123;</span></span><br><span class="line">  <span class="keyword">int</span> fd;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">file</span> *<span class="title">file</span>;</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">list_elem</span> <span class="title">elem</span>;</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p><code>file_elem</code>是一个列表项，记录了一个程序每个打开文件的<code>file
-descriptor</code>和<code>struct *file</code>。</p>
+<p><code>file_elem</code>是一个列表项，记录了一个程序每个打开文件的<code>file descriptor</code>和<code>struct *file</code>。</p>
 <p>同时需要在thread初始化的时候初始化一下<code>file_list</code>和<code>fd_count</code>，在<code>init_thread</code>中</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">void</span></span><br><span class="line">init_thread (struct thread *t, <span class="keyword">const</span> <span class="keyword">char</span> *name, <span class="keyword">int</span> priority)</span><br><span class="line">&#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">//File</span></span><br><span class="line">    list_init(&amp;t-&gt;file_list);</span><br><span class="line">    t-&gt;fd_count = <span class="number">2</span>;</span><br><span class="line">    lock_init(&amp;t-&gt;file_list_lock);</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h3 id="syscall">syscall</h3>
@@ -446,14 +444,14 @@ descriptor</code>和<code>struct *file</code>。</p>
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">21</span>
+          <span class="site-state-item-count">23</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">18</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

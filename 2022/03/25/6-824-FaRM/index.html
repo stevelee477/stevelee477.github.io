@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 3.9.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta http-equiv="Cache-Control" content="no-transform">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.lyh.moe","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="FaRM可以提供强可串行性的分布式事务、高性能、高可用性。关键是设计新的事务、复制与恢复协议以利用RDMA与non-volatile DRAM。">
+<meta name="keywords" content="6.824,Distribute System">
+<meta property="og:type" content="article">
+<meta property="og:title" content="6.824-FaRM">
+<meta property="og:url" content="https://blog.lyh.moe/2022/03/25/6-824-FaRM/index.html">
+<meta property="og:site_name" content="Steve&#39;s">
+<meta property="og:description" content="FaRM可以提供强可串行性的分布式事务、高性能、高可用性。关键是设计新的事务、复制与恢复协议以利用RDMA与non-volatile DRAM。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="https://blog.lyh.moe/2022/03/25/6-824-FaRM/Pasted%20image%2020220213172740.png">
+<meta property="og:updated_time" content="2022-03-25T09:49:16.548Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="6.824-FaRM">
+<meta name="twitter:description" content="FaRM可以提供强可串行性的分布式事务、高性能、高可用性。关键是设计新的事务、复制与恢复协议以利用RDMA与non-volatile DRAM。">
+<meta name="twitter:image" content="https://blog.lyh.moe/2022/03/25/6-824-FaRM/Pasted%20image%2020220213172740.png">
+
+<link rel="canonical" href="https://blog.lyh.moe/2022/03/25/6-824-FaRM/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>6.824-FaRM | Steve's</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-161464241-1"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-161464241-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Steve's</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/stevelee477" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.lyh.moe/2022/03/25/6-824-FaRM/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Steve">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Steve's">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          6.824-FaRM
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2022-03-25 17:48:16 / 修改时间：17:49:16" itemprop="dateCreated datePublished" datetime="2022-03-25T17:48:16+08:00">2022-03-25</time>
+            </span>
+
+          
+            <span id="/2022/03/25/6-824-FaRM/" class="post-meta-item leancloud_visitors" data-flag-title="6.824-FaRM" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="intro">Intro</h1>
+<p>有着高可用性与强可串行性的事务提供了一个单机且不会失效的抽象，按照顺序执行事务。FaRM利用了RDMA与非易失性DRAM。非易失性通过将电池接入DRAM实现，当电源失效时将数据写入SSD。这种趋势消除了存储与网络瓶颈，然而暴露出了CPU瓶颈。FaRM遵循了三种原则来针对CPU瓶颈：减少消息数、使用单侧RDMA读写而不是消息、高效利用并行性。</p>
+<p>FaRM使用了4-Phase Commit Protocol。</p>
+<p>单侧RDMA不需要远程CPU的参与。FaRM事务的执行与验证中使用了单侧RDMA读。Coordinator在将记录写入非易失性WAL时使用单侧RDMA，coordinator将commit记录写入远程副本中。因此不需要前台的CPU参与，CPU在之后的后台任务中可以lazy原地截取log。</p>
+<p>使用单侧RDMA需要新的错误恢复协议。FaRM不能依赖服务器来拒绝租期过期的请求。同时也不能依赖传统的确认参加者拥有所有的事务资源的机制。</p>
+<p>FaRM的错误恢复有效的利用了并行。</p>
+<h1 id="hardware-trend">Hardware Trend</h1>
+<h2 id="nv-dram">NV DRAM</h2>
+<p>分布式UPS，在检测到电源失效时可以将DRAM的内容写入SSD，不仅避免了SSD的同步写入问题，同时保护了SSD的寿命。另一种方式时NVDIMM，然而这种设备是特制的。
+# Architecture FaRM提供给了应用全局寻址空间的抽象。FaRM
+API提供了获取本地或远程对象的透明方法。应用可以在成为coordinator后开始事务。在事务执行阶段可以执行任意逻辑。在结束后，调用FaRM来提交事务。</p>
+<p>FaRM使用乐观并行控制。执行过程的更新在本地缓存，只有在成功的commit后才会被其他的事务可见。Commit与当前的事务冲突时会失败。在事务执行中，FaRM保证了单个对象的读取是原子的，只会读取已经提交的数据，连续的读取会返回相同的数据。然而不保证不同对象的读取是原子的，未提交的事务可能会在执行过程中看到不一致的数据。</p>
+<p>FaRM
+API提供了无锁读取，提供给只读取单个对象的事务。局部性提示，可以将相关的对象放到同一个机器集合中。可以用来优化性能。</p>
+<p><img src="/2022/03/25/6-824-FaRM/Pasted%20image%2020220213172740.png"></p>
+<p>FaRM使用4元组表示了不同的配置。使用ZooKeeper来保存，但是不需要ZooKeeper来做租约与恢复。只在配置更新时调用ZooKeeper。</p>
+<p>FaRM的寻址空间由2G大小的region组成，每一个分为1个主副本与f个备份。每个机器在NVRAM中存储多个region，可以被其他机器通过RDMA访问。Object总是从包含region的主副本中读取，如果在本地使用内存访问，如果在其他机器使用RDMA。每个object有64bit的版本用来并发控制欲复制。从region标识符到副本的映射由CM维护。映射按需的获取，并且与RDMA引用一起缓存。</p>
+<p>通过联系CM来分配新的region。CM赋予region单调增加的标识符并且选择副本。副本的选择平衡了每个机器中的region数量，每个副本在不同的failure
+domain中，同时副本可以在用户指定的与之搭配的副本相同region中。Machine向选择的副本机器发送带有region标识符的prepare
+message。如果所有的副本机器成功分配region，CM向所有的副本发送commit。2P保证了在使用region之前映射有效并且在所有的副本上复制。</p>
+<p>每个machine有环形缓冲区，FIFO。作为消息队列或者事务log使用。每个发送接收者都有保存在接收者的log与消息队列。发送者通过RDMA将记录追加到log中。接收者周期性拉取记录来处理log。</p>
+<h1 id="tx">Tx</h1>
+<p>FaRM继承了事务与复制协议来提高性能。相比传统的协议使用更少的消息，并且利用了RDMA读写。FaRM在主从副本上使用NVRAM保存数据与事务log，使用未复制的coordinator直接与primary和backup通信。使用乐观并发控制与读检验。</p>
+<p>在执行阶段，使用RDMA读取object并且在本地缓存写入。在coordinator中记录所有访问object的地址与版本。</p>
+<p>在commit阶段， 1.
+Lock：coordinator想所有写入object的primary机器发送lock记录。包含了写入object的新的值、版本和object的所有region的列表。Primary使用Compare-and-Swap来处理记录，并且返回锁是否获取。如果有其他的事务改变或者lock了object，lock会失败。失败后coordinator会向所有primary发送abort。
+2.
+Validate：Coordinator从primary读取进行读检验，如果version出现了改变则取消transaction
+3. Commit
+Backups：Coordinator写入COMMIT-BACKUP到backup的log中，当backup的网卡返回ack后继续，不需要占用backup的CPU
+4. Commit
+Primaries：在所有的COMMIT-BACKUP收到ack后，coordinator向所有的primary写入COMMIT-PRIMARY，当收到任何一个ack后向应用返回成功</p>
+<h2 id="为什么需要validate">为什么需要Validate</h2>
+<p>Validate=单侧RDMA获取Object版本（与lock），如果版本改变或者lock被设置，则失败</p>
+<p>VALIDATE example: x and y initially zero T1: if x == 0: y = 1 T2: if
+y == 0: x = 1 (this is a classic test example for strong consistency)
+T1,T2 yields y=1,x=0 T2,T1 yields x=1,y=0 aborts could leave x=0,y=0 but
+serializability forbids x=1,y=1</p>
+<p>suppose simultaneous: T1: Rx Ly Vx Cy T2: Ry Lx Vy Cx what will
+happen? the LOCKs will both succeed! the VALIDATEs will both fail, since
+lock bits are both set so both will abort -- which is OK</p>
+<p>how about: T1: Rx Ly Vx Cy T2: Ry Lx Vy Cx T1 commits T2 aborts since
+T2's Vy sees T1's lock or higher version but we can't have <em>both</em>
+V's before the other L's so VALIDATE seems correct in this example and
+fast: one-sided VALIDATE read rather than LOCK+COMMIT writes</p>
+<h2 id="正确性">正确性</h2>
+<p>LOCK+VALIDATE保证了事务ACID ## Fault-Tolerant the critical issue: if
+a transaction was interrupted by a failure, and a client could have been
+told a transaction committed, or a committed value could have been read
+by another xaction, then the transaction must be preserved and completed
+during recovery.</p>
+<p>look at Figure 4. a committed write might be revealed as soon the
+first COMMIT-PRIMARY is sent (since primary writes and unlocks). so by
+then, all of the transaction's writes must be on all f+1 replicas of all
+relevant shards. the good news: LOCK and COMMIT-BACKUP achieve this.
+LOCK tells all primaries the new value(s). COMMIT-BACKUP tells all
+backups the new value(s). TC doesn't send COMMIT-PRIMARY until all LOCKs
+and COMMIT-BACKUPS complete. backups may not have processed
+COMMIT-BACKUPs, but in NVRAM logs.</p>
+<p>similarly, TC doesn't return to client until at least one
+COMMIT-PRIMARY is safe in primary log. this means' TC's decision will
+survive f failures of any shard. since there's one shard with a full set
+of COMMIT-BACKUP or COMMIT-PRIMARY. any of which is evidence that the
+primary decided to commit. ## Optimistic two classes of concurrency
+control for transactions: pessimistic: wait for lock on first use of
+object; hold until commit/abort called two-phase locking conflicts cause
+delays optimistic: read objects without locking don't install writes
+until commit commit "validates" to see if other xactions conflicted
+valid: commit the writes invalid: abort called Optimistic Concurrency
+Control (OCC)</p>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/6-824/" rel="tag"># 6.824</a>
+              <a href="/tags/Distribute-System/" rel="tag"># Distribute System</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/03/22/ctFS/" rel="prev" title="ctFS">
+      <i class="fa fa-chevron-left"></i> ctFS
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#intro"><span class="nav-number">1.</span> <span class="nav-text">Intro</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#hardware-trend"><span class="nav-number">2.</span> <span class="nav-text">Hardware Trend</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#nv-dram"><span class="nav-number">2.1.</span> <span class="nav-text">NV DRAM</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#tx"><span class="nav-number">3.</span> <span class="nav-text">Tx</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么需要validate"><span class="nav-number">3.1.</span> <span class="nav-text">为什么需要Validate</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#正确性"><span class="nav-number">3.2.</span> <span class="nav-text">正确性</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Steve"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Steve</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/stevelee477" title="GitHub → https://github.com/stevelee477" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:stevelee477@gmail.com" title="E-Mail → mailto:stevelee477@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2018 – 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Steve</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+<script>
+  (function() {
+    function leancloudSelector(url) {
+      url = encodeURI(url);
+      return document.getElementById(url).querySelector('.leancloud-visitors-count');
+    }
+
+    function addCount(Counter) {
+      var visitors = document.querySelector('.leancloud_visitors');
+      var url = decodeURI(visitors.id);
+      var title = visitors.dataset.flagTitle;
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          if (results.length > 0) {
+            var counter = results[0];
+            leancloudSelector(url).innerText = counter.time + 1;
+            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
+              .catch(error => {
+                console.error('Failed to save visitor count', error);
+              });
+          } else {
+              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
+              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
+            
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    function showTime(Counter) {
+      var visitors = document.querySelectorAll('.leancloud_visitors');
+      var entries = [...visitors].map(element => {
+        return decodeURI(element.id);
+      });
+
+      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
+        .then(response => response.json())
+        .then(({ results }) => {
+          for (let url of entries) {
+            let target = results.find(item => item.url === url);
+            leancloudSelector(url).innerText = target ? target.time : 0;
+          }
+        })
+        .catch(error => {
+          console.error('LeanCloud Counter Error', error);
+        });
+    }
+
+    let { app_id, app_key, server_url } = {"enable":true,"app_id":"8BpwGehRF6AbgFLYGXXNO7X6-gzGzoHsz","app_key":"cVhrNg9TszxDosxaDiCuMvru","server_url":"https://8bpwgehr.lc-cn-n1-shared.com","security":true};
+    function fetchData(api_server) {
+      var Counter = (method, url, data) => {
+        return fetch(`${api_server}/1.1${url}`, {
+          method,
+          headers: {
+            'X-LC-Id'     : app_id,
+            'X-LC-Key'    : app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      if (CONFIG.page.isPost) {
+        if (CONFIG.hostname !== location.hostname) return;
+        addCount(Counter);
+      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
+        showTime(Counter);
+      }
+    }
+
+    let api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
+
+    if (api_server) {
+      fetchData(api_server);
+    } else {
+      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
+        .then(response => response.json())
+        .then(({ api_server }) => {
+          fetchData('https://' + api_server);
+        });
+    }
+  })();
+</script>
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+<script src="/js/schemes/pisces.js"></script>
+<script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

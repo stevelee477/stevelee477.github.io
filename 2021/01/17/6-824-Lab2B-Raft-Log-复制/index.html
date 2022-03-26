@@ -23,14 +23,14 @@
   </script>
 
   <meta name="description" content="这一次的比Lab2A要难一些，并且发现了之前实现的选举的一些问题">
-<meta name="keywords" content="6.824,Raft,Distribute System">
+<meta name="keywords" content="6.824,Distribute System,Raft">
 <meta property="og:type" content="article">
 <meta property="og:title" content="6.824 Lab2B: Raft Log 复制">
 <meta property="og:url" content="https://blog.lyh.moe/2021/01/17/6-824-Lab2B-Raft-Log-复制/index.html">
 <meta property="og:site_name" content="Steve&#39;s">
 <meta property="og:description" content="这一次的比Lab2A要难一些，并且发现了之前实现的选举的一些问题">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2021-01-24T08:38:43.337Z">
+<meta property="og:updated_time" content="2021-01-24T08:38:43.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="6.824 Lab2B: Raft Log 复制">
 <meta name="twitter:description" content="这一次的比Lab2A要难一些，并且发现了之前实现的选举的一些问题">
@@ -244,8 +244,7 @@
 <h2 id="坑">坑</h2>
 <h3 id="testrejoin2b">TestRejoin2B</h3>
 <p>遇到的情况是旧的leader1的index=2的位置是没有commit的log，而应该从新的leader获得正确的index=2的log再进行apply</p>
-<p>经过检查原来是在<code>Append
-Entries</code>时，忘记了设置<strong>lastterm</strong>的比较</p>
+<p>经过检查原来是在<code>Append Entries</code>时，忘记了设置<strong>lastterm</strong>的比较</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">if args.PrevLogIndex &lt;= lastLogIndex &amp;&amp; args.PrevLogTerm != rf.log[args.PrevLogIndex].Term &#123;</span><br><span class="line">        DPrintf(&quot;%v conflict log %v\n&quot;, rf.me, lastLogIndex)</span><br><span class="line">        reply.ConflictIndex = args.PrevLogIndex</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 <h3 id="testbackup2b">TestBackup2B</h3>
 <p>然后在2BBackup挂了，最初以为是<code>Append Entries</code>处理太慢</p>
@@ -310,8 +309,8 @@ term, it should set nextIndex = conflictIndex.</p>
       <footer class="post-footer">
           <div class="post-tags">
               <a href="/tags/6-824/" rel="tag"># 6.824</a>
-              <a href="/tags/Raft/" rel="tag"># Raft</a>
               <a href="/tags/Distribute-System/" rel="tag"># Distribute System</a>
+              <a href="/tags/Raft/" rel="tag"># Raft</a>
           </div>
 
         
@@ -401,14 +400,14 @@ term, it should set nextIndex = conflictIndex.</p>
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">21</span>
+          <span class="site-state-item-count">23</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">18</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>

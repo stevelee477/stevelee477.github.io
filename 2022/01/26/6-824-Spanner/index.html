@@ -30,7 +30,7 @@
 <meta property="og:site_name" content="Steve&#39;s">
 <meta property="og:description" content="Spanner是Google提出的跨全球的数据库，使用了TrueTime的方式解决了2PC Commit的效率低的问题。">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2022-01-26T05:51:01.329Z">
+<meta property="og:updated_time" content="2022-01-26T05:51:01.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="6.824-Spanner">
 <meta name="twitter:description" content="Spanner是Google提出的跨全球的数据库，使用了TrueTime的方式解决了2PC Commit的效率低的问题。">
@@ -236,9 +236,7 @@ across the database at a timestamp</p>
 <p>TrueTime API: directly expose clock uncertainty.</p>
 <h1 id="implementation">Implementation</h1>
 <p>Spanner is organized as a set of <em>zones</em>.</p>
-<p>每个zone包括一个<code>zonemaster</code>和数百个<code>spanservers</code>，前者将数据分配给spanservers，后者向用户提供数据。<code>location
-proxies</code>用来给用户提供spanservers的位置。<code>universe
-master</code>和<code>placement driver</code>目前是单机的。universe
+<p>每个zone包括一个<code>zonemaster</code>和数百个<code>spanservers</code>，前者将数据分配给spanservers，后者向用户提供数据。<code>location proxies</code>用来给用户提供spanservers的位置。<code>universe master</code>和<code>placement driver</code>目前是单机的。universe
 master是用来希纳是系统信息和debug的console。placement
 driver周期性与spanservers通信来找到需要转移的数据。</p>
 <p>如果一个Transaction只包含一个Paxos
@@ -256,9 +254,9 @@ Group，这些leader需要2-Phase Commit。</p>
 <li>snapshot read: 过去某一时刻的读取 ### Leader Lease
 leader通过vote获得leader lease。在成功的write之后lease延长。
 <code>leader lease interval</code>从获得多数vote后开始，到lease
-vote失效截止。 Spanner的不变性：<code>leader lease
-interval</code>的不相交性，同一时刻不能有两个leader。 ### RW Transaction
-RW Transaction需要被赋予一个timestamp。使用2-Phase
+vote失效截止。
+Spanner的不变性：<code>leader lease interval</code>的不相交性，同一时刻不能有两个leader。
+### RW Transaction RW Transaction需要被赋予一个timestamp。使用2-Phase
 locking。当在获取所有锁之后，释放锁之前添加timestamp。</li>
 </ul>
 <p>在每个Paxos Group中，Spanner赋予Paxos
@@ -320,7 +318,10 @@ leader通过paxos记录下时间戳，在相同的时间戳apply并且释放锁�
     <a href="/2022/01/08/6-824-Frangipani/" rel="prev" title="6.824-Frangipani">
       <i class="fa fa-chevron-left"></i> 6.824-Frangipani
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2022/03/22/ctFS/" rel="next" title="ctFS">
+      ctFS <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -395,14 +396,14 @@ leader通过paxos记录下时间戳，在相同的时间戳apply并且释放锁�
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">21</span>
+          <span class="site-state-item-count">23</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">17</span>
+        <span class="site-state-item-count">18</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
