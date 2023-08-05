@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.0.0-rc2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta http-equiv="Cache-Control" content="no-transform">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.lyh.moe","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="深度探索C++对象模型-第四章">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++对象模型 Function Semantics">
+<meta property="og:url" content="https://blog.lyh.moe/posts/25313/index.html">
+<meta property="og:site_name" content="Steve&#39;s">
+<meta property="og:description" content="深度探索C++对象模型-第四章">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-08-05T01:06:54.000Z">
+<meta property="article:modified_time" content="2023-08-05T02:30:02.749Z">
+<meta property="article:author" content="Steve">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="C++对象模型">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://blog.lyh.moe/posts/25313/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>C++对象模型 Function Semantics | Steve's</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-161464241-1"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-161464241-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Steve's</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/stevelee477" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.lyh.moe/posts/25313/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Steve">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Steve's">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          C++对象模型 Function Semantics
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2023-08-05 09:06:54 / 修改时间：10:30:02" itemprop="dateCreated datePublished" datetime="2023-08-05T09:06:54+08:00">2023-08-05</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>7.4k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>7 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>NRO: <a href="https://stackoverflow.com/questions/12953127/what-are-copy-elision-and-return-value-optimization">c++ - What are copy elision and return value optimization? - Stack Overflow</a></p>
+<h2 id="调用方式"><a href="#调用方式" class="headerlink" title="调用方式"></a>调用方式</h2><h3 id="non-static-member-function"><a href="#non-static-member-function" class="headerlink" title="non static member function"></a>non static member function</h3><p>经过编译器对名称mangling，然后进行一些返回值优化，this作为member function的参数</p>
+<h3 id="virtual-member-function"><a href="#virtual-member-function" class="headerlink" title="virtual member function"></a>virtual member function</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ptr-&gt;<span class="built_in">normalize</span>();</span><br><span class="line"><span class="comment">// to</span></span><br><span class="line">(*ptr-&gt;vptr[<span class="number">1</span>])(ptr);</span><br></pre></td></tr></table></figure>
+<p>可以通过显式的调用操作避免virtual</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">register</span> <span class="type">float</span> mag = ptr-&gt;Point3d::<span class="built_in">magnitude</span>();</span><br></pre></td></tr></table></figure>
+
+<h3 id="static-function"><a href="#static-function" class="headerlink" title="static function"></a>static function</h3><p>取一个static function的地址，类型是一个函数指针</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Foo</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="function"><span class="type">static</span> <span class="type">void</span> <span class="title">f</span><span class="params">()</span> </span>&#123; std::cout &lt;&lt; <span class="string">&quot;Foo::f()\n&quot;</span>; &#125;</span><br><span class="line">	<span class="function"><span class="type">void</span> <span class="title">g</span><span class="params">()</span> </span>&#123; std::cout &lt;&lt; <span class="string">&quot;Foo::g()\n&quot;</span>; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="keyword">auto</span> f = &amp;Foo::f; <span class="comment">// void(*)()</span></span><br><span class="line">	<span class="built_in">f</span>();</span><br><span class="line">	<span class="keyword">auto</span> g = &amp;Foo::g; <span class="comment">// void (Foo::*)()</span></span><br><span class="line">	Foo foo;</span><br><span class="line">	(foo.*g)();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="virtual-member-function-1"><a href="#virtual-member-function-1" class="headerlink" title="virtual member function"></a>virtual member function</h2><h3 id="单继承"><a href="#单继承" class="headerlink" title="单继承"></a>单继承</h3><!-- ![](IMG_0259.jpg) -->
+<p>在调用virtual function时</p>
+<ul>
+<li>并不知道ptr所指对象的真正类型，然而经由ptr可以获得该对象的virtual table</li>
+<li>并不知道哪一个z()实例会被调用，但是每个z()实例都放在slot 4中</li>
+</ul>
+<h3 id="多继承"><a href="#多继承" class="headerlink" title="多继承"></a>多继承</h3><p>以Derived继承自Base1和Base2为例：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Base2 *pbase2 = <span class="keyword">new</span> Derived;</span><br><span class="line"></span><br><span class="line"><span class="keyword">delete</span> pbase2; <span class="comment">// invoke derived class&#x27;s destructor</span></span><br></pre></td></tr></table></figure>
+<p>如果是指针offset调整的方式，当调用delete的时候需要将指针调整回来（重新指向Derived对象，因为调用的是Derived虚析构函数）</p>
+<p>解决方法是增加一个thunk，虚表中对应的函数指向，在thunk中调整指针位置，使this重新指向Derived</p>
+<p><a href="http://www.008ct.top/blog/2020/01/03/%E5%8D%95%E7%BB%A7%E6%89%BF%E3%80%81%E5%A4%9A%E7%BB%A7%E6%89%BF%E3%80%81%E8%8F%B1%E5%BD%A2%E7%BB%A7%E6%89%BF%E7%9A%84%E8%99%9A%E5%87%BD%E6%95%B0%E8%A1%A8/">单继承、多继承、菱形继承的虚函数表 | Albert World</a><br><a href="https://stackoverflow.com/questions/2641489/what-is-a-thunk">c++ - What is a ‘thunk’? - Stack Overflow</a></p>
+<p>至于代码：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;memory&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Base1</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">f</span><span class="params">()</span> </span>&#123; std::cout &lt;&lt; <span class="string">&quot;Base1::f()\n&quot;</span>; &#125;</span><br><span class="line">  <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">g</span><span class="params">()</span> </span>&#123; std::cout &lt;&lt; <span class="string">&quot;Base1::g()\n&quot;</span>; &#125;</span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">  <span class="type">int</span> base1_data;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Base2</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">g</span><span class="params">()</span> </span>&#123; std::cout &lt;&lt; <span class="string">&quot;Base2::g()\n&quot;</span>; &#125;</span><br><span class="line">  <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">h</span><span class="params">()</span> </span>&#123; std::cout &lt;&lt; <span class="string">&quot;Base2::h()\n&quot;</span>; &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">  <span class="type">int</span> base2_data;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Derived</span> : <span class="keyword">public</span> Base1, <span class="keyword">public</span> Base2 &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">f</span><span class="params">()</span> </span>&#123; std::cout &lt;&lt; <span class="string">&quot;Derived::f()\n&quot;</span>; &#125;</span><br><span class="line">  <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">g</span><span class="params">()</span> </span>&#123; std::cout &lt;&lt; <span class="string">&quot;Derived::g()\n&quot;</span>; &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  Derived d;</span><br><span class="line">  Base1 *b1 = &amp;d;</span><br><span class="line">  Base2 *b2 = &amp;d; <span class="comment">// 这里将d加上了16</span></span><br><span class="line">  b1-&gt;<span class="built_in">f</span>();</span><br><span class="line">  b1-&gt;<span class="built_in">g</span>();</span><br><span class="line">  b2-&gt;<span class="built_in">g</span>();</span><br><span class="line">  b2-&gt;<span class="built_in">h</span>();</span><br><span class="line">  b1-&gt;Base1::<span class="built_in">f</span>();</span><br><span class="line">  b1-&gt;Base1::<span class="built_in">g</span>();</span><br><span class="line">  b2-&gt;Base2::<span class="built_in">g</span>();</span><br><span class="line">  b2-&gt;Base2::<span class="built_in">h</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这个程序中，先来看下derived的vtable和构造函数</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">vtable for Derived:</span><br><span class="line">        .quad   0</span><br><span class="line">        .quad   typeinfo for Derived</span><br><span class="line">        .quad   Derived::f()</span><br><span class="line">        .quad   Derived::g()</span><br><span class="line">        .quad   -16</span><br><span class="line">        .quad   typeinfo for Derived</span><br><span class="line">        .quad   non-virtual thunk to Derived::g()</span><br><span class="line">        .quad   Base2::h()</span><br><span class="line"></span><br><span class="line">Derived::Derived() [base object constructor]:                        # @Derived::Derived() [base object constructor]</span><br><span class="line">        push    rbp</span><br><span class="line">        mov     rbp, rsp</span><br><span class="line">        sub     rsp, 16</span><br><span class="line">        mov     qword ptr [rbp - 8], rdi</span><br><span class="line">        mov     rdi, qword ptr [rbp - 8]</span><br><span class="line">        mov     qword ptr [rbp - 16], rdi       # 8-byte Spill</span><br><span class="line">        call    Base1::Base1() [base object constructor]</span><br><span class="line">        mov     rdi, qword ptr [rbp - 16]       # 8-byte Reload</span><br><span class="line">        add     rdi, 16</span><br><span class="line">        call    Base2::Base2() [base object constructor]</span><br><span class="line">        mov     rax, qword ptr [rbp - 16]       # 8-byte Reload</span><br><span class="line">        lea     rcx, [rip + vtable for Derived]</span><br><span class="line">        add     rcx, 16</span><br><span class="line">        mov     qword ptr [rax], rcx</span><br><span class="line">        lea     rcx, [rip + vtable for Derived]</span><br><span class="line">        add     rcx, 48</span><br><span class="line">        mov     qword ptr [rax + 16], rcx</span><br><span class="line">        add     rsp, 16</span><br><span class="line">        pop     rbp</span><br><span class="line">        ret</span><br></pre></td></tr></table></figure>
+<p>Derived的对象布局如下，32bytes：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">+------</span><br><span class="line">|0 | vtable+16 // +16后指向函数</span><br><span class="line">|8 | base1_data</span><br><span class="line">|12| padding</span><br><span class="line">+------</span><br><span class="line">|16| vtable+48 // +48后指向Base2的虚函数</span><br><span class="line">|24| base2_data</span><br><span class="line">|28| padding</span><br><span class="line">+------</span><br></pre></td></tr></table></figure>
+<p>vtable中，有个<code>non-virtual thunk to Derived::g()</code>:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">non-virtual thunk to Derived::g():                  # @non-virtual thunk to Derived::g()</span><br><span class="line">        push    rbp</span><br><span class="line">        mov     rbp, rsp</span><br><span class="line">        mov     qword ptr [rbp - 8], rdi</span><br><span class="line">        mov     rdi, qword ptr [rbp - 8]</span><br><span class="line">        add     rdi, -16</span><br><span class="line">        pop     rbp</span><br><span class="line">        jmp     Derived::g()                 # TAILCALL</span><br></pre></td></tr></table></figure>
+<p>可以看到作用是将this指针减去16（Base1的大小），将类型为Base2的指针重新指回去Derived<br>在Derived转换为Base2指针的时候：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">// Base2 *b2 = &amp;d; // 这里将d加上了16</span><br><span class="line">        xor     eax, eax</span><br><span class="line">        lea     rcx, [rbp - 40]</span><br><span class="line">        cmp     rcx, 0</span><br><span class="line">        mov     qword ptr [rbp - 64], rax       # 8-byte Spill</span><br><span class="line">        je      .LBB1_2</span><br><span class="line">        lea     rax, [rbp - 40]</span><br><span class="line">        add     rax, 16</span><br><span class="line">        mov     qword ptr [rbp - 64], rax       # 8-byte Spill</span><br><span class="line">.LBB1_2:</span><br><span class="line">        mov     rax, qword ptr [rbp - 64]       # 8-byte Reload</span><br><span class="line">        mov     qword ptr [rbp - 56], rax</span><br></pre></td></tr></table></figure>
+<p>通过Base2的指针调用的时候，此时this指针已经是加上16的，所以之后调用没有override的<code>Base2::h()</code>的时候不需要任何操作（vtable中最后一项）</p>
+<h3 id="虚继承下的virtual-function"><a href="#虚继承下的virtual-function" class="headerlink" title="虚继承下的virtual function"></a>虚继承下的virtual function</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Point2d</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  <span class="built_in">Point2d</span>(<span class="type">float</span> x = <span class="number">0.0</span>, <span class="type">float</span> y = <span class="number">0.0</span>) : <span class="built_in">x_</span>(x), <span class="built_in">y_</span>(y)&#123;&#125;;</span><br><span class="line">  <span class="keyword">virtual</span> ~<span class="built_in">Point2d</span>()&#123;&#125;;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">mumble</span><span class="params">()</span> </span>&#123;&#125;;</span><br><span class="line">  <span class="function"><span class="keyword">virtual</span> <span class="type">float</span> <span class="title">z</span><span class="params">()</span> </span>&#123;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">protected</span>:</span><br><span class="line">  <span class="type">float</span> x_, y_;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Point3d</span> : <span class="keyword">virtual</span> Point2d &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">  <span class="built_in">Point3d</span>(<span class="type">float</span> x = <span class="number">0.0</span>, <span class="type">float</span> y = <span class="number">0.0</span>, <span class="type">float</span> z = <span class="number">0.0</span>) : <span class="built_in">Point2d</span>(x, y), <span class="built_in">z_</span>(z) &#123;&#125;;</span><br><span class="line">  ~<span class="built_in">Point3d</span>()&#123;&#125;;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="type">float</span> <span class="title">z</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> z_; &#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">protected</span>:</span><br><span class="line">  <span class="type">float</span> z_;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123; </span><br><span class="line">	<span class="function">Point3d <span class="title">p</span><span class="params">(<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>)</span></span>;</span><br><span class="line">	<span class="built_in">sizeof</span>(Point3d); <span class="comment">// == 32</span></span><br><span class="line">	<span class="built_in">sizeof</span>(Point2d); <span class="comment">// == 16</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Point3d的对象布局如下，32bytes：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">+------</span><br><span class="line">|0 | vtable+24 // +24后指向函数</span><br><span class="line">|8 | z</span><br><span class="line">|12| padding</span><br><span class="line">+------</span><br><span class="line">|16| vtable+88 // +88后指向Base2的虚函数</span><br><span class="line">|24| base2_data</span><br><span class="line">|28| padding</span><br><span class="line">+------</span><br></pre></td></tr></table></figure>
+<p>vtable:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">vtable for Point3d:</span><br><span class="line">        .quad   16 # 虚基类offset</span><br><span class="line">        .quad   0</span><br><span class="line">        .quad   typeinfo for Point3d</span><br><span class="line">        .quad   Point3d::~Point3d() [complete object destructor]</span><br><span class="line">        .quad   Point3d::~Point3d() [deleting destructor]</span><br><span class="line">        .quad   Point3d::z()</span><br><span class="line">        .quad   -16</span><br><span class="line">        .quad   0</span><br><span class="line">        .quad   -16</span><br><span class="line">        .quad   -16</span><br><span class="line">        .quad   typeinfo for Point3d</span><br><span class="line">        .quad   virtual thunk to Point3d::~Point3d() [complete object destructor]</span><br><span class="line">        .quad   virtual thunk to Point3d::~Point3d() [deleting destructor]</span><br><span class="line">        .quad   Point2d::mumble()</span><br><span class="line">        .quad   virtual thunk to Point3d::z()</span><br></pre></td></tr></table></figure>
+<p>然后当我们访问虚基类的member时候：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">// p.x_</span><br><span class="line">        mov     rax, qword ptr [rbp - 40]</span><br><span class="line">        mov     rax, qword ptr [rax - 24]</span><br><span class="line">        movss   xmm0, dword ptr [rbp + rax - 32] # xmm0 =    mem[0],zero,zero,zero 为什么是32，在下边解释</span><br><span class="line">        movss   dword ptr [rbp - 64], xmm0</span><br><span class="line">// Point2d *p2 = &amp;p;</span><br><span class="line">        xor     eax, eax</span><br><span class="line">        lea     rcx, [rbp - 40]</span><br><span class="line">        cmp     rcx, 0</span><br><span class="line">        mov     qword ptr [rbp - 72], rax       # 8-byte Spill</span><br><span class="line">        je      .LBB1_2</span><br><span class="line">        mov     rcx, qword ptr [rbp - 40]</span><br><span class="line">        lea     rax, [rbp - 40]</span><br><span class="line">        add     rax, qword ptr [rcx - 24]</span><br><span class="line">        mov     qword ptr [rbp - 72], rax       # 8-byte Spill</span><br><span class="line">.LBB1_2:</span><br><span class="line">        mov     rax, qword ptr [rbp - 72]       # 8-byte Reload</span><br><span class="line">        mov     qword ptr [rbp - 48], rax</span><br></pre></td></tr></table></figure>
+<p><code>rbp-40</code>是Point3d对象的地址，取出来vtable放到rax<br><code>rax-24</code>是vtable中的第一项，也就是16，表示虚基类的offset是16<br>加上这个offset赋值给Point2d的指针<br>访问x_的时候跳过一开始的虚表，所以是32</p>
+<p>vtable中还有这四项非常奇怪</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">.quad   <span class="number">-16</span></span><br><span class="line">.quad   <span class="number">0</span></span><br><span class="line">.quad   <span class="number">-16</span></span><br><span class="line">.quad   <span class="number">-16</span></span><br></pre></td></tr></table></figure>
+<p>这四项分别对应了(对称的)</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">.quad   <span class="keyword">virtual</span> thunk to Point3d::~<span class="built_in">Point3d</span>() [complete object destructor]</span><br><span class="line">.quad   <span class="keyword">virtual</span> thunk to Point3d::~<span class="built_in">Point3d</span>() [deleting destructor]</span><br><span class="line">.<span class="function">quad   <span class="title">Point2d::mumble</span><span class="params">()</span></span></span><br><span class="line"><span class="function">.quad   <span class="keyword">virtual</span> thunk to <span class="title">Point3d::z</span><span class="params">()</span></span></span><br></pre></td></tr></table></figure>
+<p>这四个函数，调用的时候thunk对指针进行调整，如果override了offset就是-16，如果没有override offset就是0<br>thunk长这样</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">virtual</span> thunk to Point3d::~<span class="built_in">Point3d</span>() [deleting destructor]:                # @<span class="keyword">virtual</span> thunk to Point3d::~<span class="built_in">Point3d</span>() [deleting destructor]</span><br><span class="line">        push    rbp</span><br><span class="line">        mov     rbp, rsp</span><br><span class="line">        mov     qword ptr [rbp - <span class="number">8</span>], rdi <span class="meta"># rdi是Point3d的Point2d部分</span></span><br><span class="line">        mov     rdi, qword ptr [rbp - <span class="number">8</span>] </span><br><span class="line">        mov     rax, qword ptr [rdi]</span><br><span class="line">        mov     rax, qword ptr [rax - <span class="number">24</span>] # 获取vtable中对应项的offset</span><br><span class="line">        add     rdi, rax</span><br><span class="line">        pop     rbp</span><br><span class="line">        jmp     Point3d::~<span class="built_in">Point3d</span>() [deleting destructor]                 # TAILCALL</span><br></pre></td></tr></table></figure>
+
+<h2 id="指向Member-Function的指针"><a href="#指向Member-Function的指针" class="headerlink" title="指向Member Function的指针"></a>指向Member Function的指针</h2><ul>
+<li>non trival member function：指向函数的地址</li>
+<li>virtual member function：记录vtable的offset</li>
+</ul>
+<p>直接来看代码吧</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Point3d <span class="title">p</span><span class="params">(<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>)</span></span>;</span><br><span class="line"><span class="keyword">auto</span> vptr_1 = &amp;Point2d::foo; <span class="comment">// vfunc1</span></span><br><span class="line"><span class="keyword">auto</span> vptr_2 = &amp;Point2d::bar; <span class="comment">// vfunc2</span></span><br><span class="line"><span class="keyword">auto</span> mptr = &amp;Point2d::baz; <span class="comment">// member function</span></span><br><span class="line">(p.*vptr_1)();</span><br><span class="line">(p.*mptr)();</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">// auto vptr_1 = &amp;Point2d::foo;</span><br><span class="line">mov qword ptr [rbp - 40], 0</span><br><span class="line">mov qword ptr [rbp - 48], 17</span><br><span class="line">// auto vptr_2 = &amp;Point2d::bar;</span><br><span class="line">mov qword ptr [rbp - 56], 0</span><br><span class="line">mov qword ptr [rbp - 64], 25</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">vtable for Point3d:</span><br><span class="line">        .quad   0</span><br><span class="line">        .quad   typeinfo for Point3d</span><br><span class="line">        .quad   Point3d::~Point3d() [base object destructor]</span><br><span class="line">        .quad   Point3d::~Point3d() [deleting destructor]</span><br><span class="line">        .quad   Point2d::foo()</span><br><span class="line">        .quad   Point2d::bar()</span><br><span class="line">        .quad   Point3d::three()</span><br><span class="line">// (p.*ptr)();</span><br><span class="line">        mov     rax, qword ptr [rbp - 48]</span><br><span class="line">        mov     qword ptr [rbp - 128], rax      # 8-byte Spill</span><br><span class="line">        mov     rdx, qword ptr [rbp - 40]</span><br><span class="line">        lea     rcx, [rbp - 32]                 # rcx是对象p的地址</span><br><span class="line">        add     rcx, rdx                        # rdx是指针的高8位，做什么用的？</span><br><span class="line">        mov     qword ptr [rbp - 120], rcx      # 8-byte Spill</span><br><span class="line">        and     rax, 1                          # 函数指针是否是奇数</span><br><span class="line">        cmp     rax, 0</span><br><span class="line">        je      .LBB1_2                         # 如果不是奇数则不是虚函数</span><br><span class="line">        mov     rcx, qword ptr [rbp - 128]      # 8-byte Reload</span><br><span class="line">        mov     rax, qword ptr [rbp - 120]      # 8-byte Reload</span><br><span class="line">        mov     rax, qword ptr [rax]            # 取出来vtable</span><br><span class="line">        sub     rcx, 1</span><br><span class="line">        mov     rax, qword ptr [rax + rcx]      # 取出来对应的函数(vtable+17-1)，第二项</span><br><span class="line">        mov     qword ptr [rbp - 136], rax      # 8-byte Spill, 函数地址放到[rbp - 136]</span><br><span class="line">        jmp     .LBB1_3</span><br><span class="line">.LBB1_2:</span><br><span class="line">        mov     rax, qword ptr [rbp - 128]      # 8-byte Reload</span><br><span class="line">        mov     qword ptr [rbp - 136], rax      # 8-byte Spill, 如果是成员函数，直接将低8位作为函数地址放到[rbp - 136]</span><br><span class="line">.LBB1_3:</span><br><span class="line">        mov     rdi, qword ptr [rbp - 120]      # 8-byte Reload, 对象地址</span><br><span class="line">        mov     rax, qword ptr [rbp - 136]      # 8-byte Reload, 函数地址</span><br><span class="line">        call    rax</span><br><span class="line">        jmp     .LBB1_4</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Spill和Reload就是变量太多reg放不下，暂时放到栈中</li>
+<li>这里的虚函数指针都是奇数，用来区别于成员函数指针</li>
+<li>成员函数指针调用都是相同的方式，所以会有很多次的访存和跳转开销</li>
+<li>成员函数指针的高8位是一个对对象地址的offset</li>
+</ul>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><ol>
+<li>为什么[[#虚继承下的virtual function]]vtable中offset和对应的函数要对称排列，如果不是对称的话一个thunk就可以解决了</li>
+<li>在[[Chap.4 Function Semantics#多继承]]的例子中，thunk是直接减去了固定值，而不是像这个还有一次访存</li>
+<li>[[#指向Member Function的指针]]中，成员函数指针的高8位是做什么用的</li>
+</ol>
+<h2 id="TODO"><a href="#TODO" class="headerlink" title="TODO"></a>TODO</h2><ol>
+<li>把Chap.3的更新下汇编</li>
+</ol>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/C/" rel="tag"># C++</a>
+              <a href="/tags/C-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B/" rel="tag"># C++对象模型</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/6186/" rel="prev" title="C++对象模型 Data Semantics">
+      <i class="fa fa-chevron-left"></i> C++对象模型 Data Semantics
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B0%83%E7%94%A8%E6%96%B9%E5%BC%8F"><span class="nav-number">1.</span> <span class="nav-text">调用方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#non-static-member-function"><span class="nav-number">1.1.</span> <span class="nav-text">non static member function</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#virtual-member-function"><span class="nav-number">1.2.</span> <span class="nav-text">virtual member function</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#static-function"><span class="nav-number">1.3.</span> <span class="nav-text">static function</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#virtual-member-function-1"><span class="nav-number">2.</span> <span class="nav-text">virtual member function</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%95%E7%BB%A7%E6%89%BF"><span class="nav-number">2.1.</span> <span class="nav-text">单继承</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%9A%E7%BB%A7%E6%89%BF"><span class="nav-number">2.2.</span> <span class="nav-text">多继承</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%99%9A%E7%BB%A7%E6%89%BF%E4%B8%8B%E7%9A%84virtual-function"><span class="nav-number">2.3.</span> <span class="nav-text">虚继承下的virtual function</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8C%87%E5%90%91Member-Function%E7%9A%84%E6%8C%87%E9%92%88"><span class="nav-number">3.</span> <span class="nav-text">指向Member Function的指针</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98"><span class="nav-number">4.</span> <span class="nav-text">问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TODO"><span class="nav-number">5.</span> <span class="nav-text">TODO</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Steve"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Steve</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">25</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/stevelee477" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;stevelee477" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:stevelee477@gmail.com" title="E-Mail → mailto:stevelee477@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2018 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Steve</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">92k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:23</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>

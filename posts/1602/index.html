@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.0.0-rc2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta http-equiv="Cache-Control" content="no-transform">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.lyh.moe","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="这次是6.824课程的Frangipani。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="6.824-Frangipani">
+<meta property="og:url" content="https://blog.lyh.moe/posts/1602/index.html">
+<meta property="og:site_name" content="Steve&#39;s">
+<meta property="og:description" content="这次是6.824课程的Frangipani。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog.lyh.moe/posts/1602/026C9FD8-3C90-48F2-91B4-F68FBCF04FE3.jpeg">
+<meta property="article:published_time" content="2022-01-08T05:54:01.000Z">
+<meta property="article:modified_time" content="2023-08-05T02:03:53.317Z">
+<meta property="article:author" content="Steve">
+<meta property="article:tag" content="6.824">
+<meta property="article:tag" content="Distribute System">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog.lyh.moe/posts/1602/026C9FD8-3C90-48F2-91B4-F68FBCF04FE3.jpeg">
+
+<link rel="canonical" href="https://blog.lyh.moe/posts/1602/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>6.824-Frangipani | Steve's</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-161464241-1"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-161464241-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Steve's</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/stevelee477" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.lyh.moe/posts/1602/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Steve">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Steve's">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          6.824-Frangipani
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-01-08 13:54:01" itemprop="dateCreated datePublished" datetime="2022-01-08T13:54:01+08:00">2022-01-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-08-05 10:03:53" itemprop="dateModified" datetime="2023-08-05T10:03:53+08:00">2023-08-05</time>
+              </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.9k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Structure"><a href="#Structure" class="headerlink" title="Structure"></a>Structure</h1><p><img src="/posts/1602/026C9FD8-3C90-48F2-91B4-F68FBCF04FE3.jpeg"></p>
+<ol>
+<li>直到<code>fsync</code>前文件不保证写入nonvolatile存储</li>
+<li>原数据在syscall返回时保证写入到nonvolatile(optional)</li>
+<li>文件last-access时间不保证准确，避免每次读取访问metadata write</li>
+</ol>
+<p>所有Frangipani Server写入相同的Petal Disk，redo log在Petal Disk隔离的区域存储。当Frangipani Server crash的时候，其他的Server可以recover。</p>
+<p>lock service提供了多读单写锁。</p>
+<p>Pros:</p>
+<ol>
+<li>支持透明的Server添加、删除、failover recovery</li>
+<li>系统运行时创建backup</li>
+</ol>
+<p>Cons:</p>
+<ol>
+<li>Logging发生两次，一次在Frangipani，一次在Petal</li>
+<li>Frangipani无法利用磁盘位置信息(因为Petal没有只是虚拟磁盘)</li>
+<li>Frangipani锁整个文件系统而不是某个block</li>
+</ol>
+<h1 id="Disk-Layout"><a href="#Disk-Layout" class="headerlink" title="Disk Layout"></a>Disk Layout</h1><p>Petal的虚拟磁盘有$2^{64}$寻址空间。使用了64KB的块大小。</p>
+<ul>
+<li>第一个区域保存了configuration</li>
+<li>第二个区域保存了logs，分成了256个区域</li>
+<li>第三个区域用来存储allocation bitmap</li>
+<li>第四个区域保存inodes，每个inode 512 bytes</li>
+<li>第三个区域保存了小data block，每个4KB，每个文件的最初64KB保存在这个区域，如果超过了64KB，其余的保存在large block</li>
+<li>剩余的区域保存了large block，每个large block需要1 TB的空间保存寻址空间</li>
+</ul>
+<h1 id="Logging-and-Recovery"><a href="#Logging-and-Recovery" class="headerlink" title="Logging and Recovery"></a>Logging and Recovery</h1><p>使用write-ahead redo logging for metadata，user data没有log。<br>每一个Frangipani server有着自己的log。<br>当Server需要进行元数据更新时，先在内存中创建record，log record周期性写入Petal。只有log写入到Petal后才会对metadata进行操作。</p>
+<p>log使用循环buffer，回收最旧的25%的log用来存储新的。</p>
+<p>如果Frangipani crash，系统最终会发现crash并启动recovery demon。demon隐式的拥有了crash的server的log与locks。demon找到log的开始与结尾，重新排序，redo。之后释放所有的锁与清空log。只要Petal不损坏，Frangipani可以承受任意数量的server failures。</p>
+<p>Frangipani使用了以下来处理单个文件多个log的情况：</p>
+<ol>
+<li>write lock只有在将dirty data写入到Petal后才可以改变所有者。（无论是lock holder还是recover demon）</li>
+<li>Frangipani只redo从拥有lock之后的操作。为了保证locking protocol的序列化不被改变。每一个metadata block有着版本号，每次执行操作版本号+1同时记录在log中。只有block的版本号早于log的才会执行recover。（为了避免replay的情况：因为redo的时候只能看到一个server的log）</li>
+<li>在同一时间只有一个recovery demon</li>
+</ol>
+<p>只有metadata有log，user data没有，所以在用户的视角file system在failure之后失去了一致性。（磁盘文件系统的journal一般也是这样，log只记录metadata的改变，可以使用<code>fsync</code>等）</p>
+<p>Frangipani在lock被revoke的时候才会讲本地的log与cache写回（如果写入log之前crash，log也会丢失，不过只会丢失这一次的写入，不会影响整个文件系统）。</p>
+<h1 id="Synchronization-and-Cache-Coherence"><a href="#Synchronization-and-Cache-Coherence" class="headerlink" title="Synchronization and Cache Coherence"></a>Synchronization and Cache Coherence</h1><p>多个Frangipani server修改相同的disk，需要谨慎处理同步问题。<br>Frangipani使用multiple-reader&#x2F;single-writer锁。当lock service检测到冲突的锁请求，现有的holder被要求释放或者降级。</p>
+<p>read lock允许server从disk中读取文件并且缓存，当释放锁时，需要invalid缓存。<br>write lock允许server read或者write并且缓存。只有获得write lock时，缓存中的内容才可以于disk中不同。所以当一个server被要求释放或者降级时，需要将dirty data写回。如果降级为read lock可以保留缓存内容。</p>
+<h2 id="Coherence-Protocol"><a href="#Coherence-Protocol" class="headerlink" title="Coherence  Protocol:"></a>Coherence  Protocol:</h2><ol>
+<li>request  (WS -&gt; LS)</li>
+<li>grant (LS -&gt; WS)</li>
+<li>revoke (LS -&gt; WS)</li>
+<li>release (WS -&gt; LS)</li>
+</ol>
+<p>locks保证了读取时可以看到最后的写</p>
+<p>虽然可以直接将cache传输到requester，但是为了简便没有这样设计。因为Frangipani之间互相不会通讯，只会与Petal和lock service通讯；同时当server crash时，只需要处理对应server的log即可。</p>
+<p>bitmap划分成为了segment，每一个segment可以单独上lock。未分配的data block或者inode通过对应的bitmap的lock来保护。每一个文件、目录、符号连接都是一个segment，每一个lock保护inode与其对应的文件。</p>
+<h2 id="Atomicity"><a href="#Atomicity" class="headerlink" title="Atomicity"></a>Atomicity</h2><p>有些操作需要原子性的更新多个被不同lock覆盖的磁盘结构（如创建文件需要修改inode，目录，data），为了避免死锁使用两阶段。首先server决定自身需要获得什么锁，其次将需要获得的锁按照inode地址排序，按顺序获取。server检查第一阶段是否有对象数据改变（我的理解是比如有对目录的操作，目录的锁被其他的server释放后会有目录文件的改变，所以需要重新获得一边所有的锁），如果有，则释放锁并重新执行第一阶段。</p>
+<p>user在执行操作前获取全部的lock，获得全部的lock后才会执行操作。<br>当完成后释放lock。</p>
+<h1 id="Lock-Service"><a href="#Lock-Service" class="headerlink" title="Lock Service"></a>Lock Service</h1><p>提供multiple-reader&#x2F;single-writer锁。锁是sticky的，一个client会持续保持锁直到冲突。</p>
+<p>lock service使用租约，当client获取lock时，同时也获取了一个lease。每个lease有过期时间，client需要在过期前renew，否则client处于crash。</p>
+<h1 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h1><p>Frangipani将server放到了user一侧来执行，减少了系统瓶颈。</p>
+<p>Frangipani的lock做了两件事：</p>
+<ol>
+<li>Cache Coherence</li>
+<li>Atomic Transaction</li>
+</ol>
+<h1 id="Ideas-to-remember"><a href="#Ideas-to-remember" class="headerlink" title="Ideas to remember"></a>Ideas to remember</h1><p>complex clients sharing simple storage – maybe scalable<br>cache coherence<br>distributed transactions<br>distributed crash recovery<br>interactions among the above</p>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/6-824/" rel="tag"># 6.824</a>
+              <a href="/tags/Distribute-System/" rel="tag"># Distribute System</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/21370/" rel="prev" title="整了个小东西: Canokey">
+      <i class="fa fa-chevron-left"></i> 整了个小东西: Canokey
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/posts/63218/" rel="next" title="6.824-Spanner">
+      6.824-Spanner <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Structure"><span class="nav-number">1.</span> <span class="nav-text">Structure</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Disk-Layout"><span class="nav-number">2.</span> <span class="nav-text">Disk Layout</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Logging-and-Recovery"><span class="nav-number">3.</span> <span class="nav-text">Logging and Recovery</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Synchronization-and-Cache-Coherence"><span class="nav-number">4.</span> <span class="nav-text">Synchronization and Cache Coherence</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Coherence-Protocol"><span class="nav-number">4.1.</span> <span class="nav-text">Coherence  Protocol:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Atomicity"><span class="nav-number">4.2.</span> <span class="nav-text">Atomicity</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Lock-Service"><span class="nav-number">5.</span> <span class="nav-text">Lock Service</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Conclusion"><span class="nav-number">6.</span> <span class="nav-text">Conclusion</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Ideas-to-remember"><span class="nav-number">7.</span> <span class="nav-text">Ideas to remember</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Steve"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Steve</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">25</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/stevelee477" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;stevelee477" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:stevelee477@gmail.com" title="E-Mail → mailto:stevelee477@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2018 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Steve</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">92k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:23</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+    
+
+  
+
+</body>
+</html>
