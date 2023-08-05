@@ -29,14 +29,14 @@
 <meta property="og:site_name" content="Steve&#39;s">
 <meta property="og:description" content="这次是6.824课程的Frangipani。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://blog.lyh.moe/026C9FD8-3C90-48F2-91B4-F68FBCF04FE3.jpeg">
+<meta property="og:image" content="https://blog.lyh.moe/2022/01/08/6-824-Frangipani/026C9FD8-3C90-48F2-91B4-F68FBCF04FE3.jpeg">
 <meta property="article:published_time" content="2022-01-08T05:54:01.000Z">
 <meta property="article:modified_time" content="2023-08-05T01:25:40.803Z">
 <meta property="article:author" content="Steve">
 <meta property="article:tag" content="6.824">
 <meta property="article:tag" content="Distribute System">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://blog.lyh.moe/026C9FD8-3C90-48F2-91B4-F68FBCF04FE3.jpeg">
+<meta name="twitter:image" content="https://blog.lyh.moe/2022/01/08/6-824-Frangipani/026C9FD8-3C90-48F2-91B4-F68FBCF04FE3.jpeg">
 
 <link rel="canonical" href="https://blog.lyh.moe/2022/01/08/6-824-Frangipani/">
 
@@ -207,13 +207,6 @@
               </span>
 
           
-            <span id="/2022/01/08/6-824-Frangipani/" class="post-meta-item leancloud_visitors" data-flag-title="6.824-Frangipani" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
             <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
@@ -245,67 +238,91 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="Structure"><a href="#Structure" class="headerlink" title="Structure"></a>Structure</h1><p><img src="/026C9FD8-3C90-48F2-91B4-F68FBCF04FE3.jpeg"></p>
-<ol>
-<li>直到<code>fsync</code>前文件不保证写入nonvolatile存储</li>
-<li>原数据在syscall返回时保证写入到nonvolatile(optional)</li>
-<li>文件last-access时间不保证准确，避免每次读取访问metadata write</li>
-</ol>
-<p>所有Frangipani Server写入相同的Petal Disk，redo log在Petal Disk隔离的区域存储。当Frangipani Server crash的时候，其他的Server可以recover。</p>
+        <h1 id="structure">Structure</h1>
+<p><img src="026C9FD8-3C90-48F2-91B4-F68FBCF04FE3.jpeg" /> 1.
+直到<code>fsync</code>前文件不保证写入nonvolatile存储 2.
+原数据在syscall返回时保证写入到nonvolatile(optional) 3.
+文件last-access时间不保证准确，避免每次读取访问metadata write</p>
+<p>所有Frangipani Server写入相同的Petal Disk，redo log在Petal
+Disk隔离的区域存储。当Frangipani Server
+crash的时候，其他的Server可以recover。</p>
 <p>lock service提供了多读单写锁。</p>
-<p>Pros:</p>
-<ol>
-<li>支持透明的Server添加、删除、failover recovery</li>
-<li>系统运行时创建backup</li>
-</ol>
-<p>Cons:</p>
-<ol>
-<li>Logging发生两次，一次在Frangipani，一次在Petal</li>
-<li>Frangipani无法利用磁盘位置信息(因为Petal没有只是虚拟磁盘)</li>
-<li>Frangipani锁整个文件系统而不是某个block</li>
-</ol>
-<h1 id="Disk-Layout"><a href="#Disk-Layout" class="headerlink" title="Disk Layout"></a>Disk Layout</h1><p>Petal的虚拟磁盘有$2^{64}$寻址空间。使用了64KB的块大小。</p>
+<p>Pros: 1. 支持透明的Server添加、删除、failover recovery 2.
+系统运行时创建backup</p>
+<p>Cons: 1. Logging发生两次，一次在Frangipani，一次在Petal 2.
+Frangipani无法利用磁盘位置信息(因为Petal没有只是虚拟磁盘) 3.
+Frangipani锁整个文件系统而不是某个block</p>
+<h1 id="disk-layout">Disk Layout</h1>
+<p>Petal的虚拟磁盘有<span
+class="math inline">\(2^{64}\)</span>寻址空间。使用了64KB的块大小。</p>
 <ul>
 <li>第一个区域保存了configuration</li>
 <li>第二个区域保存了logs，分成了256个区域</li>
 <li>第三个区域用来存储allocation bitmap</li>
 <li>第四个区域保存inodes，每个inode 512 bytes</li>
-<li>第三个区域保存了小data block，每个4KB，每个文件的最初64KB保存在这个区域，如果超过了64KB，其余的保存在large block</li>
-<li>剩余的区域保存了large block，每个large block需要1 TB的空间保存寻址空间</li>
+<li>第三个区域保存了小data
+block，每个4KB，每个文件的最初64KB保存在这个区域，如果超过了64KB，其余的保存在large
+block</li>
+<li>剩余的区域保存了large block，每个large block需要1
+TB的空间保存寻址空间</li>
 </ul>
-<h1 id="Logging-and-Recovery"><a href="#Logging-and-Recovery" class="headerlink" title="Logging and Recovery"></a>Logging and Recovery</h1><p>使用write-ahead redo logging for metadata，user data没有log。<br>每一个Frangipani server有着自己的log。<br>当Server需要进行元数据更新时，先在内存中创建record，log record周期性写入Petal。只有log写入到Petal后才会对metadata进行操作。</p>
+<h1 id="logging-and-recovery">Logging and Recovery</h1>
+<p>使用write-ahead redo logging for metadata，user data没有log。
+每一个Frangipani server有着自己的log。
+当Server需要进行元数据更新时，先在内存中创建record，log
+record周期性写入Petal。只有log写入到Petal后才会对metadata进行操作。</p>
 <p>log使用循环buffer，回收最旧的25%的log用来存储新的。</p>
-<p>如果Frangipani crash，系统最终会发现crash并启动recovery demon。demon隐式的拥有了crash的server的log与locks。demon找到log的开始与结尾，重新排序，redo。之后释放所有的锁与清空log。只要Petal不损坏，Frangipani可以承受任意数量的server failures。</p>
-<p>Frangipani使用了以下来处理单个文件多个log的情况：</p>
-<ol>
-<li>write lock只有在将dirty data写入到Petal后才可以改变所有者。（无论是lock holder还是recover demon）</li>
-<li>Frangipani只redo从拥有lock之后的操作。为了保证locking protocol的序列化不被改变。每一个metadata block有着版本号，每次执行操作版本号+1同时记录在log中。只有block的版本号早于log的才会执行recover。（为了避免replay的情况：因为redo的时候只能看到一个server的log）</li>
-<li>在同一时间只有一个recovery demon</li>
-</ol>
-<p>只有metadata有log，user data没有，所以在用户的视角file system在failure之后失去了一致性。（磁盘文件系统的journal一般也是这样，log只记录metadata的改变，可以使用<code>fsync</code>等）</p>
+<p>如果Frangipani crash，系统最终会发现crash并启动recovery
+demon。demon隐式的拥有了crash的server的log与locks。demon找到log的开始与结尾，重新排序，redo。之后释放所有的锁与清空log。只要Petal不损坏，Frangipani可以承受任意数量的server
+failures。</p>
+<p>Frangipani使用了以下来处理单个文件多个log的情况： 1. write
+lock只有在将dirty data写入到Petal后才可以改变所有者。（无论是lock
+holder还是recover demon） 2.
+Frangipani只redo从拥有lock之后的操作。为了保证locking
+protocol的序列化不被改变。每一个metadata
+block有着版本号，每次执行操作版本号+1同时记录在log中。只有block的版本号早于log的才会执行recover。（为了避免replay的情况：因为redo的时候只能看到一个server的log）
+3. 在同一时间只有一个recovery demon</p>
+<p>只有metadata有log，user data没有，所以在用户的视角file
+system在failure之后失去了一致性。（磁盘文件系统的journal一般也是这样，log只记录metadata的改变，可以使用<code>fsync</code>等）</p>
 <p>Frangipani在lock被revoke的时候才会讲本地的log与cache写回（如果写入log之前crash，log也会丢失，不过只会丢失这一次的写入，不会影响整个文件系统）。</p>
-<h1 id="Synchronization-and-Cache-Coherence"><a href="#Synchronization-and-Cache-Coherence" class="headerlink" title="Synchronization and Cache Coherence"></a>Synchronization and Cache Coherence</h1><p>多个Frangipani server修改相同的disk，需要谨慎处理同步问题。<br>Frangipani使用multiple-reader&#x2F;single-writer锁。当lock service检测到冲突的锁请求，现有的holder被要求释放或者降级。</p>
-<p>read lock允许server从disk中读取文件并且缓存，当释放锁时，需要invalid缓存。<br>write lock允许server read或者write并且缓存。只有获得write lock时，缓存中的内容才可以于disk中不同。所以当一个server被要求释放或者降级时，需要将dirty data写回。如果降级为read lock可以保留缓存内容。</p>
-<h2 id="Coherence-Protocol"><a href="#Coherence-Protocol" class="headerlink" title="Coherence  Protocol:"></a>Coherence  Protocol:</h2><ol>
-<li>request  (WS -&gt; LS)</li>
+<h1 id="synchronization-and-cache-coherence">Synchronization and Cache
+Coherence</h1>
+<p>多个Frangipani server修改相同的disk，需要谨慎处理同步问题。
+Frangipani使用multiple-reader/single-writer锁。当lock
+service检测到冲突的锁请求，现有的holder被要求释放或者降级。</p>
+<p>read
+lock允许server从disk中读取文件并且缓存，当释放锁时，需要invalid缓存。
+write lock允许server read或者write并且缓存。只有获得write
+lock时，缓存中的内容才可以于disk中不同。所以当一个server被要求释放或者降级时，需要将dirty
+data写回。如果降级为read lock可以保留缓存内容。</p>
+<h2 id="coherence-protocol">Coherence Protocol:</h2>
+<ol type="1">
+<li>request (WS -&gt; LS)</li>
 <li>grant (LS -&gt; WS)</li>
 <li>revoke (LS -&gt; WS)</li>
 <li>release (WS -&gt; LS)</li>
 </ol>
 <p>locks保证了读取时可以看到最后的写</p>
-<p>虽然可以直接将cache传输到requester，但是为了简便没有这样设计。因为Frangipani之间互相不会通讯，只会与Petal和lock service通讯；同时当server crash时，只需要处理对应server的log即可。</p>
-<p>bitmap划分成为了segment，每一个segment可以单独上lock。未分配的data block或者inode通过对应的bitmap的lock来保护。每一个文件、目录、符号连接都是一个segment，每一个lock保护inode与其对应的文件。</p>
-<h2 id="Atomicity"><a href="#Atomicity" class="headerlink" title="Atomicity"></a>Atomicity</h2><p>有些操作需要原子性的更新多个被不同lock覆盖的磁盘结构（如创建文件需要修改inode，目录，data），为了避免死锁使用两阶段。首先server决定自身需要获得什么锁，其次将需要获得的锁按照inode地址排序，按顺序获取。server检查第一阶段是否有对象数据改变（我的理解是比如有对目录的操作，目录的锁被其他的server释放后会有目录文件的改变，所以需要重新获得一边所有的锁），如果有，则释放锁并重新执行第一阶段。</p>
-<p>user在执行操作前获取全部的lock，获得全部的lock后才会执行操作。<br>当完成后释放lock。</p>
-<h1 id="Lock-Service"><a href="#Lock-Service" class="headerlink" title="Lock Service"></a>Lock Service</h1><p>提供multiple-reader&#x2F;single-writer锁。锁是sticky的，一个client会持续保持锁直到冲突。</p>
-<p>lock service使用租约，当client获取lock时，同时也获取了一个lease。每个lease有过期时间，client需要在过期前renew，否则client处于crash。</p>
-<h1 id="Conclusion"><a href="#Conclusion" class="headerlink" title="Conclusion"></a>Conclusion</h1><p>Frangipani将server放到了user一侧来执行，减少了系统瓶颈。</p>
-<p>Frangipani的lock做了两件事：</p>
-<ol>
-<li>Cache Coherence</li>
-<li>Atomic Transaction</li>
-</ol>
-<h1 id="Ideas-to-remember"><a href="#Ideas-to-remember" class="headerlink" title="Ideas to remember"></a>Ideas to remember</h1><p>complex clients sharing simple storage – maybe scalable<br>cache coherence<br>distributed transactions<br>distributed crash recovery<br>interactions among the above</p>
+<p>虽然可以直接将cache传输到requester，但是为了简便没有这样设计。因为Frangipani之间互相不会通讯，只会与Petal和lock
+service通讯；同时当server crash时，只需要处理对应server的log即可。</p>
+<p>bitmap划分成为了segment，每一个segment可以单独上lock。未分配的data
+block或者inode通过对应的bitmap的lock来保护。每一个文件、目录、符号连接都是一个segment，每一个lock保护inode与其对应的文件。</p>
+<h2 id="atomicity">Atomicity</h2>
+<p>有些操作需要原子性的更新多个被不同lock覆盖的磁盘结构（如创建文件需要修改inode，目录，data），为了避免死锁使用两阶段。首先server决定自身需要获得什么锁，其次将需要获得的锁按照inode地址排序，按顺序获取。server检查第一阶段是否有对象数据改变（我的理解是比如有对目录的操作，目录的锁被其他的server释放后会有目录文件的改变，所以需要重新获得一边所有的锁），如果有，则释放锁并重新执行第一阶段。</p>
+<p>user在执行操作前获取全部的lock，获得全部的lock后才会执行操作。
+当完成后释放lock。</p>
+<h1 id="lock-service">Lock Service</h1>
+<p>提供multiple-reader/single-writer锁。锁是sticky的，一个client会持续保持锁直到冲突。</p>
+<p>lock
+service使用租约，当client获取lock时，同时也获取了一个lease。每个lease有过期时间，client需要在过期前renew，否则client处于crash。</p>
+<h1 id="conclusion">Conclusion</h1>
+<p>Frangipani将server放到了user一侧来执行，减少了系统瓶颈。</p>
+<p>Frangipani的lock做了两件事： 1. Cache Coherence 2. Atomic
+Transaction</p>
+<h1 id="ideas-to-remember">Ideas to remember</h1>
+<p>complex clients sharing simple storage -- maybe scalable cache
+coherence distributed transactions distributed crash recovery
+interactions among the above</p>
     </div>
 
     
@@ -389,7 +406,8 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Structure"><span class="nav-number">1.</span> <span class="nav-text">Structure</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Disk-Layout"><span class="nav-number">2.</span> <span class="nav-text">Disk Layout</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Logging-and-Recovery"><span class="nav-number">3.</span> <span class="nav-text">Logging and Recovery</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Synchronization-and-Cache-Coherence"><span class="nav-number">4.</span> <span class="nav-text">Synchronization and Cache Coherence</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Coherence-Protocol"><span class="nav-number">4.1.</span> <span class="nav-text">Coherence  Protocol:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Atomicity"><span class="nav-number">4.2.</span> <span class="nav-text">Atomicity</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Lock-Service"><span class="nav-number">5.</span> <span class="nav-text">Lock Service</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Conclusion"><span class="nav-number">6.</span> <span class="nav-text">Conclusion</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Ideas-to-remember"><span class="nav-number">7.</span> <span class="nav-text">Ideas to remember</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#structure"><span class="nav-number">1.</span> <span class="nav-text">Structure</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#disk-layout"><span class="nav-number">2.</span> <span class="nav-text">Disk Layout</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#logging-and-recovery"><span class="nav-number">3.</span> <span class="nav-text">Logging and Recovery</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#synchronization-and-cache-coherence"><span class="nav-number">4.</span> <span class="nav-text">Synchronization and Cache
+Coherence</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#coherence-protocol"><span class="nav-number">4.1.</span> <span class="nav-text">Coherence Protocol:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#atomicity"><span class="nav-number">4.2.</span> <span class="nav-text">Atomicity</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#lock-service"><span class="nav-number">5.</span> <span class="nav-text">Lock Service</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#conclusion"><span class="nav-number">6.</span> <span class="nav-text">Conclusion</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ideas-to-remember"><span class="nav-number">7.</span> <span class="nav-text">Ideas to remember</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -419,7 +437,7 @@
 </div>
   <div class="links-of-author motion-element">
       <span class="links-of-author-item">
-        <a href="https://github.com/stevelee477" title="GitHub → https://github.com/stevelee477" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+        <a href="https://github.com/stevelee477" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;stevelee477" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
       </span>
       <span class="links-of-author-item">
         <a href="mailto:stevelee477@gmail.com" title="E-Mail → mailto:stevelee477@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
@@ -456,7 +474,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">92k</span>
+    <span title="站点总字数">91k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
@@ -491,92 +509,6 @@
 
 
 
-<script>
-  (function() {
-    function leancloudSelector(url) {
-      url = encodeURI(url);
-      return document.getElementById(url).querySelector('.leancloud-visitors-count');
-    }
-
-    function addCount(Counter) {
-      var visitors = document.querySelector('.leancloud_visitors');
-      var url = decodeURI(visitors.id);
-      var title = visitors.dataset.flagTitle;
-
-      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
-        .then(response => response.json())
-        .then(({ results }) => {
-          if (results.length > 0) {
-            var counter = results[0];
-            leancloudSelector(url).innerText = counter.time + 1;
-            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
-              .catch(error => {
-                console.error('Failed to save visitor count', error);
-              });
-          } else {
-              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
-              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
-            
-          }
-        })
-        .catch(error => {
-          console.error('LeanCloud Counter Error', error);
-        });
-    }
-
-    function showTime(Counter) {
-      var visitors = document.querySelectorAll('.leancloud_visitors');
-      var entries = [...visitors].map(element => {
-        return decodeURI(element.id);
-      });
-
-      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
-        .then(response => response.json())
-        .then(({ results }) => {
-          for (let url of entries) {
-            let target = results.find(item => item.url === url);
-            leancloudSelector(url).innerText = target ? target.time : 0;
-          }
-        })
-        .catch(error => {
-          console.error('LeanCloud Counter Error', error);
-        });
-    }
-
-    let { app_id, app_key, server_url } = {"enable":true,"app_id":"8BpwGehRF6AbgFLYGXXNO7X6-gzGzoHsz","app_key":"cVhrNg9TszxDosxaDiCuMvru","server_url":"https://8bpwgehr.lc-cn-n1-shared.com","security":true};
-    function fetchData(api_server) {
-      var Counter = (method, url, data) => {
-        return fetch(`${api_server}/1.1${url}`, {
-          method,
-          headers: {
-            'X-LC-Id'     : app_id,
-            'X-LC-Key'    : app_key,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data)
-        });
-      };
-      if (CONFIG.page.isPost) {
-        if (CONFIG.hostname !== location.hostname) return;
-        addCount(Counter);
-      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
-        showTime(Counter);
-      }
-    }
-
-    let api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
-
-    if (api_server) {
-      fetchData(api_server);
-    } else {
-      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
-        .then(response => response.json())
-        .then(({ api_server }) => {
-          fetchData('https://' + api_server);
-        });
-    }
-  })();
-</script>
 
 
       </div>

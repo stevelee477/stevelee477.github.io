@@ -29,10 +29,10 @@
 <meta property="og:site_name" content="Steve&#39;s">
 <meta property="og:description" content="这是来自 Coursera 的课程 Automata ,话说到了第三周了才发现这门课的老师 Jeff Ullman 就是「龙书」的作者">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://blog.lyh.moe/1.png">
-<meta property="og:image" content="https://blog.lyh.moe/2.png">
-<meta property="og:image" content="https://blog.lyh.moe/3.png">
-<meta property="og:image" content="https://blog.lyh.moe/4.png">
+<meta property="og:image" content="https://blog.lyh.moe/2019/03/02/Automata-Week-3-%E7%AC%94%E8%AE%B0/1.png">
+<meta property="og:image" content="https://blog.lyh.moe/2019/03/02/Automata-Week-3-%E7%AC%94%E8%AE%B0/2.png">
+<meta property="og:image" content="https://blog.lyh.moe/2019/03/02/Automata-Week-3-%E7%AC%94%E8%AE%B0/3.png">
+<meta property="og:image" content="https://blog.lyh.moe/2019/03/02/Automata-Week-3-%E7%AC%94%E8%AE%B0/4.png">
 <meta property="article:published_time" content="2019-03-02T15:09:36.000Z">
 <meta property="article:modified_time" content="2020-02-27T09:40:08.000Z">
 <meta property="article:author" content="Steve">
@@ -40,7 +40,7 @@
 <meta property="article:tag" content="Coursera">
 <meta property="article:tag" content="Note">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://blog.lyh.moe/1.png">
+<meta name="twitter:image" content="https://blog.lyh.moe/2019/03/02/Automata-Week-3-%E7%AC%94%E8%AE%B0/1.png">
 
 <link rel="canonical" href="https://blog.lyh.moe/2019/03/02/Automata-Week-3-%E7%AC%94%E8%AE%B0/">
 
@@ -211,13 +211,6 @@
               </span>
 
           
-            <span id="/2019/03/02/Automata-Week-3-%E7%AC%94%E8%AE%B0/" class="post-meta-item leancloud_visitors" data-flag-title="Automata Week 3 笔记" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
             <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
@@ -230,7 +223,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>3.8k</span>
+              <span>3.6k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -249,150 +242,182 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="Introduction-to-context-free-grammars"><a href="#Introduction-to-context-free-grammars" class="headerlink" title="Introduction to context-free grammars"></a>Introduction to context-free grammars</h1><h2 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h2><ul>
+        <h1 id="introduction-to-context-free-grammars">Introduction to
+context-free grammars</h1>
+<h2 id="定义">定义</h2>
+<ul>
 <li>Context-free grammar 是一个用来描述 language 的标记</li>
 <li>相比有限自动机和 RE 更加的强大，不过仍然不能表示所有 language</li>
 <li>对于像括号匹配和编程语言的 nested structures(?) 十分有用</li>
 </ul>
-<ol>
-<li>Terminals &#x3D; 定义的 symbol, 类似于 alphabet</li>
-<li>Variables (aka. nonterminals) &#x3D; 符号的有限集合，用来表示语言</li>
-<li>Start symbol &#x3D; 类似于 start state</li>
-<li>Production  类似于 transition, 形如 variables(head) -&gt; string of varibles and terminals(body)<blockquote>
-<p>例如: <code>$\lbrace 0^&#123;n&#125;1^&#123;n&#125;\mid n\geq0 \rbrace$</code> 其中</p>
-</blockquote>
+<ol type="1">
+<li>Terminals = 定义的 symbol, 类似于 alphabet</li>
+<li>Variables (aka. nonterminals) = 符号的有限集合，用来表示语言</li>
+<li>Start symbol = 类似于 start state</li>
+<li>Production 类似于 transition, 形如 variables(head) -&gt; string of
+varibles and terminals(body) &gt; 例如:
+<code>$\lbrace 0^&#123;n&#125;1^&#123;n&#125;\mid n\geq0 \rbrace$</code> 其中
 <ul>
-<li>Terminals &#x3D; $\lbrace 0,1 \rbrace$</li>
-<li>Variables &#x3D; $\lbrace S \rbrace$</li>
-<li>Start symbol &#x3D; S</li>
-<li>Productions &#x3D; <ul>
+<li>Terminals = <span class="math inline">\(\lbrace 0,1
+\rbrace\)</span></li>
+<li>Variables = <span class="math inline">\(\lbrace S
+\rbrace\)</span></li>
+<li>Start symbol = S</li>
+<li>Productions =
+<ul>
 <li>S -&gt; 01</li>
 <li>S -&gt; 0S1</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>Derivations  从 start symbol 开始，重复的使用 production 的 body 替换掉 head<blockquote>
-<p>在刚才的例子中，S &#x3D;&gt; 0S1 &#x3D;&gt; 00S11 &#x3D;&gt; 000111</p>
-</blockquote>
-</li>
-<li>Iterated Derivation &#x3D; <code>=&gt;*</code> 就是进行0次或者更多的 derivation</li>
+</ul></li>
+</ul></li>
+<li>Derivations 从 start symbol 开始，重复的使用 production 的 body
+替换掉 head &gt; 在刚才的例子中，S =&gt; 0S1 =&gt; 00S11 =&gt;
+000111</li>
+<li>Iterated Derivation = <code>=&gt;*</code> 就是进行0次或者更多的
+derivation</li>
 <li>Sentential Forms 从 start symbol 开始推导所得到的 form</li>
 </ol>
-<h2 id="BNF-Backus-Naur-Form-Notation"><a href="#BNF-Backus-Naur-Form-Notation" class="headerlink" title="BNF(Backus-Naur Form) Notation"></a>BNF(Backus-Naur Form) Notation</h2><p>编程语言的语法通常会写成 BNF</p>
+<h2 id="bnfbackus-naur-form-notation">BNF(Backus-Naur Form)
+Notation</h2>
+<p>编程语言的语法通常会写成 BNF</p>
 <ul>
-<li>Variables 写成 &lt;…&gt; 如:  &#123;statement&#125;</li>
-<li>Terminals 通常是粗体或者是带有下划线的 如 ${\bf WHILE}\ or\ \underline{WHILE}$</li>
-<li>::&#x3D; 用来代替 -&gt;</li>
-<li>| 用来表示或<blockquote>
+<li>Variables 写成 &lt;...&gt; 如: {statement}</li>
+<li>Terminals 通常是粗体或者是带有下划线的 如 <span
+class="math inline">\({\bf WHILE}\ or\ \underline{WHILE}\)</span></li>
+<li>::= 用来代替 -&gt;</li>
+<li><div class="line-block">用来表示或</div>
+<blockquote>
 <p>如 S -&gt; 0S1 | 01</p>
-</blockquote>
-</li>
-<li>… 用来表示一个或者多个<blockquote>
-<p>如:<br>  &#160;&#160;&#123;digit&#125; ::&#x3D; 0|1|2|3|4|5|6|7|8|9<br>  &#160;&#160;&#123;unsigned integer&#125; ::&#x3D; &#123;digit&#125;</p>
-</blockquote>
-</li>
-<li>条件:<blockquote>
-<p>&#123;statement&#125; ::&#x3D; if &#123;condition&#125; then &#123;statement&#125; [; else &#123;statement&#125;]</p>
-</blockquote>
-</li>
+</blockquote></li>
+<li>... 用来表示一个或者多个 &gt; 如:   {digit} ::= 0|1|2|3|4|5|6|7|8|9
+  {unsigned integer} ::= {digit}</li>
+<li>条件: &gt; {statement} ::= if {condition} then {statement} [; else
+{statement}]</li>
 <li>Grouping 用 {} 来代表需要被解释为整个 unit 的 symbol</li>
 </ul>
-<h3 id="Leftmost-and-Rightmost-Derivations"><a href="#Leftmost-and-Rightmost-Derivations" class="headerlink" title="Leftmost and Rightmost Derivations"></a>Leftmost and Rightmost Derivations</h3><p>就是从左还是从右开始 derivation</p>
+<h3 id="leftmost-and-rightmost-derivations">Leftmost and Rightmost
+Derivations</h3>
+<p>就是从左还是从右开始 derivation &gt; <span
+class="math inline">\(\alpha =&gt;_{lm} \beta\)</span> 表示 leftmost</p>
 <blockquote>
-<p>$\alpha &#x3D;&gt;_{lm} \beta$ 表示 leftmost</p>
+<p>如: S -&gt; SS | (S) | () S =&gt;lm SS =&gt;lm (S)S =&gt;lm (())S
+=&gt;lm (())() 就是 leftmost S =&gt;rm SS =&gt;rm S() =&gt;rm (S)()
+=&gt;rm (())() 则是 rightmost</p>
 </blockquote>
-<blockquote>
-<p>如:<br>  S -&gt; SS | (S) | ()<br>  S &#x3D;&gt;lm SS &#x3D;&gt;lm (S)S &#x3D;&gt;lm (())S &#x3D;&gt;lm (())() 就是 leftmost<br>  S &#x3D;&gt;rm SS &#x3D;&gt;rm S() &#x3D;&gt;rm (S)() &#x3D;&gt;rm (())() 则是 rightmost</p>
-</blockquote>
-<h1 id="Parse-tree"><a href="#Parse-tree" class="headerlink" title="Parse tree"></a>Parse tree</h1><h2 id="定义-1"><a href="#定义-1" class="headerlink" title="定义"></a>定义</h2><p>Parse tree 就是使用 symbols 来表示的特定的 CFG(Context-free grammar)</p>
+<h1 id="parse-tree">Parse tree</h1>
+<h2 id="定义-1">定义</h2>
+<p>Parse tree 就是使用 symbols 来表示的特定的 CFG(Context-free
+grammar)</p>
 <ul>
-<li>Leaves: 树叶标记着 terminal 或者是 $\epsilon$</li>
+<li>Leaves: 树叶标记着 terminal 或者是 <span
+class="math inline">\(\epsilon\)</span></li>
 <li>Interior nodes: 内部节点标记着 variable</li>
 <li>Root: 根节点必须是 start symbol</li>
 </ul>
-<p><img src="/1.png"></p>
+<p><img src="1.png" /></p>
 <ul>
 <li>yield: 将叶子结点从左到右连接起来叫做 <strong>yield</strong></li>
 </ul>
-<p><img src="/2.png"></p>
-<p>然后就是两个证明:</p>
-<ol>
-<li>对于给定的 parse tree 根节点是 A 并且 yield 是 w，则 $A &#x3D;&gt;_{lm} w$ </li>
-<li>如果 $A &#x3D;&gt;_{lm} w$ 则存在一个 parse tree 且它的根节点是 A 且能够 yield w</li>
-</ol>
-<h2 id="Ambiguous-Grammars"><a href="#Ambiguous-Grammars" class="headerlink" title="Ambiguous Grammars"></a>Ambiguous Grammars</h2><p>如果一个 string 可以由两个或者更多的 parse tree 所得到，那么称这个 CFG 是 ambiguous</p>
-<p><img src="/3.png"></p>
+<p><img src="2.png" /></p>
+<p>然后就是两个证明: 1. 对于给定的 parse tree 根节点是 A 并且 yield 是
+w，则 <span class="math inline">\(A =&gt;_{lm} w\)</span> 2. 如果 <span
+class="math inline">\(A =&gt;_{lm} w\)</span> 则存在一个 parse tree
+且它的根节点是 A 且能够 yield w</p>
+<h2 id="ambiguous-grammars">Ambiguous Grammars</h2>
+<p>如果一个 string 可以由两个或者更多的 parse tree 所得到，那么称这个
+CFG 是 ambiguous</p>
+<p><img src="3.png" /></p>
 <p>如图中的，这一个括号序列可以由两个 tree 得到</p>
-<p>我们可以对括号序列的 grammar 进行修正</p>
+<p>我们可以对括号序列的 grammar 进行修正 &gt; B -&gt; (RB | ε R -&gt; )
+| (RR</p>
+<p>需要注意的是，并不是所有的 ambiguous grammar
+都可以进行修正(fix)，这些不能修正的称为 inherently ambiguous，例如 <span
+class="math inline">\(\lbrace 0^i1^j2^k \mid i = j or j = k
+\rbrace\)</span></p>
+<h1 id="normal-forms-for-context-free-grammars">Normal forms for
+context-free grammars</h1>
+<p>这一节讲的是 CFG 的正则化，就是通过一些方法来化简 CFG</p>
+<h2 id="variables-that-derive-nothing">Variables That Derive
+Nothing</h2>
+<h3 id="定义-2">定义</h3>
+<p>有些时候，variables 不能完全的转化为 terminals，比如下面的例子：</p>
 <blockquote>
-<p>B -&gt; (RB | ε R -&gt; ) | (RR</p>
+<p>S -&gt; AB, A -&gt; aA|a, B -&gt; AB 虽然 A 能够推导出 a 的所有
+string，但是 B 出现了循环引用，所以 S 无法转化为只有 terminals
+的状态</p>
 </blockquote>
-<p>需要注意的是，并不是所有的 ambiguous grammar 都可以进行修正(fix)，这些不能修正的称为 inherently ambiguous，例如 $\lbrace 0^i1^j2^k \mid i &#x3D; j or j &#x3D; k \rbrace$</p>
-<h1 id="Normal-forms-for-context-free-grammars"><a href="#Normal-forms-for-context-free-grammars" class="headerlink" title="Normal forms for context-free grammars"></a>Normal forms for context-free grammars</h1><p>这一节讲的是 CFG 的正则化，就是通过一些方法来化简 CFG</p>
-<h2 id="Variables-That-Derive-Nothing"><a href="#Variables-That-Derive-Nothing" class="headerlink" title="Variables That Derive Nothing"></a>Variables That Derive Nothing</h2><h3 id="定义-2"><a href="#定义-2" class="headerlink" title="定义"></a>定义</h3><p>有些时候，variables 不能完全的转化为 terminals，比如下面的例子：</p>
-<blockquote>
-<p>S -&gt; AB, A -&gt; aA|a, B -&gt; AB<br>  虽然 A 能够推导出 a 的所有 string，但是 B 出现了循环引用，所以 S 无法转化为只有 terminals 的状态</p>
-</blockquote>
-<h3 id="Algorithm-to-Eliminate-Variables-That-Derive-Nothing"><a href="#Algorithm-to-Eliminate-Variables-That-Derive-Nothing" class="headerlink" title="Algorithm to Eliminate Variables That Derive Nothing"></a>Algorithm to Eliminate Variables That Derive Nothing</h3><ol>
+<h3 id="algorithm-to-eliminate-variables-that-derive-nothing">Algorithm
+to Eliminate Variables That Derive Nothing</h3>
+<ol type="1">
 <li>搜索(Discovery)所有能够推导出 terminal 的 variables</li>
 <li>去除掉所有不存在于这个集合的 production(???)</li>
 </ol>
 <p>总之，最后的效果是这样的</p>
-<p><img src="/4.png"></p>
-<h2 id="Unreachable-Symbols"><a href="#Unreachable-Symbols" class="headerlink" title="Unreachable Symbols"></a>Unreachable Symbols</h2><p>所谓 unreachable symbols，就是这个 symbol 不能通过推导所到达</p>
-<h2 id="Eliminating-Useless-Symbols"><a href="#Eliminating-Useless-Symbols" class="headerlink" title="Eliminating Useless Symbols"></a>Eliminating Useless Symbols</h2><p>useful 是能够从 start symbol 通过某种 derivation 得到特定的 terminal<br>否则，就是 useless</p>
+<p><img src="4.png" /></p>
+<h2 id="unreachable-symbols">Unreachable Symbols</h2>
+<p>所谓 unreachable symbols，就是这个 symbol 不能通过推导所到达</p>
+<h2 id="eliminating-useless-symbols">Eliminating Useless Symbols</h2>
+<p>useful 是能够从 start symbol 通过某种 derivation 得到特定的 terminal
+否则，就是 useless</p>
 <p>清除 Useless Symbols 需要遵循一定的顺序</p>
-<ol>
+<ol type="1">
 <li>Eliminate symbols that derive no terminal string</li>
 <li>Eliminate unreachable symbols</li>
 </ol>
-<p>注意这个顺序</p>
+<p>注意这个顺序 &gt; S -&gt; AB, A -&gt; C, C -&gt; c, B -&gt; bB
+如果先是去除 unreachable symbols，会发现所有的都是可以 reachable 的</p>
+<h2 id="epsilon-productions">Epsilon Productions</h2>
+<p>有时候我们要避免出现 A -&gt; ε (叫做 ε-productions)的情况</p>
+<h3 id="nullable-symbols">Nullable Symbols</h3>
+<p>要清除 ε-productions，我们首先需要搜索 nullable symbols</p>
 <blockquote>
-<p>S -&gt; AB, A -&gt; C, C -&gt; c, B -&gt; bB<br>  如果先是去除 unreachable symbols，会发现所有的都是可以 reachable 的</p>
+<p>S -&gt; AB, A -&gt; aA | ε, B -&gt; bB | A A 是一个 nullable，所以 B
+也是 因为 S -&gt; AB 所以 S 也是 nullable</p>
 </blockquote>
-<h2 id="Epsilon-Productions"><a href="#Epsilon-Productions" class="headerlink" title="Epsilon Productions"></a>Epsilon Productions</h2><p>有时候我们要避免出现 A -&gt; ε (叫做 ε-productions)的情况</p>
-<h3 id="Nullable-Symbols"><a href="#Nullable-Symbols" class="headerlink" title="Nullable Symbols"></a>Nullable Symbols</h3><p>要清除 ε-productions，我们首先需要搜索 nullable symbols</p>
+<h3 id="eliminating-ε-productions">Eliminating ε-Productions</h3>
+<p>直接上例子</p>
 <blockquote>
-<p>S -&gt; AB, A -&gt; aA | ε, B -&gt; bB | A<br>  A 是一个 nullable，所以 B 也是<br>  因为 S -&gt; AB 所以 S 也是 nullable</p>
+<p>S -&gt; ABC, A -&gt; aA | ε, B -&gt; bB | ε, C -&gt; ε A, B, C 和 S
+是 nullable S -&gt; ABC | AB | AC | BC | A | B | C A -&gt; aA | a B
+-&gt; bB | b</p>
 </blockquote>
-<h3 id="Eliminating-ε-Productions"><a href="#Eliminating-ε-Productions" class="headerlink" title="Eliminating ε-Productions"></a>Eliminating ε-Productions</h3><p>直接上例子</p>
-<blockquote>
-<p>S -&gt; ABC, A -&gt; aA | ε, B -&gt; bB | ε, C -&gt; ε<br>  A, B, C 和 S 是 nullable<br>  S -&gt; ABC | AB | AC | BC | A | B | C<br>  A -&gt; aA | a<br>  B -&gt; bB | b</p>
-</blockquote>
-<h2 id="Unit-Productions"><a href="#Unit-Productions" class="headerlink" title="Unit Productions"></a>Unit Productions</h2><p>unit production 就是某个 production 的 body 中只含有一个 varible </p>
+<h2 id="unit-productions">Unit Productions</h2>
+<p>unit production 就是某个 production 的 body 中只含有一个 varible</p>
 <p>去除掉 unit productions 也比较简单</p>
 <blockquote>
-<p>如果 A &#x3D;&gt; B 且 b -&gt; $\alpha$ 则增加一个 production A -&gt; $\alpha$<br>  最后扔掉其他的 production</p>
+<p>如果 A =&gt; B 且 b -&gt; <span class="math inline">\(\alpha\)</span>
+则增加一个 production A -&gt; <span
+class="math inline">\(\alpha\)</span> 最后扔掉其他的 production</p>
 </blockquote>
-<h2 id="Cleaning-Up-a-Grammar"><a href="#Cleaning-Up-a-Grammar" class="headerlink" title="Cleaning Up a Grammar"></a>Cleaning Up a Grammar</h2><p>要清理一个 CFG，需要按照以下步骤:</p>
-<ol>
+<h2 id="cleaning-up-a-grammar">Cleaning Up a Grammar</h2>
+<p>要清理一个 CFG，需要按照以下步骤:</p>
+<ol type="1">
 <li>Eliminate ε-productions.</li>
 <li>Eliminate unit productions.</li>
-<li>Eliminate variables that derive no<br>terminal string.</li>
-<li>Eliminate variables not reached from the<br>start symbol.</li>
+<li>Eliminate variables that derive no terminal string.</li>
+<li>Eliminate variables not reached from the start symbol.</li>
 </ol>
 <p>注意第一步必须在前边</p>
-<h2 id="Chomsky-Normal-Form"><a href="#Chomsky-Normal-Form" class="headerlink" title="Chomsky Normal Form"></a>Chomsky Normal Form</h2><p>如果一个 CFG 的 production 只有两种形式</p>
-<ol>
+<h2 id="chomsky-normal-form">Chomsky Normal Form</h2>
+<p>如果一个 CFG 的 production 只有两种形式</p>
+<ol type="1">
 <li>A -&gt; BC (2个 variables)</li>
 <li>A -&gt; a (1个 terminal)</li>
 </ol>
 <p>那么这个 CFG 被称为 Chomsky Normal Form</p>
-<h1 id="Pushdown-automata"><a href="#Pushdown-automata" class="headerlink" title="Pushdown automata"></a>Pushdown automata</h1><p>PDA(Pushdown automata) 可以直观的理解为带有一个栈的 ε-NFA，不同于 NFA 的是，NFA 的转移只依赖于当前的状态和输入，而 PDA 还依赖于栈顶的元素</p>
-<p>比如之前讨论过的 $\lbrace 0^{n}1^{n}\mid n\geq0 \rbrace$ 可以使用 PDA 来表示:</p>
+<h1 id="pushdown-automata">Pushdown automata</h1>
+<p>PDA(Pushdown automata) 可以直观的理解为带有一个栈的 ε-NFA，不同于 NFA
+的是，NFA 的转移只依赖于当前的状态和输入，而 PDA 还依赖于栈顶的元素</p>
+<p>比如之前讨论过的 <span class="math inline">\(\lbrace 0^{n}1^{n}\mid
+n\geq0 \rbrace\)</span> 可以使用 PDA 来表示:</p>
 <ul>
-<li>δ(q, 0, Z0) &#x3D; {(q, XZ0)}</li>
-<li>δ(q, 0, X) &#x3D; {(q, XX)}<br>以上两条规则遇到输入为0时将 X 压入栈中</li>
-<li>δ(q, 1, X) &#x3D; {(p, ε)} 当遇到 1 时，弹出栈顶元素，并且转移到 p</li>
-<li>δ(p, 1, X) &#x3D; {(p, ε)} 遇到 1 时，出栈</li>
-<li>δ(p, ε, Z0) &#x3D; {(f, Z0)}</li>
+<li>δ(q, 0, Z0) = {(q, XZ0)}</li>
+<li>δ(q, 0, X) = {(q, XX)} 以上两条规则遇到输入为0时将 X 压入栈中</li>
+<li>δ(q, 1, X) = {(p, ε)} 当遇到 1 时，弹出栈顶元素，并且转移到 p</li>
+<li>δ(p, 1, X) = {(p, ε)} 遇到 1 时，出栈</li>
+<li>δ(p, ε, Z0) = {(f, Z0)}</li>
 </ul>
-<p>如果 P 是一个 PDA，</p>
-<ol>
-<li>L(P) 是能够转移到末状态的 string</li>
-<li>N(P) 是能够使栈中元素为空的 string</li>
-</ol>
+<p>如果 P 是一个 PDA， 1. L(P) 是能够转移到末状态的 string 2. N(P)
+是能够使栈中元素为空的 string</p>
     </div>
 
     
@@ -477,7 +502,13 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Introduction-to-context-free-grammars"><span class="nav-number">1.</span> <span class="nav-text">Introduction to context-free grammars</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89"><span class="nav-number">1.1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BNF-Backus-Naur-Form-Notation"><span class="nav-number">1.2.</span> <span class="nav-text">BNF(Backus-Naur Form) Notation</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Leftmost-and-Rightmost-Derivations"><span class="nav-number">1.2.1.</span> <span class="nav-text">Leftmost and Rightmost Derivations</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Parse-tree"><span class="nav-number">2.</span> <span class="nav-text">Parse tree</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89-1"><span class="nav-number">2.1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Ambiguous-Grammars"><span class="nav-number">2.2.</span> <span class="nav-text">Ambiguous Grammars</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Normal-forms-for-context-free-grammars"><span class="nav-number">3.</span> <span class="nav-text">Normal forms for context-free grammars</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Variables-That-Derive-Nothing"><span class="nav-number">3.1.</span> <span class="nav-text">Variables That Derive Nothing</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89-2"><span class="nav-number">3.1.1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Algorithm-to-Eliminate-Variables-That-Derive-Nothing"><span class="nav-number">3.1.2.</span> <span class="nav-text">Algorithm to Eliminate Variables That Derive Nothing</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Unreachable-Symbols"><span class="nav-number">3.2.</span> <span class="nav-text">Unreachable Symbols</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Eliminating-Useless-Symbols"><span class="nav-number">3.3.</span> <span class="nav-text">Eliminating Useless Symbols</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Epsilon-Productions"><span class="nav-number">3.4.</span> <span class="nav-text">Epsilon Productions</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Nullable-Symbols"><span class="nav-number">3.4.1.</span> <span class="nav-text">Nullable Symbols</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Eliminating-%CE%B5-Productions"><span class="nav-number">3.4.2.</span> <span class="nav-text">Eliminating ε-Productions</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Unit-Productions"><span class="nav-number">3.5.</span> <span class="nav-text">Unit Productions</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Cleaning-Up-a-Grammar"><span class="nav-number">3.6.</span> <span class="nav-text">Cleaning Up a Grammar</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Chomsky-Normal-Form"><span class="nav-number">3.7.</span> <span class="nav-text">Chomsky Normal Form</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Pushdown-automata"><span class="nav-number">4.</span> <span class="nav-text">Pushdown automata</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#introduction-to-context-free-grammars"><span class="nav-number">1.</span> <span class="nav-text">Introduction to
+context-free grammars</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89"><span class="nav-number">1.1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#bnfbackus-naur-form-notation"><span class="nav-number">1.2.</span> <span class="nav-text">BNF(Backus-Naur Form)
+Notation</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#leftmost-and-rightmost-derivations"><span class="nav-number">1.2.1.</span> <span class="nav-text">Leftmost and Rightmost
+Derivations</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#parse-tree"><span class="nav-number">2.</span> <span class="nav-text">Parse tree</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89-1"><span class="nav-number">2.1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ambiguous-grammars"><span class="nav-number">2.2.</span> <span class="nav-text">Ambiguous Grammars</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#normal-forms-for-context-free-grammars"><span class="nav-number">3.</span> <span class="nav-text">Normal forms for
+context-free grammars</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#variables-that-derive-nothing"><span class="nav-number">3.1.</span> <span class="nav-text">Variables That Derive
+Nothing</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89-2"><span class="nav-number">3.1.1.</span> <span class="nav-text">定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#algorithm-to-eliminate-variables-that-derive-nothing"><span class="nav-number">3.1.2.</span> <span class="nav-text">Algorithm
+to Eliminate Variables That Derive Nothing</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#unreachable-symbols"><span class="nav-number">3.2.</span> <span class="nav-text">Unreachable Symbols</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#eliminating-useless-symbols"><span class="nav-number">3.3.</span> <span class="nav-text">Eliminating Useless Symbols</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#epsilon-productions"><span class="nav-number">3.4.</span> <span class="nav-text">Epsilon Productions</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#nullable-symbols"><span class="nav-number">3.4.1.</span> <span class="nav-text">Nullable Symbols</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#eliminating-%CE%B5-productions"><span class="nav-number">3.4.2.</span> <span class="nav-text">Eliminating ε-Productions</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#unit-productions"><span class="nav-number">3.5.</span> <span class="nav-text">Unit Productions</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cleaning-up-a-grammar"><span class="nav-number">3.6.</span> <span class="nav-text">Cleaning Up a Grammar</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#chomsky-normal-form"><span class="nav-number">3.7.</span> <span class="nav-text">Chomsky Normal Form</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#pushdown-automata"><span class="nav-number">4.</span> <span class="nav-text">Pushdown automata</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -507,7 +538,7 @@
 </div>
   <div class="links-of-author motion-element">
       <span class="links-of-author-item">
-        <a href="https://github.com/stevelee477" title="GitHub → https://github.com/stevelee477" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+        <a href="https://github.com/stevelee477" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;stevelee477" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
       </span>
       <span class="links-of-author-item">
         <a href="mailto:stevelee477@gmail.com" title="E-Mail → mailto:stevelee477@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
@@ -544,7 +575,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">92k</span>
+    <span title="站点总字数">91k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
@@ -579,92 +610,6 @@
 
 
 
-<script>
-  (function() {
-    function leancloudSelector(url) {
-      url = encodeURI(url);
-      return document.getElementById(url).querySelector('.leancloud-visitors-count');
-    }
-
-    function addCount(Counter) {
-      var visitors = document.querySelector('.leancloud_visitors');
-      var url = decodeURI(visitors.id);
-      var title = visitors.dataset.flagTitle;
-
-      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
-        .then(response => response.json())
-        .then(({ results }) => {
-          if (results.length > 0) {
-            var counter = results[0];
-            leancloudSelector(url).innerText = counter.time + 1;
-            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
-              .catch(error => {
-                console.error('Failed to save visitor count', error);
-              });
-          } else {
-              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
-              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
-            
-          }
-        })
-        .catch(error => {
-          console.error('LeanCloud Counter Error', error);
-        });
-    }
-
-    function showTime(Counter) {
-      var visitors = document.querySelectorAll('.leancloud_visitors');
-      var entries = [...visitors].map(element => {
-        return decodeURI(element.id);
-      });
-
-      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
-        .then(response => response.json())
-        .then(({ results }) => {
-          for (let url of entries) {
-            let target = results.find(item => item.url === url);
-            leancloudSelector(url).innerText = target ? target.time : 0;
-          }
-        })
-        .catch(error => {
-          console.error('LeanCloud Counter Error', error);
-        });
-    }
-
-    let { app_id, app_key, server_url } = {"enable":true,"app_id":"8BpwGehRF6AbgFLYGXXNO7X6-gzGzoHsz","app_key":"cVhrNg9TszxDosxaDiCuMvru","server_url":"https://8bpwgehr.lc-cn-n1-shared.com","security":true};
-    function fetchData(api_server) {
-      var Counter = (method, url, data) => {
-        return fetch(`${api_server}/1.1${url}`, {
-          method,
-          headers: {
-            'X-LC-Id'     : app_id,
-            'X-LC-Key'    : app_key,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data)
-        });
-      };
-      if (CONFIG.page.isPost) {
-        if (CONFIG.hostname !== location.hostname) return;
-        addCount(Counter);
-      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
-        showTime(Counter);
-      }
-    }
-
-    let api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
-
-    if (api_server) {
-      fetchData(api_server);
-    } else {
-      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
-        .then(response => response.json())
-        .then(({ api_server }) => {
-          fetchData('https://' + api_server);
-        });
-    }
-  })();
-</script>
 
 
       </div>

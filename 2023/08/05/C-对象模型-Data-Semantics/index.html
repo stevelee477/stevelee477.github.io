@@ -29,16 +29,15 @@
 <meta property="og:site_name" content="Steve&#39;s">
 <meta property="og:description" content="深度探索C++对象模型-第三章">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="https://blog.lyh.moe/Image.jpeg">
-<meta property="og:image" content="https://blog.lyh.moe/Image2.jpeg">
-<meta property="og:image" content="https://blog.lyh.moe/Image3.jpeg">
+<meta property="og:image" content="https://blog.lyh.moe/2023/08/05/C-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B-Data-Semantics/Image.jpeg">
+<meta property="og:image" content="https://blog.lyh.moe/2023/08/05/C-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B-Data-Semantics/Image2.jpeg">
 <meta property="article:published_time" content="2023-08-05T01:05:30.000Z">
 <meta property="article:modified_time" content="2023-08-05T01:28:52.269Z">
 <meta property="article:author" content="Steve">
 <meta property="article:tag" content="C++">
 <meta property="article:tag" content="C++对象模型">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://blog.lyh.moe/Image.jpeg">
+<meta name="twitter:image" content="https://blog.lyh.moe/2023/08/05/C-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B-Data-Semantics/Image.jpeg">
 
 <link rel="canonical" href="https://blog.lyh.moe/2023/08/05/C-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B-Data-Semantics/">
 
@@ -203,13 +202,6 @@
             </span>
 
           
-            <span id="/2023/08/05/C-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B-Data-Semantics/" class="post-meta-item leancloud_visitors" data-flag-title="C++对象模型 Data Semantics" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
             <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
@@ -242,29 +234,31 @@
 
       
         <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Point3d</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="comment">// ...</span></span><br><span class="line"><span class="keyword">protected</span>:</span><br><span class="line">	<span class="type">float</span> x, y, z;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">&amp;&amp;Point3d::x; <span class="comment">// 获得x在class object中的offset</span></span><br></pre></td></tr></table></figure>
-
-<p>两种访问方式，在x属于一个virtual base class的member的时候有差异，否则都是编译期就确定的(一次访问)</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">origin.x = <span class="number">0.0</span>;</span><br><span class="line">pt-&gt;x = <span class="number">0.0</span>;</span><br></pre></td></tr></table></figure>
-
-<h2 id="继承与Data-member"><a href="#继承与Data-member" class="headerlink" title="继承与Data member"></a>继承与Data member</h2><ul>
+<p>两种访问方式，在x属于一个virtual base
+class的member的时候有差异，否则都是编译期就确定的(一次访问)
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">origin.x = <span class="number">0.0</span>;</span><br><span class="line">pt-&gt;x = <span class="number">0.0</span>;</span><br></pre></td></tr></table></figure></p>
+<h2 id="继承与data-member">继承与Data member</h2>
+<ul>
 <li>只要继承：多个继承，可能会有多个padding，造成浪费</li>
-<li>加上多态<ul>
+<li>加上多态
+<ul>
 <li>增加vptr</li>
 <li>增加vtbl</li>
 <li>构造函数中设定vptr初始值</li>
 <li>析构函数中删除vptr</li>
+</ul></li>
+<li>多重继承：多重继承下，转换指针，将基地址加上中间的base class
+object大小 <img src="Image.jpeg" /></li>
+<li>虚继承：两种方式，第二种使用正值负值在vtable中索引virtual
+subobject的偏移量，减少空间 <img src="Image2.jpeg" /> <img
+src="Image3.jpeg" /></li>
 </ul>
-</li>
-<li>多重继承：多重继承下，转换指针，将基地址加上中间的base class object大小<br><img src="/Image.jpeg"></li>
-<li>虚继承：两种方式，第二种使用正值负值在vtable中索引virtual subobject的偏移量，减少空间<br><img src="/Image2.jpeg"><br><img src="/Image3.jpeg"></li>
-</ul>
-<h2 id="指向Data-member的指针"><a href="#指向Data-member的指针" class="headerlink" title="指向Data member的指针"></a>指向Data member的指针</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&amp;Point3d::z;</span><br></pre></td></tr></table></figure>
+<h2 id="指向data-member的指针">指向Data member的指针</h2>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&amp;Point3d::z;</span><br></pre></td></tr></table></figure>
 <p>得到z坐标在class object中的offset</p>
-<p>DataMember指针</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;_types/_uint64_t.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;memory&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Point</span> &#123;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Point1d</span> : <span class="keyword">public</span> Point &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="type">int</span> x;</span><br><span class="line">	<span class="built_in">Point1d</span>(<span class="type">int</span> x_) : <span class="built_in">x</span>(x_) &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Point2d</span> : <span class="keyword">public</span> Point1d &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="type">int</span> y;</span><br><span class="line">	<span class="built_in">Point2d</span>(<span class="type">int</span> x_, <span class="type">int</span> y_) : <span class="built_in">Point1d</span>(x_), <span class="built_in">y</span>(y_) &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;&amp;Point2d::x: %p\n&quot;</span>, &amp;Point2d::x); <span class="comment">// 0x0</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;&amp;Point2d::y: %p\n&quot;</span>, &amp;Point2d::y); <span class="comment">// 0x4</span></span><br><span class="line">	<span class="function">Point2d <span class="title">p</span><span class="params">(<span class="number">1</span>, <span class="number">2</span>)</span></span>;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;&amp;p: %p\n&quot;</span>, &amp;p); <span class="comment">// 0x16f50ed68</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;&amp;p.x: %p\n&quot;</span>, &amp;p.x); <span class="comment">// 0x16f50ed68</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;&amp;p.y: %p\n&quot;</span>, &amp;p.y); <span class="comment">// 0x16f50ed6c</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;&amp;p.y - &amp;p.x: %lu\n&quot;</span>, (<span class="type">uint64_t</span>)(&amp;p.y) - (<span class="type">uint64_t</span>)(&amp;p.x)); <span class="comment">// 4</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>虚继承：<br>看起来在clang上是有个单独的vbtable，而不是在vtable的前边</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;_types/_uint32_t.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">B</span> &#123;</span><br><span class="line">	<span class="type">int</span> x;</span><br><span class="line">	<span class="built_in">B</span>(<span class="type">int</span> x_) : <span class="built_in">x</span>(x_)&#123;&#125;;</span><br><span class="line">	<span class="built_in">B</span>() = <span class="keyword">default</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">D1</span> : <span class="keyword">virtual</span> B &#123;</span><br><span class="line">	<span class="type">uint32_t</span> y1;</span><br><span class="line">	<span class="built_in">D1</span>(<span class="type">int</span> x_, <span class="type">int</span> y1_) : <span class="built_in">B</span>(x_), <span class="built_in">y1</span>(y1_)&#123;&#125;;</span><br><span class="line">	<span class="built_in">D1</span>() = <span class="keyword">default</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">D2</span> : <span class="keyword">virtual</span> B &#123;</span><br><span class="line">	<span class="type">uint32_t</span> y2;</span><br><span class="line">	<span class="built_in">D2</span>(<span class="type">int</span> x_, <span class="type">int</span> y2_) : <span class="built_in">B</span>(x_), <span class="built_in">y2</span>(y2_)&#123;&#125;;</span><br><span class="line">	<span class="built_in">D2</span>() = <span class="keyword">default</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">D</span> : D1, D2 &#123;</span><br><span class="line">	<span class="built_in">D</span>(<span class="type">int</span> x, <span class="type">int</span> y1, <span class="type">int</span> y2) : <span class="built_in">B</span>(x), <span class="built_in">D1</span>(x, y2), <span class="built_in">D2</span>(x, y2) &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="function">D <span class="title">d</span><span class="params">(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>)</span></span>;</span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	------</span></span><br><span class="line"><span class="comment">	D1(16byte): vptr, y1</span></span><br><span class="line"><span class="comment">	------</span></span><br><span class="line"><span class="comment">	D2(12byte): vptr, y1</span></span><br><span class="line"><span class="comment">	------</span></span><br><span class="line"><span class="comment">	B(4byte): x</span></span><br><span class="line"><span class="comment">	------</span></span><br><span class="line"><span class="comment">	*/</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;&amp;d=%p\n&quot;</span>, &amp;d); <span class="comment">// let it be x</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;&amp;d.y1=%p\n&quot;</span>, &amp;d.y1); <span class="comment">// x+8 (vbtable for d1 at x)</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;&amp;d.y2=%p\n&quot;</span>, &amp;d.y2); <span class="comment">// x+24 (vbtable for d2 at x+16)</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;&amp;d.x=%p\n&quot;</span>, &amp;d.x); <span class="comment">// x+28</span></span><br><span class="line">	</span><br><span class="line">	<span class="type">int</span> *vtable_d1 = (<span class="type">int</span> *)*(<span class="type">int</span> **)&amp;d; <span class="comment">// d1 vtable</span></span><br><span class="line">	<span class="type">int</span> *vtable_d2 = (<span class="type">int</span> *)(*(<span class="type">int</span> **)&amp;d + <span class="number">16</span>); <span class="comment">// d2 vtable</span></span><br><span class="line">	</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%d\n&quot;</span>, vtable_d1[<span class="number">0</span>]); <span class="comment">// offset from D1end to B (12)</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%d\n&quot;</span>, vtable_d2[<span class="number">0</span>]); <span class="comment">// offset from D2end to B (0)</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>DataMember指针 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;_types/_uint64_t.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;memory&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Point</span> &#123;&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Point1d</span> : <span class="keyword">public</span> Point &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="type">int</span> x;</span><br><span class="line">	<span class="built_in">Point1d</span>(<span class="type">int</span> x_) : <span class="built_in">x</span>(x_) &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Point2d</span> : <span class="keyword">public</span> Point1d &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="type">int</span> y;</span><br><span class="line">	<span class="built_in">Point2d</span>(<span class="type">int</span> x_, <span class="type">int</span> y_) : <span class="built_in">Point1d</span>(x_), <span class="built_in">y</span>(y_) &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;&amp;Point2d::x: %p\n&quot;</span>, &amp;Point2d::x); <span class="comment">// 0x0</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;&amp;Point2d::y: %p\n&quot;</span>, &amp;Point2d::y); <span class="comment">// 0x4</span></span><br><span class="line">	<span class="function">Point2d <span class="title">p</span><span class="params">(<span class="number">1</span>, <span class="number">2</span>)</span></span>;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;&amp;p: %p\n&quot;</span>, &amp;p); <span class="comment">// 0x16f50ed68</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;&amp;p.x: %p\n&quot;</span>, &amp;p.x); <span class="comment">// 0x16f50ed68</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;&amp;p.y: %p\n&quot;</span>, &amp;p.y); <span class="comment">// 0x16f50ed6c</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;&amp;p.y - &amp;p.x: %lu\n&quot;</span>, (<span class="type">uint64_t</span>)(&amp;p.y) - (<span class="type">uint64_t</span>)(&amp;p.x)); <span class="comment">// 4</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>虚继承： 看起来在clang上是有个单独的vbtable，而不是在vtable的前边
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;_types/_uint32_t.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">B</span> &#123;</span><br><span class="line">	<span class="type">int</span> x;</span><br><span class="line">	<span class="built_in">B</span>(<span class="type">int</span> x_) : <span class="built_in">x</span>(x_)&#123;&#125;;</span><br><span class="line">	<span class="built_in">B</span>() = <span class="keyword">default</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">D1</span> : <span class="keyword">virtual</span> B &#123;</span><br><span class="line">	<span class="type">uint32_t</span> y1;</span><br><span class="line">	<span class="built_in">D1</span>(<span class="type">int</span> x_, <span class="type">int</span> y1_) : <span class="built_in">B</span>(x_), <span class="built_in">y1</span>(y1_)&#123;&#125;;</span><br><span class="line">	<span class="built_in">D1</span>() = <span class="keyword">default</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">D2</span> : <span class="keyword">virtual</span> B &#123;</span><br><span class="line">	<span class="type">uint32_t</span> y2;</span><br><span class="line">	<span class="built_in">D2</span>(<span class="type">int</span> x_, <span class="type">int</span> y2_) : <span class="built_in">B</span>(x_), <span class="built_in">y2</span>(y2_)&#123;&#125;;</span><br><span class="line">	<span class="built_in">D2</span>() = <span class="keyword">default</span>;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">D</span> : D1, D2 &#123;</span><br><span class="line">	<span class="built_in">D</span>(<span class="type">int</span> x, <span class="type">int</span> y1, <span class="type">int</span> y2) : <span class="built_in">B</span>(x), <span class="built_in">D1</span>(x, y2), <span class="built_in">D2</span>(x, y2) &#123;&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	<span class="function">D <span class="title">d</span><span class="params">(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>)</span></span>;</span><br><span class="line">	<span class="comment">/*</span></span><br><span class="line"><span class="comment">	------</span></span><br><span class="line"><span class="comment">	D1(16byte): vptr, y1</span></span><br><span class="line"><span class="comment">	------</span></span><br><span class="line"><span class="comment">	D2(12byte): vptr, y1</span></span><br><span class="line"><span class="comment">	------</span></span><br><span class="line"><span class="comment">	B(4byte): x</span></span><br><span class="line"><span class="comment">	------</span></span><br><span class="line"><span class="comment">	*/</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;&amp;d=%p\n&quot;</span>, &amp;d); <span class="comment">// let it be x</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;&amp;d.y1=%p\n&quot;</span>, &amp;d.y1); <span class="comment">// x+8 (vbtable for d1 at x)</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;&amp;d.y2=%p\n&quot;</span>, &amp;d.y2); <span class="comment">// x+24 (vbtable for d2 at x+16)</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;&amp;d.x=%p\n&quot;</span>, &amp;d.x); <span class="comment">// x+28</span></span><br><span class="line">	</span><br><span class="line">	<span class="type">int</span> *vtable_d1 = (<span class="type">int</span> *)*(<span class="type">int</span> **)&amp;d; <span class="comment">// d1 vtable</span></span><br><span class="line">	<span class="type">int</span> *vtable_d2 = (<span class="type">int</span> *)(*(<span class="type">int</span> **)&amp;d + <span class="number">16</span>); <span class="comment">// d2 vtable</span></span><br><span class="line">	</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%d\n&quot;</span>, vtable_d1[<span class="number">0</span>]); <span class="comment">// offset from D1end to B (12)</span></span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">&quot;%d\n&quot;</span>, vtable_d2[<span class="number">0</span>]); <span class="comment">// offset from D2end to B (0)</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
     </div>
 
     
@@ -348,7 +342,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%A7%E6%89%BF%E4%B8%8EData-member"><span class="nav-number">1.</span> <span class="nav-text">继承与Data member</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8C%87%E5%90%91Data-member%E7%9A%84%E6%8C%87%E9%92%88"><span class="nav-number">2.</span> <span class="nav-text">指向Data member的指针</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%A7%E6%89%BF%E4%B8%8Edata-member"><span class="nav-number">1.</span> <span class="nav-text">继承与Data member</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8C%87%E5%90%91data-member%E7%9A%84%E6%8C%87%E9%92%88"><span class="nav-number">2.</span> <span class="nav-text">指向Data member的指针</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -378,7 +372,7 @@
 </div>
   <div class="links-of-author motion-element">
       <span class="links-of-author-item">
-        <a href="https://github.com/stevelee477" title="GitHub → https://github.com/stevelee477" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+        <a href="https://github.com/stevelee477" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;stevelee477" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
       </span>
       <span class="links-of-author-item">
         <a href="mailto:stevelee477@gmail.com" title="E-Mail → mailto:stevelee477@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
@@ -415,7 +409,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">92k</span>
+    <span title="站点总字数">91k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
@@ -450,92 +444,6 @@
 
 
 
-<script>
-  (function() {
-    function leancloudSelector(url) {
-      url = encodeURI(url);
-      return document.getElementById(url).querySelector('.leancloud-visitors-count');
-    }
-
-    function addCount(Counter) {
-      var visitors = document.querySelector('.leancloud_visitors');
-      var url = decodeURI(visitors.id);
-      var title = visitors.dataset.flagTitle;
-
-      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url })))
-        .then(response => response.json())
-        .then(({ results }) => {
-          if (results.length > 0) {
-            var counter = results[0];
-            leancloudSelector(url).innerText = counter.time + 1;
-            Counter('put', '/classes/Counter/' + counter.objectId, { time: { '__op': 'Increment', 'amount': 1 } })
-              .catch(error => {
-                console.error('Failed to save visitor count', error);
-              });
-          } else {
-              leancloudSelector(url).innerText = 'Counter not initialized! More info at console err msg.';
-              console.error('ATTENTION! LeanCloud counter has security bug, see how to solve it here: https://github.com/theme-next/hexo-leancloud-counter-security. \n However, you can still use LeanCloud without security, by setting `security` option to `false`.');
-            
-          }
-        })
-        .catch(error => {
-          console.error('LeanCloud Counter Error', error);
-        });
-    }
-
-    function showTime(Counter) {
-      var visitors = document.querySelectorAll('.leancloud_visitors');
-      var entries = [...visitors].map(element => {
-        return decodeURI(element.id);
-      });
-
-      Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({ url: { '$in': entries } })))
-        .then(response => response.json())
-        .then(({ results }) => {
-          for (let url of entries) {
-            let target = results.find(item => item.url === url);
-            leancloudSelector(url).innerText = target ? target.time : 0;
-          }
-        })
-        .catch(error => {
-          console.error('LeanCloud Counter Error', error);
-        });
-    }
-
-    let { app_id, app_key, server_url } = {"enable":true,"app_id":"8BpwGehRF6AbgFLYGXXNO7X6-gzGzoHsz","app_key":"cVhrNg9TszxDosxaDiCuMvru","server_url":"https://8bpwgehr.lc-cn-n1-shared.com","security":true};
-    function fetchData(api_server) {
-      var Counter = (method, url, data) => {
-        return fetch(`${api_server}/1.1${url}`, {
-          method,
-          headers: {
-            'X-LC-Id'     : app_id,
-            'X-LC-Key'    : app_key,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data)
-        });
-      };
-      if (CONFIG.page.isPost) {
-        if (CONFIG.hostname !== location.hostname) return;
-        addCount(Counter);
-      } else if (document.querySelectorAll('.post-title-link').length >= 1) {
-        showTime(Counter);
-      }
-    }
-
-    let api_server = app_id.slice(-9) !== '-MdYXbMMI' ? server_url : `https://${app_id.slice(0, 8).toLowerCase()}.api.lncldglobal.com`;
-
-    if (api_server) {
-      fetchData(api_server);
-    } else {
-      fetch('https://app-router.leancloud.cn/2/route?appId=' + app_id)
-        .then(response => response.json())
-        .then(({ api_server }) => {
-          fetchData('https://' + api_server);
-        });
-    }
-  })();
-</script>
 
 
       </div>
