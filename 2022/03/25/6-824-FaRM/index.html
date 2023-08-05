@@ -4,7 +4,7 @@
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 3.9.0">
+<meta name="generator" content="Hexo 7.0.0-rc2">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -23,19 +23,18 @@
   </script>
 
   <meta name="description" content="FaRM可以提供强可串行性的分布式事务、高性能、高可用性。关键是设计新的事务、复制与恢复协议以利用RDMA与non-volatile DRAM。">
-<meta name="keywords" content="6.824,Distribute System">
 <meta property="og:type" content="article">
 <meta property="og:title" content="6.824-FaRM">
 <meta property="og:url" content="https://blog.lyh.moe/2022/03/25/6-824-FaRM/index.html">
 <meta property="og:site_name" content="Steve&#39;s">
 <meta property="og:description" content="FaRM可以提供强可串行性的分布式事务、高性能、高可用性。关键是设计新的事务、复制与恢复协议以利用RDMA与non-volatile DRAM。">
-<meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="https://blog.lyh.moe/2022/03/25/6-824-FaRM/Pasted%20image%2020220213172740.png">
-<meta property="og:updated_time" content="2022-03-25T09:49:16.548Z">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-03-25T09:48:16.000Z">
+<meta property="article:modified_time" content="2022-03-25T09:49:16.548Z">
+<meta property="article:author" content="Steve">
+<meta property="article:tag" content="6.824">
+<meta property="article:tag" content="Distribute System">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="6.824-FaRM">
-<meta name="twitter:description" content="FaRM可以提供强可串行性的分布式事务、高性能、高可用性。关键是设计新的事务、复制与恢复协议以利用RDMA与non-volatile DRAM。">
-<meta name="twitter:image" content="https://blog.lyh.moe/2022/03/25/6-824-FaRM/Pasted%20image%2020220213172740.png">
 
 <link rel="canonical" href="https://blog.lyh.moe/2022/03/25/6-824-FaRM/">
 
@@ -213,6 +212,20 @@
               </span>
               <span class="post-meta-item-text">阅读次数：</span>
               <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4.2k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
             </span>
 
         </div>
@@ -224,76 +237,38 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="intro">Intro</h1>
-<p>有着高可用性与强可串行性的事务提供了一个单机且不会失效的抽象，按照顺序执行事务。FaRM利用了RDMA与非易失性DRAM。非易失性通过将电池接入DRAM实现，当电源失效时将数据写入SSD。这种趋势消除了存储与网络瓶颈，然而暴露出了CPU瓶颈。FaRM遵循了三种原则来针对CPU瓶颈：减少消息数、使用单侧RDMA读写而不是消息、高效利用并行性。</p>
+        <h1 id="Intro"><a href="#Intro" class="headerlink" title="Intro"></a>Intro</h1><p>有着高可用性与强可串行性的事务提供了一个单机且不会失效的抽象，按照顺序执行事务。FaRM利用了RDMA与非易失性DRAM。非易失性通过将电池接入DRAM实现，当电源失效时将数据写入SSD。这种趋势消除了存储与网络瓶颈，然而暴露出了CPU瓶颈。FaRM遵循了三种原则来针对CPU瓶颈：减少消息数、使用单侧RDMA读写而不是消息、高效利用并行性。</p>
 <p>FaRM使用了4-Phase Commit Protocol。</p>
 <p>单侧RDMA不需要远程CPU的参与。FaRM事务的执行与验证中使用了单侧RDMA读。Coordinator在将记录写入非易失性WAL时使用单侧RDMA，coordinator将commit记录写入远程副本中。因此不需要前台的CPU参与，CPU在之后的后台任务中可以lazy原地截取log。</p>
 <p>使用单侧RDMA需要新的错误恢复协议。FaRM不能依赖服务器来拒绝租期过期的请求。同时也不能依赖传统的确认参加者拥有所有的事务资源的机制。</p>
 <p>FaRM的错误恢复有效的利用了并行。</p>
-<h1 id="hardware-trend">Hardware Trend</h1>
-<h2 id="nv-dram">NV DRAM</h2>
-<p>分布式UPS，在检测到电源失效时可以将DRAM的内容写入SSD，不仅避免了SSD的同步写入问题，同时保护了SSD的寿命。另一种方式时NVDIMM，然而这种设备是特制的。
-# Architecture FaRM提供给了应用全局寻址空间的抽象。FaRM
-API提供了获取本地或远程对象的透明方法。应用可以在成为coordinator后开始事务。在事务执行阶段可以执行任意逻辑。在结束后，调用FaRM来提交事务。</p>
+<h1 id="Hardware-Trend"><a href="#Hardware-Trend" class="headerlink" title="Hardware Trend"></a>Hardware Trend</h1><h2 id="NV-DRAM"><a href="#NV-DRAM" class="headerlink" title="NV DRAM"></a>NV DRAM</h2><p>分布式UPS，在检测到电源失效时可以将DRAM的内容写入SSD，不仅避免了SSD的同步写入问题，同时保护了SSD的寿命。另一种方式时NVDIMM，然而这种设备是特制的。</p>
+<h1 id="Architecture"><a href="#Architecture" class="headerlink" title="Architecture"></a>Architecture</h1><p>FaRM提供给了应用全局寻址空间的抽象。FaRM API提供了获取本地或远程对象的透明方法。应用可以在成为coordinator后开始事务。在事务执行阶段可以执行任意逻辑。在结束后，调用FaRM来提交事务。</p>
 <p>FaRM使用乐观并行控制。执行过程的更新在本地缓存，只有在成功的commit后才会被其他的事务可见。Commit与当前的事务冲突时会失败。在事务执行中，FaRM保证了单个对象的读取是原子的，只会读取已经提交的数据，连续的读取会返回相同的数据。然而不保证不同对象的读取是原子的，未提交的事务可能会在执行过程中看到不一致的数据。</p>
-<p>FaRM
-API提供了无锁读取，提供给只读取单个对象的事务。局部性提示，可以将相关的对象放到同一个机器集合中。可以用来优化性能。</p>
-<p><img src="/2022/03/25/6-824-FaRM/Pasted%20image%2020220213172740.png"></p>
+<p>FaRM API提供了无锁读取，提供给只读取单个对象的事务。局部性提示，可以将相关的对象放到同一个机器集合中。可以用来优化性能。</p>
+<p>![](Pasted image 20220213172740.png)</p>
 <p>FaRM使用4元组表示了不同的配置。使用ZooKeeper来保存，但是不需要ZooKeeper来做租约与恢复。只在配置更新时调用ZooKeeper。</p>
 <p>FaRM的寻址空间由2G大小的region组成，每一个分为1个主副本与f个备份。每个机器在NVRAM中存储多个region，可以被其他机器通过RDMA访问。Object总是从包含region的主副本中读取，如果在本地使用内存访问，如果在其他机器使用RDMA。每个object有64bit的版本用来并发控制欲复制。从region标识符到副本的映射由CM维护。映射按需的获取，并且与RDMA引用一起缓存。</p>
-<p>通过联系CM来分配新的region。CM赋予region单调增加的标识符并且选择副本。副本的选择平衡了每个机器中的region数量，每个副本在不同的failure
-domain中，同时副本可以在用户指定的与之搭配的副本相同region中。Machine向选择的副本机器发送带有region标识符的prepare
-message。如果所有的副本机器成功分配region，CM向所有的副本发送commit。2P保证了在使用region之前映射有效并且在所有的副本上复制。</p>
+<p>通过联系CM来分配新的region。CM赋予region单调增加的标识符并且选择副本。副本的选择平衡了每个机器中的region数量，每个副本在不同的failure domain中，同时副本可以在用户指定的与之搭配的副本相同region中。Machine向选择的副本机器发送带有region标识符的prepare message。如果所有的副本机器成功分配region，CM向所有的副本发送commit。2P保证了在使用region之前映射有效并且在所有的副本上复制。</p>
 <p>每个machine有环形缓冲区，FIFO。作为消息队列或者事务log使用。每个发送接收者都有保存在接收者的log与消息队列。发送者通过RDMA将记录追加到log中。接收者周期性拉取记录来处理log。</p>
-<h1 id="tx">Tx</h1>
-<p>FaRM继承了事务与复制协议来提高性能。相比传统的协议使用更少的消息，并且利用了RDMA读写。FaRM在主从副本上使用NVRAM保存数据与事务log，使用未复制的coordinator直接与primary和backup通信。使用乐观并发控制与读检验。</p>
+<h1 id="Tx"><a href="#Tx" class="headerlink" title="Tx"></a>Tx</h1><p>FaRM继承了事务与复制协议来提高性能。相比传统的协议使用更少的消息，并且利用了RDMA读写。FaRM在主从副本上使用NVRAM保存数据与事务log，使用未复制的coordinator直接与primary和backup通信。使用乐观并发控制与读检验。</p>
 <p>在执行阶段，使用RDMA读取object并且在本地缓存写入。在coordinator中记录所有访问object的地址与版本。</p>
-<p>在commit阶段， 1.
-Lock：coordinator想所有写入object的primary机器发送lock记录。包含了写入object的新的值、版本和object的所有region的列表。Primary使用Compare-and-Swap来处理记录，并且返回锁是否获取。如果有其他的事务改变或者lock了object，lock会失败。失败后coordinator会向所有primary发送abort。
-2.
-Validate：Coordinator从primary读取进行读检验，如果version出现了改变则取消transaction
-3. Commit
-Backups：Coordinator写入COMMIT-BACKUP到backup的log中，当backup的网卡返回ack后继续，不需要占用backup的CPU
-4. Commit
-Primaries：在所有的COMMIT-BACKUP收到ack后，coordinator向所有的primary写入COMMIT-PRIMARY，当收到任何一个ack后向应用返回成功</p>
-<h2 id="为什么需要validate">为什么需要Validate</h2>
-<p>Validate=单侧RDMA获取Object版本（与lock），如果版本改变或者lock被设置，则失败</p>
-<p>VALIDATE example: x and y initially zero T1: if x == 0: y = 1 T2: if
-y == 0: x = 1 (this is a classic test example for strong consistency)
-T1,T2 yields y=1,x=0 T2,T1 yields x=1,y=0 aborts could leave x=0,y=0 but
-serializability forbids x=1,y=1</p>
-<p>suppose simultaneous: T1: Rx Ly Vx Cy T2: Ry Lx Vy Cx what will
-happen? the LOCKs will both succeed! the VALIDATEs will both fail, since
-lock bits are both set so both will abort -- which is OK</p>
-<p>how about: T1: Rx Ly Vx Cy T2: Ry Lx Vy Cx T1 commits T2 aborts since
-T2's Vy sees T1's lock or higher version but we can't have <em>both</em>
-V's before the other L's so VALIDATE seems correct in this example and
-fast: one-sided VALIDATE read rather than LOCK+COMMIT writes</p>
-<h2 id="正确性">正确性</h2>
-<p>LOCK+VALIDATE保证了事务ACID ## Fault-Tolerant the critical issue: if
-a transaction was interrupted by a failure, and a client could have been
-told a transaction committed, or a committed value could have been read
-by another xaction, then the transaction must be preserved and completed
-during recovery.</p>
-<p>look at Figure 4. a committed write might be revealed as soon the
-first COMMIT-PRIMARY is sent (since primary writes and unlocks). so by
-then, all of the transaction's writes must be on all f+1 replicas of all
-relevant shards. the good news: LOCK and COMMIT-BACKUP achieve this.
-LOCK tells all primaries the new value(s). COMMIT-BACKUP tells all
-backups the new value(s). TC doesn't send COMMIT-PRIMARY until all LOCKs
-and COMMIT-BACKUPS complete. backups may not have processed
-COMMIT-BACKUPs, but in NVRAM logs.</p>
-<p>similarly, TC doesn't return to client until at least one
-COMMIT-PRIMARY is safe in primary log. this means' TC's decision will
-survive f failures of any shard. since there's one shard with a full set
-of COMMIT-BACKUP or COMMIT-PRIMARY. any of which is evidence that the
-primary decided to commit. ## Optimistic two classes of concurrency
-control for transactions: pessimistic: wait for lock on first use of
-object; hold until commit/abort called two-phase locking conflicts cause
-delays optimistic: read objects without locking don't install writes
-until commit commit "validates" to see if other xactions conflicted
-valid: commit the writes invalid: abort called Optimistic Concurrency
-Control (OCC)</p>
+<p>在commit阶段，</p>
+<ol>
+<li>Lock：coordinator想所有写入object的primary机器发送lock记录。包含了写入object的新的值、版本和object的所有region的列表。Primary使用Compare-and-Swap来处理记录，并且返回锁是否获取。如果有其他的事务改变或者lock了object，lock会失败。失败后coordinator会向所有primary发送abort。</li>
+<li>Validate：Coordinator从primary读取进行读检验，如果version出现了改变则取消transaction</li>
+<li>Commit Backups：Coordinator写入COMMIT-BACKUP到backup的log中，当backup的网卡返回ack后继续，不需要占用backup的CPU</li>
+<li>Commit Primaries：在所有的COMMIT-BACKUP收到ack后，coordinator向所有的primary写入COMMIT-PRIMARY，当收到任何一个ack后向应用返回成功</li>
+</ol>
+<h2 id="为什么需要Validate"><a href="#为什么需要Validate" class="headerlink" title="为什么需要Validate"></a>为什么需要Validate</h2><p>Validate&#x3D;单侧RDMA获取Object版本（与lock），如果版本改变或者lock被设置，则失败</p>
+<p>VALIDATE example:<br>x and y initially zero<br>T1:<br>  if x &#x3D;&#x3D; 0:<br>    y &#x3D; 1<br>T2:<br>  if y &#x3D;&#x3D; 0:<br>    x &#x3D; 1<br>(this is a classic test example for strong consistency)<br>T1,T2 yields y&#x3D;1,x&#x3D;0<br>T2,T1 yields x&#x3D;1,y&#x3D;0<br>aborts could leave x&#x3D;0,y&#x3D;0<br>but serializability forbids x&#x3D;1,y&#x3D;1</p>
+<p>suppose simultaneous:<br>  T1:  Rx  Ly  Vx  Cy<br>  T2:  Ry  Lx  Vy  Cx<br>  what will happen?<br>  the LOCKs will both succeed!<br>  the VALIDATEs will both fail, since lock bits are both set<br>  so both will abort – which is OK</p>
+<p>how about:<br>  T1:  Rx  Ly  Vx      Cy<br>  T2:  Ry          Lx  Vy  Cx<br>  T1 commits<br>  T2 aborts since T2’s Vy sees T1’s lock or higher version<br>but we can’t have <em>both</em> V’s before the other L’s<br>so VALIDATE seems correct in this example<br>  and fast: one-sided VALIDATE read rather than LOCK+COMMIT writes</p>
+<h2 id="正确性"><a href="#正确性" class="headerlink" title="正确性"></a>正确性</h2><p>LOCK+VALIDATE保证了事务ACID</p>
+<h2 id="Fault-Tolerant"><a href="#Fault-Tolerant" class="headerlink" title="Fault-Tolerant"></a>Fault-Tolerant</h2><p>the critical issue:<br>  if a transaction was interrupted by a failure,<br>    and a client could have been told a transaction committed,<br>    or a committed value could have been read by another xaction,<br>  then the transaction must be preserved and completed during recovery.</p>
+<p>look at Figure 4.<br>a committed write might be revealed as soon the<br>  first COMMIT-PRIMARY is sent (since primary writes and unlocks).<br>so by then, all of the transaction’s writes must be on all<br>  f+1 replicas of all relevant shards.<br>the good news: LOCK and COMMIT-BACKUP achieve this.<br>  LOCK tells all primaries the new value(s).<br>  COMMIT-BACKUP tells all backups the new value(s).<br>  TC doesn’t send COMMIT-PRIMARY until all LOCKs and COMMIT-BACKUPS complete.<br>  backups may not have processed COMMIT-BACKUPs, but in NVRAM logs.</p>
+<p>similarly, TC doesn’t return to client until at least one<br>  COMMIT-PRIMARY is safe in primary log.<br>  this means’ TC’s decision will survive f failures of any shard.<br>  since there’s one shard with a full set of COMMIT-BACKUP or COMMIT-PRIMARY.<br>  any of which is evidence that the primary decided to commit.</p>
+<h2 id="Optimistic"><a href="#Optimistic" class="headerlink" title="Optimistic"></a>Optimistic</h2><p>two classes of concurrency control for transactions:<br>  pessimistic:<br>    wait for lock on first use of object; hold until commit&#x2F;abort<br>    called two-phase locking<br>    conflicts cause delays<br>  optimistic:<br>    read objects without locking<br>    don’t install writes until commit<br>    commit “validates” to see if other xactions conflicted<br>    valid: commit the writes<br>    invalid: abort<br>    called Optimistic Concurrency Control (OCC)</p>
     </div>
 
     
@@ -315,7 +290,10 @@ Control (OCC)</p>
     <a href="/2022/03/22/ctFS/" rel="prev" title="ctFS">
       <i class="fa fa-chevron-left"></i> ctFS
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2023/08/05/C-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B-Data-Semantics/" rel="next" title="C++对象模型 Data Semantics">
+      C++对象模型 Data Semantics <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -374,7 +352,7 @@ Control (OCC)</p>
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#intro"><span class="nav-number">1.</span> <span class="nav-text">Intro</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#hardware-trend"><span class="nav-number">2.</span> <span class="nav-text">Hardware Trend</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#nv-dram"><span class="nav-number">2.1.</span> <span class="nav-text">NV DRAM</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#tx"><span class="nav-number">3.</span> <span class="nav-text">Tx</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么需要validate"><span class="nav-number">3.1.</span> <span class="nav-text">为什么需要Validate</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#正确性"><span class="nav-number">3.2.</span> <span class="nav-text">正确性</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Intro"><span class="nav-number">1.</span> <span class="nav-text">Intro</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Hardware-Trend"><span class="nav-number">2.</span> <span class="nav-text">Hardware Trend</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#NV-DRAM"><span class="nav-number">2.1.</span> <span class="nav-text">NV DRAM</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Architecture"><span class="nav-number">3.</span> <span class="nav-text">Architecture</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Tx"><span class="nav-number">4.</span> <span class="nav-text">Tx</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81Validate"><span class="nav-number">4.1.</span> <span class="nav-text">为什么需要Validate</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%AD%A3%E7%A1%AE%E6%80%A7"><span class="nav-number">4.2.</span> <span class="nav-text">正确性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Fault-Tolerant"><span class="nav-number">4.3.</span> <span class="nav-text">Fault-Tolerant</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Optimistic"><span class="nav-number">4.4.</span> <span class="nav-text">Optimistic</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -390,14 +368,14 @@ Control (OCC)</p>
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-count">25</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-count">20</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -432,11 +410,21 @@ Control (OCC)</p>
 <div class="copyright">
   
   &copy; 2018 – 
-  <span itemprop="copyrightYear">2022</span>
+  <span itemprop="copyrightYear">2023</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">Steve</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">92k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:23</span>
 </div>
 
         
@@ -563,9 +551,17 @@ Control (OCC)</p>
   <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
   <script src="/lib/velocity/velocity.min.js"></script>
   <script src="/lib/velocity/velocity.ui.min.js"></script>
-<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
 <script src="/js/schemes/pisces.js"></script>
+
+
 <script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
 
 
 

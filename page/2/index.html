@@ -4,7 +4,7 @@
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="generator" content="Hexo 3.9.0">
+<meta name="generator" content="Hexo 7.0.0-rc2">
   <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
@@ -26,9 +26,9 @@
 <meta property="og:title" content="Steve&#39;s">
 <meta property="og:url" content="https://blog.lyh.moe/page/2/index.html">
 <meta property="og:site_name" content="Steve&#39;s">
-<meta property="og:locale" content="zh-CN">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:author" content="Steve">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Steve&#39;s">
 
 <link rel="canonical" href="https://blog.lyh.moe/page/2/">
 
@@ -164,7 +164,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://blog.lyh.moe/2021/01/12/6-824-Lab2A-Raft-Leader选举/">
+    <link itemprop="mainEntityOfPage" href="https://blog.lyh.moe/2021/01/24/6-824-Lab2C-Raft-Persistent-more/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
@@ -178,7 +178,193 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2021/01/12/6-824-Lab2A-Raft-Leader选举/" class="post-title-link" itemprop="url">6.824 Lab2A: Raft Leader选举</a>
+            <a href="/2021/01/24/6-824-Lab2C-Raft-Persistent-more/" class="post-title-link" itemprop="url">6.824 Lab2C: Raft Persistent & more</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-01-24 16:37:59" itemprop="dateCreated datePublished" datetime="2021-01-24T16:37:59+08:00">2021-01-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-01-25 20:03:02" itemprop="dateModified" datetime="2021-01-25T20:03:02+08:00">2021-01-25</time>
+              </span>
+
+          
+            <span id="/2021/01/24/6-824-Lab2C-Raft-Persistent-more/" class="post-meta-item leancloud_visitors" data-flag-title="6.824 Lab2C: Raft Persistent & more" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.4k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>这是Raft最后一个Lab，主要是Persisitent和一些可靠性测试</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/01/24/6-824-Lab2C-Raft-Persistent-more/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.lyh.moe/2021/01/17/6-824-Lab2B-Raft-Log-%E5%A4%8D%E5%88%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Steve">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Steve's">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/01/17/6-824-Lab2B-Raft-Log-%E5%A4%8D%E5%88%B6/" class="post-title-link" itemprop="url">6.824 Lab2B: Raft Log 复制</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-01-17 21:51:31" itemprop="dateCreated datePublished" datetime="2021-01-17T21:51:31+08:00">2021-01-17</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-01-24 16:38:43" itemprop="dateModified" datetime="2021-01-24T16:38:43+08:00">2021-01-24</time>
+              </span>
+
+          
+            <span id="/2021/01/17/6-824-Lab2B-Raft-Log-%E5%A4%8D%E5%88%B6/" class="post-meta-item leancloud_visitors" data-flag-title="6.824 Lab2B: Raft Log 复制" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>7.5k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>7 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>这一次的比Lab2A要难一些，并且发现了之前实现的选举的一些问题</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/01/17/6-824-Lab2B-Raft-Log-%E5%A4%8D%E5%88%B6/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.lyh.moe/2021/01/12/6-824-Lab2A-Raft-Leader%E9%80%89%E4%B8%BE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Steve">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Steve's">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/01/12/6-824-Lab2A-Raft-Leader%E9%80%89%E4%B8%BE/" class="post-title-link" itemprop="url">6.824 Lab2A: Raft Leader选举</a>
         </h2>
 
         <div class="post-meta">
@@ -193,12 +379,26 @@
             </span>
 
           
-            <span id="/2021/01/12/6-824-Lab2A-Raft-Leader选举/" class="post-meta-item leancloud_visitors" data-flag-title="6.824 Lab2A: Raft Leader选举" title="阅读次数">
+            <span id="/2021/01/12/6-824-Lab2A-Raft-Leader%E9%80%89%E4%B8%BE/" class="post-meta-item leancloud_visitors" data-flag-title="6.824 Lab2A: Raft Leader选举" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
               <span class="post-meta-item-text">阅读次数：</span>
               <span class="leancloud-visitors-count"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4.7k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
             </span>
 
         </div>
@@ -213,7 +413,7 @@
           <p>期末考试完把之前的坑填一下</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2021/01/12/6-824-Lab2A-Raft-Leader选举/#more" rel="contents">
+              <a class="btn" href="/2021/01/12/6-824-Lab2A-Raft-Leader%E9%80%89%E4%B8%BE/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -272,6 +472,20 @@
               </span>
               <span class="post-meta-item-text">阅读次数：</span>
               <span class="leancloud-visitors-count"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4.6k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>4 分钟</span>
             </span>
 
         </div>
@@ -310,7 +524,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://blog.lyh.moe/2020/07/06/Python-装饰器/">
+    <link itemprop="mainEntityOfPage" href="https://blog.lyh.moe/2020/07/06/Python-%E8%A3%85%E9%A5%B0%E5%99%A8/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
@@ -324,7 +538,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2020/07/06/Python-装饰器/" class="post-title-link" itemprop="url">Python 装饰器</a>
+            <a href="/2020/07/06/Python-%E8%A3%85%E9%A5%B0%E5%99%A8/" class="post-title-link" itemprop="url">Python 装饰器</a>
         </h2>
 
         <div class="post-meta">
@@ -339,12 +553,26 @@
             </span>
 
           
-            <span id="/2020/07/06/Python-装饰器/" class="post-meta-item leancloud_visitors" data-flag-title="Python 装饰器" title="阅读次数">
+            <span id="/2020/07/06/Python-%E8%A3%85%E9%A5%B0%E5%99%A8/" class="post-meta-item leancloud_visitors" data-flag-title="Python 装饰器" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
               <span class="post-meta-item-text">阅读次数：</span>
               <span class="leancloud-visitors-count"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.7k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
             </span>
 
         </div>
@@ -356,12 +584,11 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>原来的<a href="lyh.moe">域名</a>终于回来了，目前blog还是在GitHub
-Pages上，等以后有机会迁移到国外的VPS上<del>果然期末考试期间摸鱼效率最高</del>。</p>
+          <p>原来的<a href="lyh.moe">域名</a>终于回来了，目前blog还是在GitHub Pages上，等以后有机会迁移到国外的VPS上<del>果然期末考试期间摸鱼效率最高</del>。</p>
 <p>最近在看Python相关的内容，发现Python远比自己之前认识的要强大<del>所以又开了新坑</del>，写这篇文章的目的也是相当于笔记了。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2020/07/06/Python-装饰器/#more" rel="contents">
+              <a class="btn" href="/2020/07/06/Python-%E8%A3%85%E9%A5%B0%E5%99%A8/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -426,6 +653,20 @@ Pages上，等以后有机会迁移到国外的VPS上<del>果然期末考试期�
               </span>
               <span class="post-meta-item-text">阅读次数：</span>
               <span class="leancloud-visitors-count"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>10k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>9 分钟</span>
             </span>
 
         </div>
@@ -438,8 +679,7 @@ Pages上，等以后有机会迁移到国外的VPS上<del>果然期末考试期�
 
       
           <p>时隔一年多终于等到了更新，<del>域名还经历过没钱付费</del>。</p>
-<p>最近开了新坑，是Berkeley的<a href="https://cs162.eecs.berkeley.edu" target="_blank" rel="noopener">CS 162: Operating Systems and
-System Programming</a>，教授讲的还是挺有意思的。</p>
+<p>最近开了新坑，是Berkeley的<a href="https://cs162.eecs.berkeley.edu/">CS 162: Operating Systems and System Programming</a>，教授讲的还是挺有意思的。</p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2020/03/19/CS162-Project-1-User-Programs/#more" rel="contents">
@@ -466,7 +706,7 @@ System Programming</a>，教授讲的还是挺有意思的。</p>
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://blog.lyh.moe/2019/03/23/Automata-Week-4-笔记/">
+    <link itemprop="mainEntityOfPage" href="https://blog.lyh.moe/2019/03/23/Automata-Week-4-%E7%AC%94%E8%AE%B0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
@@ -480,7 +720,7 @@ System Programming</a>，教授讲的还是挺有意思的。</p>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2019/03/23/Automata-Week-4-笔记/" class="post-title-link" itemprop="url">Automata Week 4 笔记</a>
+            <a href="/2019/03/23/Automata-Week-4-%E7%AC%94%E8%AE%B0/" class="post-title-link" itemprop="url">Automata Week 4 笔记</a>
         </h2>
 
         <div class="post-meta">
@@ -501,12 +741,26 @@ System Programming</a>，教授讲的还是挺有意思的。</p>
               </span>
 
           
-            <span id="/2019/03/23/Automata-Week-4-笔记/" class="post-meta-item leancloud_visitors" data-flag-title="Automata Week 4 笔记" title="阅读次数">
+            <span id="/2019/03/23/Automata-Week-4-%E7%AC%94%E8%AE%B0/" class="post-meta-item leancloud_visitors" data-flag-title="Automata Week 4 笔记" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
               <span class="post-meta-item-text">阅读次数：</span>
               <span class="leancloud-visitors-count"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>686</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>1 分钟</span>
             </span>
 
         </div>
@@ -521,7 +775,7 @@ System Programming</a>，教授讲的还是挺有意思的。</p>
           <p>这周是关于 PDA 和 CFL 的东西，感觉迷迷糊糊的</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2019/03/23/Automata-Week-4-笔记/#more" rel="contents">
+              <a class="btn" href="/2019/03/23/Automata-Week-4-%E7%AC%94%E8%AE%B0/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -545,7 +799,7 @@ System Programming</a>，教授讲的还是挺有意思的。</p>
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://blog.lyh.moe/2019/03/02/Automata-Week-3-笔记/">
+    <link itemprop="mainEntityOfPage" href="https://blog.lyh.moe/2019/03/02/Automata-Week-3-%E7%AC%94%E8%AE%B0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
@@ -559,7 +813,7 @@ System Programming</a>，教授讲的还是挺有意思的。</p>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2019/03/02/Automata-Week-3-笔记/" class="post-title-link" itemprop="url">Automata Week 3 笔记</a>
+            <a href="/2019/03/02/Automata-Week-3-%E7%AC%94%E8%AE%B0/" class="post-title-link" itemprop="url">Automata Week 3 笔记</a>
         </h2>
 
         <div class="post-meta">
@@ -580,12 +834,26 @@ System Programming</a>，教授讲的还是挺有意思的。</p>
               </span>
 
           
-            <span id="/2019/03/02/Automata-Week-3-笔记/" class="post-meta-item leancloud_visitors" data-flag-title="Automata Week 3 笔记" title="阅读次数">
+            <span id="/2019/03/02/Automata-Week-3-%E7%AC%94%E8%AE%B0/" class="post-meta-item leancloud_visitors" data-flag-title="Automata Week 3 笔记" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
               <span class="post-meta-item-text">阅读次数：</span>
               <span class="leancloud-visitors-count"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.8k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
             </span>
 
         </div>
@@ -597,11 +865,10 @@ System Programming</a>，教授讲的还是挺有意思的。</p>
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>这是来自 Coursera 的课程 Automata ,话说到了第三周了才发现这门课的老师
-Jeff Ullman 就是「龙书」的作者</p>
+          <p>这是来自 Coursera 的课程 Automata ,话说到了第三周了才发现这门课的老师 Jeff Ullman 就是「龙书」的作者</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2019/03/02/Automata-Week-3-笔记/#more" rel="contents">
+              <a class="btn" href="/2019/03/02/Automata-Week-3-%E7%AC%94%E8%AE%B0/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -625,7 +892,7 @@ Jeff Ullman 就是「龙书」的作者</p>
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://blog.lyh.moe/2019/02/05/Hexo-美化/">
+    <link itemprop="mainEntityOfPage" href="https://blog.lyh.moe/2019/02/05/Hexo-%E7%BE%8E%E5%8C%96/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
@@ -639,7 +906,7 @@ Jeff Ullman 就是「龙书」的作者</p>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2019/02/05/Hexo-美化/" class="post-title-link" itemprop="url">Hexo 美化</a>
+            <a href="/2019/02/05/Hexo-%E7%BE%8E%E5%8C%96/" class="post-title-link" itemprop="url">Hexo 美化</a>
         </h2>
 
         <div class="post-meta">
@@ -654,12 +921,26 @@ Jeff Ullman 就是「龙书」的作者</p>
             </span>
 
           
-            <span id="/2019/02/05/Hexo-美化/" class="post-meta-item leancloud_visitors" data-flag-title="Hexo 美化" title="阅读次数">
+            <span id="/2019/02/05/Hexo-%E7%BE%8E%E5%8C%96/" class="post-meta-item leancloud_visitors" data-flag-title="Hexo 美化" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
               <span class="post-meta-item-text">阅读次数：</span>
               <span class="leancloud-visitors-count"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.9k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
             </span>
 
         </div>
@@ -671,11 +952,10 @@ Jeff Ullman 就是「龙书」的作者</p>
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>今天来折腾一下 Hexo
-，主要是做一个备份，以后更换环境的时候能够更快的设置</p>
+          <p>今天来折腾一下 Hexo ，主要是做一个备份，以后更换环境的时候能够更快的设置</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2019/02/05/Hexo-美化/#more" rel="contents">
+              <a class="btn" href="/2019/02/05/Hexo-%E7%BE%8E%E5%8C%96/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -740,6 +1020,20 @@ Jeff Ullman 就是「龙书」的作者</p>
               </span>
               <span class="post-meta-item-text">阅读次数：</span>
               <span class="leancloud-visitors-count"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>7.3k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>7 分钟</span>
             </span>
 
         </div>
@@ -752,164 +1046,10 @@ Jeff Ullman 就是「龙书」的作者</p>
 
       
           <p>不知不觉中已经来到了第五个 Lab 了，这次的目标是实现一个 Shell</p>
-<del>
-又要抄代码了
-</del>
+<p><del>又要抄代码了</del></p>
           <!--noindex-->
             <div class="post-button">
               <a class="btn" href="/2019/02/03/CSAPP-Lab-V-Shell-Lab/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://blog.lyh.moe/2019/01/26/CSAPP-Lab-IV-Cache-Lab/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="Steve">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Steve's">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2019/01/26/CSAPP-Lab-IV-Cache-Lab/" class="post-title-link" itemprop="url">[CSAPP Lab]-IV Cache Lab</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2019-01-26 11:34:11" itemprop="dateCreated datePublished" datetime="2019-01-26T11:34:11+08:00">2019-01-26</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2019-02-01 16:03:11" itemprop="dateModified" datetime="2019-02-01T16:03:11+08:00">2019-02-01</time>
-              </span>
-
-          
-            <span id="/2019/01/26/CSAPP-Lab-IV-Cache-Lab/" class="post-meta-item leancloud_visitors" data-flag-title="[CSAPP Lab]-IV Cache Lab" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>这个 lab 算是真正的要开始写代码了，而且码量还不少</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2019/01/26/CSAPP-Lab-IV-Cache-Lab/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://blog.lyh.moe/2019/01/04/CSAPP-Lab-III-Attack-Lab/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="Steve">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Steve's">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2019/01/04/CSAPP-Lab-III-Attack-Lab/" class="post-title-link" itemprop="url">[CSAPP Lab]-III Attack Lab</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-              
-
-              <time title="创建时间：2019-01-04 16:28:28 / 修改时间：21:56:14" itemprop="dateCreated datePublished" datetime="2019-01-04T16:28:28+08:00">2019-01-04</time>
-            </span>
-
-          
-            <span id="/2019/01/04/CSAPP-Lab-III-Attack-Lab/" class="post-meta-item leancloud_visitors" data-flag-title="[CSAPP Lab]-III Attack Lab" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>这是 CSAPP 的第二个作业，花了一下午的时间<del>抄</del>了出来</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2019/01/04/CSAPP-Lab-III-Attack-Lab/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -1000,14 +1140,14 @@ Jeff Ullman 就是「龙书」的作者</p>
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-count">25</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-count">20</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -1042,11 +1182,21 @@ Jeff Ullman 就是「龙书」的作者</p>
 <div class="copyright">
   
   &copy; 2018 – 
-  <span itemprop="copyrightYear">2022</span>
+  <span itemprop="copyrightYear">2023</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">Steve</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">92k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:23</span>
 </div>
 
         
@@ -1173,9 +1323,17 @@ Jeff Ullman 就是「龙书」的作者</p>
   <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
   <script src="/lib/velocity/velocity.min.js"></script>
   <script src="/lib/velocity/velocity.ui.min.js"></script>
-<script src="/js/utils.js"></script><script src="/js/motion.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
 <script src="/js/schemes/pisces.js"></script>
+
+
 <script src="/js/next-boot.js"></script>
+
 
 
 
