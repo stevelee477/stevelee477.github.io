@@ -22,15 +22,21 @@
     var CONFIG = {"hostname":"blog.lyh.moe","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Steve&#39;s">
-<meta property="og:url" content="https://blog.lyh.moe/archives/2021/index.html">
+  <meta name="description" content="深度探索C++对象模型-第五章">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++对象模型 Construction Destruction Copy">
+<meta property="og:url" content="https://blog.lyh.moe/posts/6692/index.html">
 <meta property="og:site_name" content="Steve&#39;s">
+<meta property="og:description" content="深度探索C++对象模型-第五章">
 <meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-08-07T03:51:53.000Z">
+<meta property="article:modified_time" content="2023-08-07T03:53:22.322Z">
 <meta property="article:author" content="Steve">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="C++对象模型">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://blog.lyh.moe/archives/2021/">
+<link rel="canonical" href="https://blog.lyh.moe/posts/6692/">
 
 
 <script id="page-configurations">
@@ -38,12 +44,12 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : false,
+    isPost : true,
     lang   : 'zh-CN'
   };
 </script>
 
-  <title>归档 | Steve's</title>
+  <title>C++对象模型 Construction Destruction Copy | Steve's</title>
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-161464241-1"></script>
     <script>
@@ -158,130 +164,138 @@
         <div class="content-wrap">
           
 
-          <div class="content archive">
+          <div class="content post posts-expand">
             
 
+    
   
   
-  
-  <div class="post-block">
-    <div class="posts-collapse">
-      <div class="collection-title">
-        <span class="collection-header">嗯..! 目前共计 26 篇日志。 继续努力。</span>
-      </div>
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.lyh.moe/posts/6692/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Steve">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Steve's">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          C++对象模型 Construction Destruction Copy
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2023-08-07 11:51:53 / 修改时间：11:53:22" itemprop="dateCreated datePublished" datetime="2023-08-07T11:51:53+08:00">2023-08-07</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.9k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>2 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-    <div class="collection-year">
-      <span class="collection-header">2021</span>
+        <h2 id="对象构造"><a href="#对象构造" class="headerlink" title="对象构造"></a>对象构造</h2><ol>
+<li>递归从左到右调用virtual base class constructor<ul>
+<li>存储virtual base object的offset</li>
+</ul>
+</li>
+<li>递归从左到右调用base class constructor(按照声明顺序，与initialization list顺序无关)<ul>
+<li>如果在initialization list中有，传递参数</li>
+<li>如果base class是多重继承下的第二或之后的base class，调整this指针</li>
+</ul>
+</li>
+<li>设定virtual table pointer</li>
+<li>按照member声明的顺序，如果initialization list中没有那么调用default constructor</li>
+</ol>
+<ul>
+<li>在copy operator时考虑自赋值的情况[[Chap.13 拷贝控制#拷贝赋值函数]]</li>
+<li>在虚基类的情况下，如果某个object是subject那么不会调用virtual base class的构造函数（棱形继承的情况下，虚继承的两个中间基类不会调用基类的构造函数），final class的构造函数会调用virtual base class的构造函数</li>
+<li>在构造函数中，调用virtual function，调用的应该是当前构造中的实例——所以vptr在base class constructor之后设定，但是在initilization list之前（避免有virtual function调用）</li>
+</ul>
+<h2 id="对象拷贝"><a href="#对象拷贝" class="headerlink" title="对象拷贝"></a>对象拷贝</h2><ul>
+<li>如果是菱形继承的情况，基类的拷贝可能会被多次调用</li>
+</ul>
+<h2 id="对象析构"><a href="#对象析构" class="headerlink" title="对象析构"></a>对象析构</h2><ul>
+<li>如果base class&#x2F;member object没有析构函数，不需要析构函数</li>
+</ul>
+<ol>
+<li>destructor函数本体</li>
+<li>调用member class objects的destructor（如果有）</li>
+<li>重新设定vptr，将其指向base class的virtual table</li>
+<li>调用base class destructor</li>
+<li>调用virtual base class destructor</li>
+</ol>
+<p>析构函数同构造函数，为了考虑虚继承的情况，可能会维护两份destructor实例</p>
+<p>clang中，会有两份：</p>
+<ul>
+<li>complete object destructor: 作为final class调用的destructor</li>
+<li>base object destructor: 作为<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">D1::~D1() [complete object destructor]:                             # @D1::~D1() [complete object destructor]</span><br><span class="line">        push    rbp</span><br><span class="line">        mov     rbp, rsp</span><br><span class="line">        sub     rsp, 16</span><br><span class="line">        mov     qword ptr [rbp - 8], rdi</span><br><span class="line">        mov     rdi, qword ptr [rbp - 8]</span><br><span class="line">        mov     qword ptr [rbp - 16], rdi       # 8-byte Spill</span><br><span class="line">        lea     rsi, [rip + VTT for D1]</span><br><span class="line">        call    D1::~D1() [base object destructor]</span><br><span class="line">        mov     rdi, qword ptr [rbp - 16]       # 8-byte Reload</span><br><span class="line">        add     rdi, 12</span><br><span class="line">        call    B::~B() [base object destructor]</span><br><span class="line">        add     rsp, 16</span><br><span class="line">        pop     rbp</span><br><span class="line">        ret</span><br><span class="line">D1::~D1() [base object destructor]:                             # @D1::~D1() [base object destructor]</span><br><span class="line">        push    rbp</span><br><span class="line">        mov     rbp, rsp</span><br><span class="line">        sub     rsp, 16</span><br><span class="line">        mov     qword ptr [rbp - 8], rdi</span><br><span class="line">        mov     qword ptr [rbp - 16], rsi</span><br><span class="line">        mov     rax, qword ptr [rbp - 8]</span><br><span class="line">        mov     rcx, qword ptr [rbp - 16]</span><br><span class="line">        mov     rcx, qword ptr [rcx]</span><br><span class="line">        mov     qword ptr [rax], rcx</span><br><span class="line">        mov     rdi, qword ptr [rip + std::cout@GOTPCREL]</span><br><span class="line">        lea     rsi, [rip + .L.str.1]</span><br><span class="line">        call    std::basic_ostream&lt;char, std::char_traits&lt;char&gt; &gt;&amp; std::operator&lt;&lt; &lt;std::char_traits&lt;char&gt; &gt;(std::basic_ostream&lt;char, std::char_traits&lt;char&gt; &gt;&amp;, char const*)@PLT</span><br><span class="line">        jmp     .LBB9_1</span><br><span class="line">.LBB9_1:</span><br><span class="line">        add     rsp, 16</span><br><span class="line">        pop     rbp</span><br><span class="line">        ret</span><br><span class="line">        mov     rdi, rax</span><br><span class="line">        call    __clang_call_terminate</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="TODO"><a href="#TODO" class="headerlink" title="TODO"></a>TODO</h2><p>研究下构造函数</p>
     </div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+    
+    
+    
 
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2021-02-16T22:07:51+08:00"
-              content="2021-02-16">
-          02-16
-        </time>
-      </div>
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/C/" rel="tag"># C++</a>
+              <a href="/tags/C-%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B/" rel="tag"># C++对象模型</a>
+          </div>
 
-      <div class="post-title">
-          <a class="post-title-link" href="/posts/14683/" itemprop="url">
-            <span itemprop="name">6.824 Lab3B: KVRaft with log compaction</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2021-02-06T21:53:23+08:00"
-              content="2021-02-06">
-          02-06
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/posts/48915/" itemprop="url">
-            <span itemprop="name">6.824 Lab3A: KVRaft without log compaction</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2021-01-24T16:37:59+08:00"
-              content="2021-01-24">
-          01-24
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/posts/26427/" itemprop="url">
-            <span itemprop="name">6.824 Lab2C: Raft Persistent & more</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2021-01-17T21:51:31+08:00"
-              content="2021-01-17">
-          01-17
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/posts/24988/" itemprop="url">
-            <span itemprop="name">6.824 Lab2B: Raft Log 复制</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
-
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      <div class="post-meta">
-        <time itemprop="dateCreated"
-              datetime="2021-01-12T17:43:00+08:00"
-              content="2021-01-12">
-          01-12
-        </time>
-      </div>
-
-      <div class="post-title">
-          <a class="post-title-link" href="/posts/50055/" itemprop="url">
-            <span itemprop="name">6.824 Lab2A: Raft Leader选举</span>
-          </a>
-      </div>
-
-    </header>
-  </article>
+        
 
 
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/25313/" rel="prev" title="C++对象模型 Function Semantics">
+      <i class="fa fa-chevron-left"></i> C++对象模型 Function Semantics
+    </a></div>
+      <div class="post-nav-item"></div>
     </div>
-  </div>
+      </footer>
+    
+  </article>
   
   
-  
-
   
 
 
@@ -334,6 +348,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%B9%E8%B1%A1%E6%9E%84%E9%80%A0"><span class="nav-number">1.</span> <span class="nav-text">对象构造</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%B9%E8%B1%A1%E6%8B%B7%E8%B4%9D"><span class="nav-number">2.</span> <span class="nav-text">对象拷贝</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AF%B9%E8%B1%A1%E6%9E%90%E6%9E%84"><span class="nav-number">3.</span> <span class="nav-text">对象析构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TODO"><span class="nav-number">4.</span> <span class="nav-text">TODO</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
