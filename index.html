@@ -164,6 +164,256 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.lyh.moe/posts/29076/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Steve">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Steve's">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/posts/29076/" class="post-title-link" itemprop="url">15-445 Project 2 - B+Tree</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2023-09-10 12:42:20 / 修改时间：12:43:18" itemprop="dateCreated datePublished" datetime="2023-09-10T12:42:20+08:00">2023-09-10</time>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>7k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>6 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="Task-1-B-Tree-Pages"><a href="#Task-1-B-Tree-Pages" class="headerlink" title="Task #1 - B+Tree Pages"></a>Task #1 - B+Tree Pages</h2><p>实现三种Page</p>
+<ul>
+<li>B+Tree Page 基类，记录了类型、尺寸</li>
+<li>B+Tree Internal Page 内部节点，m个key，m+1个孩子指针(第一个key是空的来实现)</li>
+<li>B+Tree Leaf Page 叶子节点，m个key，m个记录ID<code>RID</code><br>考虑每种Page需要实现的操作</li>
+<li><code>Insert</code> 插入key-value</li>
+<li><code>Lowerbound</code> 获得小于等于key的index</li>
+<li><code>Lookup</code> 寻找Key，内部节点和叶子节点的两个Lookup有着不同的语义<ul>
+<li>叶子节点的Lookup使用Lowerbound找到第一个&gt;&#x3D;key的index，是为了找到对应的key</li>
+<li>内部节点使用Upperbound-1获得**最后一个&lt;&#x3D;key的**的index，因为对应的value子树中的所有值一定是&gt;&#x3D;key[Upperbound-1] &amp;&amp; &lt; key[Upperbound]的。比如[0,3,5,7]，Key&#x3D;4在3的子树中，Key&#x3D;3也在3的子树中</li>
+<li>考虑0和n的边界情况</li>
+</ul>
+</li>
+<li><code>Split</code> 分割一半Key到另一个Page，内部节点的分割需要注意下<br>实现两个小函数</li>
+<li><code>Lowerbound</code> 获得第一个&gt;&#x3D;key的index</li>
+<li><code>Upperbound</code> 获得第一个&gt;key的index</li>
+</ul>
+<h2 id="Task-2a-B-Tree-Insertion-and-Search-for-Single-Values"><a href="#Task-2a-B-Tree-Insertion-and-Search-for-Single-Values" class="headerlink" title="Task #2a - B+Tree Insertion and Search for Single Values"></a>Task #2a - B+Tree Insertion and Search for Single Values</h2><p>实现插入和查找，查找比较简单，插入有几点需要注意</p>
+<ul>
+<li>内部节点什么时候分裂：要避免内部节点Size&#x3D;1的情况（内部节点第一个key是空的，value是子指针），在我的实现中对内部节点分裂后再插入，如果新的内部节点Size&lt;2，把原来内部节点的最后一个Key移过去</li>
+<li>分裂内部节点时：新的内部节点的第一个Key是要给父亲节点的</li>
+</ul>
+<h3 id="关于Lower-bound和Upper-bound"><a href="#关于Lower-bound和Upper-bound" class="headerlink" title="关于Lower bound和Upper bound"></a>关于Lower bound和Upper bound</h3><p>在做这个的过程中，想统一下Lower和Upper bound的实现，统一使用$[l,r)$左闭右开</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">INDEX_TEMPLATE_ARGUMENTS</span></span><br><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">B_PLUS_TREE_INTERNAL_PAGE_TYPE::Lowerbound</span><span class="params">(<span class="type">const</span> KeyType &amp;key, <span class="type">const</span> KeyComparator &amp;comparator)</span> <span class="type">const</span> -&gt; <span class="type">int</span> </span>&#123;</span><br><span class="line">  <span class="keyword">auto</span> n = <span class="built_in">GetSize</span>();</span><br><span class="line">  <span class="built_in">BUSTUB_ASSERT</span>(n != <span class="number">0</span>, <span class="string">&quot;lookup in empty node&quot;</span>);</span><br><span class="line">  <span class="type">int</span> l = <span class="number">1</span>;  <span class="comment">// ignore the first key</span></span><br><span class="line">  <span class="type">int</span> r = n;  <span class="comment">// [l, r)</span></span><br><span class="line">  <span class="keyword">while</span> (l &lt; r) &#123;</span><br><span class="line">    <span class="type">int</span> m = (l + r) &gt;&gt; <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">auto</span> res = <span class="built_in">comparator</span>(key, array_[m].first);</span><br><span class="line">    <span class="keyword">if</span> (res &gt; <span class="number">0</span>) &#123;</span><br><span class="line">      l = m + <span class="number">1</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      r = m;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> l;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function">INDEX_TEMPLATE_ARGUMENTS</span></span><br><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">B_PLUS_TREE_INTERNAL_PAGE_TYPE::Upperbound</span><span class="params">(<span class="type">const</span> KeyType &amp;key, <span class="type">const</span> KeyComparator &amp;comparator)</span> <span class="type">const</span> -&gt; <span class="type">int</span> </span>&#123;</span><br><span class="line">  <span class="keyword">auto</span> n = <span class="built_in">GetSize</span>();</span><br><span class="line">  <span class="built_in">BUSTUB_ASSERT</span>(n != <span class="number">0</span>, <span class="string">&quot;lookup in empty node&quot;</span>);</span><br><span class="line">  <span class="type">int</span> l = <span class="number">0</span>;  <span class="comment">// ignore the first key</span></span><br><span class="line">  <span class="type">int</span> r = n;  <span class="comment">// [l, r)</span></span><br><span class="line">  <span class="keyword">while</span> (l &lt; r) &#123;</span><br><span class="line">    <span class="type">int</span> m = (l + r) &gt;&gt; <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">auto</span> res = <span class="built_in">comparator</span>(key, array_[m].first);</span><br><span class="line">    <span class="keyword">if</span> (res &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">      l = m + <span class="number">1</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      r = m;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> l;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>两者唯一的区别就是当<code>array_[m] == key</code>时的处理方式</p>
+<ul>
+<li><code>Upperbound</code>中，找的是&gt;key的index，所以<code>l=m+1</code></li>
+<li><code>Lowerbound</code>中，找的是&gt;&#x3D;key的index，所以<code>r=m</code></li>
+</ul>
+<h2 id="Task-2b-B-Tree-Deletions"><a href="#Task-2b-B-Tree-Deletions" class="headerlink" title="Task #2b - B+Tree Deletions"></a>Task #2b - B+Tree Deletions</h2><p><a href="https://zhuanlan.zhihu.com/p/592964493">CMU 15445-2022 P2 B+Tree Insert&#x2F;Delete - 知乎</a><br>删除这块有点麻烦，看一下书上是怎么写的<br>目标是删除<code>Srinivasan</code> 是上边链接中的(internal page borrow)<br>![[Pasted image 20230822224149.png]]</p>
+<ol>
+<li>找到叶子节点，将Srinivasan删除后，叶子节点中只剩下一个key，少于最小大小</li>
+<li>删除后，可以将Wu的叶子节点与左侧的合并，然后在第二层节点中删除掉指向已删除叶子结点的key（这里是Srinivasan）</li>
+<li>在第二层节点中删除后，这个内部节点小于最小大小。首先看能不能与兄弟节点合并，但是兄弟节点已满。所以要与兄弟节点**重新分配(redistribute)**：将最右侧的Gold移过来</li>
+<li>这时，第二层的右侧内部节点有两个pointer：一个是原来的指向Mozart的，另一个是Gold自带的，发现没有一个Key可以分割这两个pointer（分割这两个pointer的Key在父亲节点中(Mozart)，因为Mozart左侧小于Mozart，右侧大于Mozart)。这时分割第二层的两个内部结点的Key应该变成了Gold。<br>删除完后变成了下图：Gold跑到了根节点，Mozart到了第二层中<br>![[Pasted image 20230822225530.png]]<br>然后删除Singh和Wu，也是相同的方式，叶子节点从左侧借一个，然后更新父亲节点中的Key(leafpage borrow：不会改变internal page的大小，只需要叶子节点borrow然后更新internal page的key)<br>![[Pasted image 20230822230459.png]]<br>在此之上删除Gold(internal page merge)：</li>
+<li>叶子节点与右侧的Kim合并，合并后在内部节点中删掉对应的Key</li>
+<li>内部节点小于最小大小，与左侧合并，合并的Key从内部结点的父亲来，这里是Gold</li>
+<li>内部节点合并后在第一层里删掉原来的Gold，正好是根节点，根节点变过去<br>![[Pasted image 20230822231609.png]]<br>在B+树中，可能会出现叶子节点中删除的Key仍然在内部节点中出现，如Gold<br>![[IMG_B5D15EFE7985-1.jpeg]]<br>如果需要借，</li>
+<li>叶子节点，借过来后更新父亲节点中的Key（最多借一个，因为删掉的就一个），return</li>
+<li>内部节点，将兄弟节点偷走的Key放到父亲位置，父亲的Key和偷走的Value放过来(对应图中的2.1)，return<br>如果需要合并，往<strong>左侧</strong>合并，在父亲节点中删掉指向原来右侧的Key</li>
+<li>叶子结点，往<strong>左侧</strong>挪过去，在父亲节点中删掉，设置NextPageId，更新内部节点</li>
+<li>内部结点，将父亲的Key和被合并的KV放到合并节点中(因为被合并的中间，最左侧只有一个Value，没有Key，相当于补了一个Key)，在父亲节点中删掉(对应图中的2.2)，更新内部节点</li>
+</ol>
+<p>在实现中，内部结点的借 (Borrow)可以有一个简单的实现方式：</p>
+<ol>
+<li>对于内部节点，因为有n个key和n+1个指针，所以第一个key是空的，但是我们在分裂的时候是把分裂点的key提到了父亲的key中(绿色)，我们可以把这个key保存在分裂节点的第一个key中（如下图）<br>![[20230824_145857316_iOS.png]]</li>
+<li>当需要Borrow的时候，因为第一个隐藏的key就是父节点的key<ul>
+<li>向左边借(offset&#x3D;-1)，直接把最后一个插入到需要的节点的第一个位置，相当于把借来的value(橙色)和父节点的key(绿色)组成了新的kv</li>
+<li>向右边借(offset&#x3D;1)，把右边节点的第一个节点插入到需要的节点的最后，相当于删掉了第二个key(实际有意义的第一个key)</li>
+<li>最后根据右边节点的第一个key更新父节点(offset&#x3D;-1的橙色箭头)<br>![[20230824_145607089_iOS.png]]</li>
+</ul>
+</li>
+</ol>
+<h2 id="Contention"><a href="#Contention" class="headerlink" title="Contention"></a>Contention</h2><p>一开始实现B+树操作的时候，都是用的<code>Context</code>从根到叶子拿上读锁，这样效果是很差的，也过不了<code>contention test</code> ，应该使用Crabing的方法：<a href="https://15445.courses.cs.cmu.edu/fall2017/notes/18-notes-indexconcurrency.pdf">18-notes-indexconcurrency.pdf</a></p>
+<h3 id="Debug-Deadlock"><a href="#Debug-Deadlock" class="headerlink" title="Debug Deadlock"></a>Debug Deadlock</h3><p>在改代码的过程中出现了<code>./test/b_plus_tree_contention_test</code>这个测试的deadlock，正好学习一下怎么debug deadlock<br>![[Pasted image 20230901201123.png]]</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">(lldb) thread select 4</span><br><span class="line">(lldb) bt</span><br><span class="line">* thread #4, name = &#x27;b_plus_tree_con&#x27;, stop reason = signal SIGSTOP</span><br><span class="line">  * frame #0: 0x00007f9a90f6cf37 libpthread.so.0`__GI___pthread_rwlock_wrlock at futex-internal.h:284:13</span><br><span class="line">    frame #1: 0x00007f9a90f6cf21 libpthread.so.0`__GI___pthread_rwlock_wrlock at pthread_rwlock_common.c:830:14</span><br><span class="line">    frame #2: 0x00007f9a90f6cdc0 libpthread.so.0`__GI___pthread_rwlock_wrlock(rwlock=0x000055e176bb2fa0) at pthread_rwlock_wrlock.c:27:16</span><br><span class="line">    frame #3: 0x000055e174c2aa23 b_plus_tree_contention_test`std::__glibcxx_rwlock_wrlock(__rwlock=0x000055e176bb2fa0) at shared_mutex:73:3</span><br><span class="line">    frame #4: 0x000055e174c2bea5 b_plus_tree_contention_test`std::__shared_mutex_pthread::lock(this=0x000055e176bb2fa0) at shared_mutex:186:19</span><br><span class="line">    frame #5: 0x000055e174c2be85 b_plus_tree_contention_test`std::shared_mutex::lock(this=0x000055e176bb2fa0) at shared_mutex:412:27</span><br><span class="line">(lldb) frame select 3</span><br><span class="line">frame #3: 0x000055e174c2aa23 b_plus_tree_contention_test`std::__glibcxx_rwlock_wrlock(__rwlock=0x000055e176bb2fa0) at shared_mutex:73:3</span><br><span class="line">   70  	  &#125;</span><br><span class="line">   71  	  _GLIBCXX_GTHRW(rwlock_rdlock)</span><br><span class="line">   72  	  _GLIBCXX_GTHRW(rwlock_tryrdlock)</span><br><span class="line">-&gt; 73  	  _GLIBCXX_GTHRW(rwlock_wrlock)</span><br><span class="line">   74  	  _GLIBCXX_GTHRW(rwlock_trywrlock)</span><br><span class="line">   75  	  _GLIBCXX_GTHRW(rwlock_unlock)</span><br><span class="line">   76  	# ifndef PTHREAD_RWLOCK_INITIALIZER</span><br><span class="line">(lldb) frame variable</span><br><span class="line">(pthread_rwlock_t *) __rwlock = 0x000055e176bb2fa0</span><br><span class="line">(lldb) p *__rwlock</span><br><span class="line">(pthread_rwlock_t) $1 = &#123;</span><br><span class="line">  __data = &#123;</span><br><span class="line">    __readers = 250</span><br><span class="line">    __writers = 0</span><br><span class="line">    __wrphase_futex = 2</span><br><span class="line">    __writers_futex = 1</span><br><span class="line">    __pad3 = 0</span><br><span class="line">    __pad4 = 0</span><br><span class="line">    __cur_writer = 0</span><br><span class="line">    __shared = 0</span><br><span class="line">    __rwelision = &#x27;\0&#x27;</span><br><span class="line">    __pad1 = &quot;\0\0\0\0\0\0&quot;</span><br><span class="line">    __pad2 = 0</span><br><span class="line">    __flags = 0</span><br><span class="line">  &#125;</span><br><span class="line">  __size = &quot;\xfa\0\0\0\0\0\0\0\U00000002\0\0\0\U00000001\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0&quot;</span><br><span class="line">  __align = 250</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到有250个reader，这显然是不对的，应该是某些reader没有及时释放锁<br>原因是我的insert实现的是</p>
+<ol>
+<li>拿从根节点到叶子节点的读锁</li>
+<li>从叶子节点反向将一个个读锁换成写锁<br>但是这样是有问题的:</li>
+<li>一个线程可能拿着儿子节点的WLock，获取父节点的WLock</li>
+<li>另一个线程在拿着父节点的RLock，试图获取儿子节点的RLock<br>解决方式是<code>Insert</code>和<code>Remove</code>都需要从叶子节点开始拿WLock，首先将上一层锁住，所有的加锁顺序都是从上一层到下一层，不会出现<strong>循环等待</strong>的情况（无论是RLock还是WLock）<br>因为<code>Insert</code>和<code>Remove</code>都是从下往上处理，下层节点处理完后就可以把锁释放掉了（因为还拿着上层的锁）<blockquote>
+<p>Improved Lock Crabbing (Optimistic Lock Coupling): The problem with the basic lock crabbing algorithm is that transactions always acquire an exclusive lock on the root for every insert&#x2F;delete operation. This greatly limits parallelism. Instead, we can assume that having to resize (i.e., split&#x2F;merge nodes) is rare, and thus transactions can acquire shared locks down to the leaf nodes. Each transaction will assume that the path to the target leaf node is safe, and use S-locks and crabbing to reach it, and verify. If any node in the path is not safe, then do previous algorithm (i.e., acquire X-locks)</p>
+</blockquote>
+</li>
+</ol>
+<p>一种优化的方式是Insert&#x2F;Remove从跟节点到叶子节点拿RLock，叶子节点拿WLock，如果需要Split&#x2F;Merge&#x2F;Borrow，再重新从跟节点拿下来WLock(Optimistic)</p>
+<h3 id="Iterator"><a href="#Iterator" class="headerlink" title="Iterator"></a>Iterator</h3><p>Iterator是从左往右获得叶子节点的锁，然而当Merge或者Borrow时，可能会相反，造成deadlock</p>
+<blockquote>
+<ul>
+<li>We do not test your iterator for thread-safe leaf scans. A correct implementation, however, would require the Leaf Page to throw a <code>std::exception</code> when it cannot acquire a latch on its sibling to avoid potential dead-locks.</li>
+</ul>
+</blockquote>
+<p>但是事实上我们无法修改RLatch的实现(修改的page.h并不在gradescope提交文件中)</p>
+<h2 id="Deal-with-concurrent"><a href="#Deal-with-concurrent" class="headerlink" title="Deal with concurrent"></a>Deal with concurrent</h2><ol>
+<li>任何的拿锁释放锁都是有道理的，不要为了实现功能随意的拿锁释放锁</li>
+<li>涉及到多个锁，要考虑不同情况下的拿锁顺序，考虑死锁</li>
+</ol>
+<h2 id="遇到的问题"><a href="#遇到的问题" class="headerlink" title="遇到的问题"></a>遇到的问题</h2><ol>
+<li>一开始的实现中，在LeafPage Remove时，将<code>Lowerbound(key)</code>到<code>GetSize()</code>依次向前移动，最后忘了清零<code>array_[GetSize()]</code>。而<code>Lowerbound</code>当给定的key大于所有key的时候会返回<code>GetSize()</code>，这样造成了问题：解决方法是拿到<code>LowerBound</code>结果后验证是否小于<code>GetSize()</code>——<a href="https://github.com/stevelee477/bustub-2023/commit/2365897378fb321a70bcacfce73efc7b764020d9">Commit</a></li>
+<li>有两个<code>MixTest1</code>和<code>InsertTest2</code>死活过不去，发现原来是自己的<code>MoveEndToHeadOf</code>函数写错了，这个函数是Split后进行调整的，比如说Size&#x3D;5的节点，Split再Insert可能会造成一个Size&#x3D;4另一个Size&#x3D;2，需要调整下</li>
+</ol>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.lyh.moe/posts/51773/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Steve">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Steve's">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/posts/51773/" class="post-title-link" itemprop="url">15-445 Project 1 - Buffer Pool Manager</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2023-09-10 12:42:10 / 修改时间：12:43:05" itemprop="dateCreated datePublished" datetime="2023-09-10T12:42:10+08:00">2023-09-10</time>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>1.5k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>1 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h2 id="Task-1-LRU-K-Replacement-Policy"><a href="#Task-1-LRU-K-Replacement-Policy" class="headerlink" title="Task #1 - LRU-K Replacement Policy"></a>Task #1 - LRU-K Replacement Policy</h2><p>实现一个LRU-K替换算法，如果用堆的话，在<code>RecordAccess</code>时需要先删除在插入$O(logn)$，所以先直接用$O(n)$暴力</p>
+<blockquote>
+<p><strong>When multiple frames have +inf backward k-distance, the replacer evicts the frame with the earliest overall timestamp (i.e., the frame whose least-recent recorded access is the overall least recent access, overall, out of all frames).</strong></p>
+</blockquote>
+<p>说明中当多个frame最后一次有+inf时，evict掉最早访问时间最早的(不是最近一次访问)</p>
+<h2 id="Task-2-Buffer-Pool-Manager"><a href="#Task-2-Buffer-Pool-Manager" class="headerlink" title="Task #2 - Buffer Pool Manager"></a>Task #2 - Buffer Pool Manager</h2><ul>
+<li><code>NewPage(page_id_t* page_id)</code>如果page在buffer中，直接返回该page。如果不在buffer中，分配一个<code>AllocatePage()</code></li>
+<li><code>FetchPage(page_id_t page_id)</code> 如果该page已经存在buffer中，那么应该增加引用计数并且记录访问，如果不在buffer中那么分配一个并执行相同操作（我一开始理解成了如果在buffer中直接返回）</li>
+<li><code>UnpinPage(page_id_t page_id, bool is_dirty)</code>减少对应page的引用计数，设定is dirty</li>
+<li><code>FlushPage(page_id_t page_id)</code> <code>FlushAllPages()</code> Flush对应的Page</li>
+<li><code>DeletePage(page_id_t page_id)</code>在buffer中删除对应的page，归还给freelist</li>
+</ul>
+<h2 id="Task-3-Read-Write-Page-Guards"><a href="#Task-3-Read-Write-Page-Guards" class="headerlink" title="Task #3 - Read&#x2F;Write Page Guards"></a>Task #3 - Read&#x2F;Write Page Guards</h2><p>类似于<code>std::lock_guard</code>，对page实现一个RAII的封装<br>实现对应的拷贝构造&#x2F;赋值，析构函数<br>还有<code>ReadPageGuard</code>和<code>WritePageGuard</code>，调用对应的Latch就好<a href="https://stackoverflow.com/a/42464336">concurrency - What is the difference between a lock and a latch in the context of concurrent access to a database? - Stack Overflow</a></p>
+<h2 id="Leaderboard"><a href="#Leaderboard" class="headerlink" title="Leaderboard"></a>Leaderboard</h2><p>先记录下可能的思路，后续做完Project再来搞</p>
+<ol>
+<li>Buffer Manager一把大锁，没法做到并行的从磁盘读取，恰好读取&#x2F;写入的时候延迟比较高，可以考虑每个frame(buffer slot)有单独的锁，在disk_manager read&#x2F;write时放掉大锁（注意下不能先放掉大锁，会有race）</li>
+<li>(By ChatGPT)<strong>优先替换扫描线程访问的页面</strong>：由于 get 线程的工作负载是倾斜的，你可能希望在缓冲区管理器中保留那些更频繁地被访问的页面。因此，当需要替换页面时，你可以首先考虑那些由扫描线程访问的页面。——在LRUKNode中记录访问模式，第一遍从SCAN的Node中做LRU，找不到再去Get的Node中找</li>
+<li>LRU-K: 可以用Heap，但是替换后RecordAccess的操作就从$O(1)$变成了$O(logn)$，</li>
+</ol>
+<h2 id="Reading-List"><a href="#Reading-List" class="headerlink" title="Reading List"></a>Reading List</h2><ul>
+<li><a href="http://mysql.taobao.org/monthly/2023/04/02/">PolarDB 数据库内核月报</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/617466684">CMU 15-445 Project 1 (Spring 2023) | 缓冲池并发 I&#x2F;O 优化 - 知乎</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/644160340">CMU 15-445 2023 P1 优化攻略 rank#3 - 知乎</a></li>
+</ul>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="https://blog.lyh.moe/posts/9546/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -818,184 +1068,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://blog.lyh.moe/posts/1602/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="Steve">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Steve's">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/posts/1602/" class="post-title-link" itemprop="url">6.824-Frangipani</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-01-08 13:54:01" itemprop="dateCreated datePublished" datetime="2022-01-08T13:54:01+08:00">2022-01-08</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-08-05 10:03:53" itemprop="dateModified" datetime="2023-08-05T10:03:53+08:00">2023-08-05</time>
-              </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>2.9k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>3 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>这次是6.824课程的Frangipani。</p>
-<p><img src="/Screen%20Shot%202022-01-08%20at%201.57.40%20PM.png"></p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/posts/1602/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="https://blog.lyh.moe/posts/21370/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="Steve">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Steve's">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/posts/21370/" class="post-title-link" itemprop="url">整了个小东西: Canokey</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2022-01-02 16:30:59" itemprop="dateCreated datePublished" datetime="2022-01-02T16:30:59+08:00">2022-01-02</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-08-05 10:03:53" itemprop="dateModified" datetime="2023-08-05T10:03:53+08:00">2023-08-05</time>
-              </span>
-
-          <br>
-            <span class="post-meta-item" title="本文字数">
-              <span class="post-meta-item-icon">
-                <i class="far fa-file-word"></i>
-              </span>
-                <span class="post-meta-item-text">本文字数：</span>
-              <span>3.2k</span>
-            </span>
-            <span class="post-meta-item" title="阅读时长">
-              <span class="post-meta-item-icon">
-                <i class="far fa-clock"></i>
-              </span>
-                <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>3 分钟</span>
-            </span>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>整了个小东西Canokey，这东西算是个yubikey的平替。支持的协议有</p>
-<ul>
-<li>FIDO2&#x2F;WebAuthn</li>
-<li>PIV</li>
-<li>OPENPGP</li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/posts/21370/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1067,14 +1139,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">28</span>
+          <span class="site-state-item-count">30</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-count">22</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -1118,12 +1190,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">98k</span>
+    <span title="站点总字数">107k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">1:29</span>
+    <span title="站点阅读时长">1:37</span>
 </div>
 
         
