@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.0.0-rc2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+  <meta http-equiv="Cache-Control" content="no-transform">
+  <meta http-equiv="Cache-Control" content="no-siteapp">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.lyh.moe","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="BusTub 养成记：从课程项目到 SQL 数据库 - 知乎 做个数据库：2022 CMU15-445 Project3 Query Execution - 知乎  Bustub的查询Binder - 产生AST，查询表示为BoundSelectPlanner - 产生query plan，树Optimizer - 优化查询 EXPLAIN计划节点后的是输出架构 1Projection &amp;#12">
+<meta property="og:type" content="article">
+<meta property="og:title" content="15-445 Project 3 - Query Execution">
+<meta property="og:url" content="https://blog.lyh.moe/posts/56205/index.html">
+<meta property="og:site_name" content="Steve&#39;s">
+<meta property="og:description" content="BusTub 养成记：从课程项目到 SQL 数据库 - 知乎 做个数据库：2022 CMU15-445 Project3 Query Execution - 知乎  Bustub的查询Binder - 产生AST，查询表示为BoundSelectPlanner - 产生query plan，树Optimizer - 优化查询 EXPLAIN计划节点后的是输出架构 1Projection &amp;#12">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2023-10-07T02:14:41.000Z">
+<meta property="article:modified_time" content="2023-10-07T02:15:01.168Z">
+<meta property="article:author" content="Steve">
+<meta property="article:tag" content="C++">
+<meta property="article:tag" content="Database">
+<meta property="article:tag" content="15-445">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://blog.lyh.moe/posts/56205/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>15-445 Project 3 - Query Execution | Steve's</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-161464241-1"></script>
+    <script>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-161464241-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Steve's</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+  <a href="https://github.com/stevelee477" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://blog.lyh.moe/posts/56205/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Steve">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Steve's">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          15-445 Project 3 - Query Execution
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2023-10-07 10:14:41 / 修改时间：10:15:01" itemprop="dateCreated datePublished" datetime="2023-10-07T10:14:41+08:00">2023-10-07</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span><br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>5k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>5 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <ul>
+<li><a href="https://zhuanlan.zhihu.com/p/570917775">BusTub 养成记：从课程项目到 SQL 数据库 - 知乎</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/587566135">做个数据库：2022 CMU15-445 Project3 Query Execution - 知乎</a></li>
+</ul>
+<h2 id="Bustub的查询"><a href="#Bustub的查询" class="headerlink" title="Bustub的查询"></a>Bustub的查询</h2><p>Binder - 产生AST，查询表示为BoundSelect<br>Planner - 产生query plan，树<br>Optimizer - 优化查询</p>
+<p>EXPLAIN计划节点后的是输出架构</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Projection &#123; exprs=[#0.0, #0.1] &#125; | (__mock_table_1.colA:INTEGER, __mock_table_1.colB:INTEGER)</span><br></pre></td></tr></table></figure>
+<p>产生两列，整数类型</p>
+<p>Bustub使用iterator模型，每个executer实现<code>Next</code>函数，这个函数返回1.单个tuple 2.null标识没有更多的tuple。每个executer实现一个循环，在循环中调用子executer的<code>Next</code>来获得tuple并处理。<br>每个executer出了返回tuple还有RID作为tuple的标识符。</p>
+<h2 id="Task-1-Access-Method-Executors"><a href="#Task-1-Access-Method-Executors" class="headerlink" title="Task #1 - Access Method Executors"></a>Task #1 - Access Method Executors</h2><h3 id="SeqScan"><a href="#SeqScan" class="headerlink" title="SeqScan"></a>SeqScan</h3><blockquote>
+<p><strong>Hint:</strong> Make sure that you understand the difference between the pre-increment and post-increment operators when using the <code>TableIterator</code> object. You might get strange output if you confuse <code>++iter</code> with <code>iter++</code>. (Check <a href="https://en.cppreference.com/w/cpp/language/operator_incdec">here</a> for a quick refresher.)</p>
+</blockquote>
+<p>实现扫描table需要用到<code>TableIterator</code>，可以用<code>TableHeap::MakeIterator()</code>来构造：</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">SeqScanExecutor::Init</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">auto</span> *catalog = exec_ctx_-&gt;<span class="built_in">GetCatalog</span>();</span><br><span class="line">  <span class="keyword">auto</span> *table_info = catalog-&gt;<span class="built_in">GetTable</span>(plan_-&gt;<span class="built_in">GetTableOid</span>());</span><br><span class="line">  <span class="keyword">auto</span> &amp;table_heap = table_info-&gt;table_;</span><br><span class="line">  it_ = std::<span class="built_in">make_unique</span>&lt;TableIterator&gt;(table_heap-&gt;<span class="built_in">MakeIterator</span>());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">auto</span> <span class="title">SeqScanExecutor::Next</span><span class="params">(Tuple *tuple, RID *rid)</span> -&gt; <span class="type">bool</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (it_-&gt;<span class="built_in">IsEnd</span>()) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">    <span class="keyword">auto</span> res = it_-&gt;<span class="built_in">GetTuple</span>();</span><br><span class="line">    ++(*it_);</span><br><span class="line">    <span class="keyword">if</span> (res.first.is_deleted_) &#123;</span><br><span class="line">      <span class="keyword">continue</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    *tuple = res.second;</span><br><span class="line">    *rid = res.second.<span class="built_in">GetRid</span>();</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Insert"><a href="#Insert" class="headerlink" title="Insert"></a>Insert</h3><blockquote>
+<p><strong>Hint:</strong> See the <a href="https://15445.courses.cs.cmu.edu/spring2023/project3/#index-updates">Index Updates</a> section below for further details about updating a table’s indexes.</p>
+</blockquote>
+<p>在Insert中，可以使用<code>TableHeap::InsertTuple</code>，但是根据Hint，我们需要同时更新对应的<code>TableIndex</code>，一个table可能包括多个index<br>Insert的内容就从child_plan中获取</p>
+<h3 id="Update"><a href="#Update" class="headerlink" title="Update"></a>Update</h3><blockquote>
+<p><strong>Hint:</strong> To implement an update, first delete the affected tuple and then insert a new tuple. Do not use the <code>TableHeap</code> <code>UpdateTupleInplaceUnsafe</code> function unless you are implementing leaderboard optimizations for project 4.</p>
+</blockquote>
+<p>Update需要先删除然后添加</p>
+<ul>
+<li>删除是GetTupleMeta后再Update，同时要删除Index</li>
+<li>添加同样要添加Index</li>
+</ul>
+<h3 id="Delete"><a href="#Delete" class="headerlink" title="Delete"></a>Delete</h3><p>delete是一半的Update，设置TupleMeta即可（也要删除Index）</p>
+<h3 id="IndexScan"><a href="#IndexScan" class="headerlink" title="IndexScan"></a>IndexScan</h3><p>Bustub中，<code>select * from t1 order by v1;</code>如果已经有对v1的索引，会直接优化成为IndexScan，在现在的实现中就是B+树的Scan，这里发现了之前留下的两个坑</p>
+<ul>
+<li><code>IndexIterator</code>的是一个trivial copy的类（直接保存了Page*而不是PageGuard），复制直接用了memcpy，但是复制后需要析构的对象释放了对应page的read lock，导致lock和unlock没有对应</li>
+<li><code>BPlusTree::Remove</code>的时候，如果只剩一个root节点，并且root节点为空，需要删除掉这个空节点，否则与Iterator配合使用时，无法正确判断Iterator是否到End（因为Page*并不是nullptr，!&#x3D;tree.End()）</li>
+</ul>
+<h2 id="Task-2-Aggregation-Join-Executors"><a href="#Task-2-Aggregation-Join-Executors" class="headerlink" title="Task #2 - Aggregation &amp; Join Executors"></a>Task #2 - Aggregation &amp; Join Executors</h2><p>Task 2中需要实现Aggregation和Join</p>
+<h3 id="Aggregation"><a href="#Aggregation" class="headerlink" title="Aggregation"></a>Aggregation</h3><p><code>SimpleAggregationHashTable</code> 维护一张 hashmap，键为 <code>AggregateKey</code>，值为 <code>AggregateValue</code>，均为 <code>std::vector&lt;Value&gt;</code>。key 代表 group by 的字段的数组，value 则是需要 aggregate 的字段的数组。在下层算子传来一个 tuple 时，将 tuple 的 group by 字段和 aggregate 字段分别提取出来，调用 <code>InsertCombine()</code> 将 group by 和 aggregate 的映射关系存入 <code>SimpleAggregationHashTable</code>。若当前 hashmap 中没有 group by 的记录，则创建初值；若已有记录，则按 aggregate 规则逐一更新所有的 aggregate 字段，例如取 max&#x2F;min，求 sum 等等。例如下面这条 sql：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="built_in">min</span>(t.z), <span class="built_in">max</span>(t.z), <span class="built_in">sum</span>(t.z) <span class="keyword">FROM</span> t <span class="keyword">GROUP</span> <span class="keyword">BY</span> t.x, t.y;</span><br></pre></td></tr></table></figure>
+
+<p>group by（AggregateKey）为 <code>&#123;t.x, t.y&#125;</code>，aggregate（AggregateValue）为 <code>&#123;t.z, t.z, t.z&#125;</code>。aggregate 规则为 <code>&#123;min, max, sum&#125;</code>。</p>
+<p>在<code>Next()</code>中需要返回一个个完成聚合操作后的tuple，所以需要在<code>Init</code>时遍历完child_executer</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">EXPLAIN SELECT MIN(colB), colA FROM __mock_table_1 GROUP BY colA;</span><br><span class="line"> === OPTIMIZER ===                     </span><br><span class="line"> Projection &#123; exprs=[#0.1, #0.0] &#125; | (&lt;unnamed&gt;:INTEGER, __mock_table_1.colA:INTEGER)                     </span><br><span class="line">   Agg &#123; types=[min], aggregates=[#0.1], group_by=[#0.0] &#125; | (__mock_table_1.colA:INTEGER, agg#0:INTEGER) </span><br><span class="line">     MockScan &#123; table=__mock_table_1 &#125; | (__mock_table_1.colA:INTEGER, __mock_table_1.colB:INTEGER) </span><br><span class="line"></span><br><span class="line">EXPLAIN SELECT colA, MIN(colB) FROM __mock_table_1 GROUP BY colA;</span><br><span class="line"> === OPTIMIZER ===                                                                                          </span><br><span class="line"> Agg &#123; types=[min], aggregates=[#0.1], group_by=[#0.0] &#125; | (__mock_table_1.colA:INTEGER, &lt;unnamed&gt;:INTEGER) </span><br><span class="line">   MockScan &#123; table=__mock_table_1 &#125; | (__mock_table_1.colA:INTEGER, __mock_table_1.colB:INTEGER)  </span><br></pre></td></tr></table></figure>
+<p><code>Next</code>的返回值中总是key在前边，aggregate value在后边</p>
+<h3 id="NestedLoopJoin"><a href="#NestedLoopJoin" class="headerlink" title="NestedLoopJoin"></a>NestedLoopJoin</h3><p>nlj中，在<code>Init</code>中取出来所有的right_tuples，然后在<code>Next</code>中匹配<br>需要注意在Next中怎么处理来保存当前的状态，类似于python generator</p>
+<h3 id="HashJoin"><a href="#HashJoin" class="headerlink" title="HashJoin"></a>HashJoin</h3><p>当join的条件都是相等时，可以使用hash table而不是两次遍历</p>
+<h3 id="Optimizing-NestedLoopJoin-to-HashJoin"><a href="#Optimizing-NestedLoopJoin-to-HashJoin" class="headerlink" title="Optimizing NestedLoopJoin to HashJoin"></a>Optimizing NestedLoopJoin to HashJoin</h3><p>新增一个optimizer规则，这个可以从<code>nlj_as_hash_join.cpp</code>抄</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select * from A inner join B where B.c1 == A.c2;</span><br></pre></td></tr></table></figure>
+<p>这句话中，<code>LeftPlan</code>是A的<code>SeqScan</code>，<code>RightPlan</code>是B的<code>SeqScan</code><br>expression中左儿子是<code>B.c1</code>，右儿子是<code>A.c2</code>，根据<code>TupleIdx</code>区分，在转换的时候需要注意</p>
+<h2 id="Task-3-Sort-Limit-Executors-and-Top-N-Optimization"><a href="#Task-3-Sort-Limit-Executors-and-Top-N-Optimization" class="headerlink" title="Task #3 - Sort + Limit Executors and Top-N Optimization"></a>Task #3 - Sort + Limit Executors and Top-N Optimization</h2><h3 id="Sort"><a href="#Sort" class="headerlink" title="Sort"></a>Sort</h3><p>sort按照多个关键词排序，这里有点绕多写了几行</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">std::<span class="built_in">sort</span>(sorted_.<span class="built_in">begin</span>(), sorted_.<span class="built_in">end</span>(),</span><br><span class="line">          [<span class="keyword">this</span>](<span class="type">const</span> <span class="keyword">decltype</span>(sorted_)::value_type &amp;lhs, <span class="type">const</span> <span class="keyword">decltype</span>(sorted_)::value_type &amp;rhs) &#123;</span><br><span class="line">            <span class="type">const</span> <span class="keyword">auto</span> &amp;l_key = lhs.first;</span><br><span class="line">            <span class="type">const</span> <span class="keyword">auto</span> &amp;r_key = rhs.first;</span><br><span class="line">            <span class="built_in">BUSTUB_ASSERT</span>(l_key.keys_.<span class="built_in">size</span>() == r_key.keys_.<span class="built_in">size</span>(), <span class="string">&quot;key size not match&quot;</span>);</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">uint32_t</span> i = <span class="number">0</span>; i &lt; l_key.keys_.<span class="built_in">size</span>(); i++) &#123;</span><br><span class="line">              <span class="type">const</span> <span class="keyword">auto</span> &amp;l = l_key.keys_[i];</span><br><span class="line">              <span class="type">const</span> <span class="keyword">auto</span> &amp;r = r_key.keys_[i];</span><br><span class="line">              <span class="keyword">auto</span> t = <span class="keyword">this</span>-&gt;plan_-&gt;order_bys_[i].first;</span><br><span class="line">              <span class="type">bool</span> less = l.<span class="built_in">CompareLessThan</span>(r) == CmpBool::CmpTrue;</span><br><span class="line">              <span class="type">bool</span> greater = l.<span class="built_in">CompareGreaterThan</span>(r) == CmpBool::CmpTrue;</span><br><span class="line">              <span class="type">bool</span> desc = t == OrderByType::DESC;</span><br><span class="line">              <span class="type">bool</span> asc = t == OrderByType::ASC || t == OrderByType::DEFAULT;</span><br><span class="line">              <span class="keyword">if</span> ((less &amp;&amp; desc) || (greater &amp;&amp; asc)) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">              &#125;</span><br><span class="line">              <span class="keyword">if</span> ((greater &amp;&amp; desc) || (less &amp;&amp; asc)) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">              &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">          &#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="TopN"><a href="#TopN" class="headerlink" title="TopN"></a>TopN</h3><p>用优先队列实现TopN，反转下比较函数</p>
+<h2 id="Optimization"><a href="#Optimization" class="headerlink" title="Optimization"></a>Optimization</h2><p>之后补充</p>
+<h2 id="ADDITIONAL-INFORMATION"><a href="#ADDITIONAL-INFORMATION" class="headerlink" title="ADDITIONAL INFORMATION"></a>ADDITIONAL INFORMATION</h2><p>这一个实验中的<code>Additional Information</code>中详细介绍了我们可以使用的工具</p>
+<h3 id="System-Catalog"><a href="#System-Catalog" class="headerlink" title="System Catalog"></a>System Catalog</h3><p>catalog用来维护数据库的元数据，<code>GetTable()</code> <code>GetIndex()</code>可以获得表和索引<br>catalog中保存了数据库中table和index的映射：一个table可以包含多个index</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/C/" rel="tag"># C++</a>
+              <a href="/tags/Database/" rel="tag"># Database</a>
+              <a href="/tags/15-445/" rel="tag"># 15-445</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/29076/" rel="prev" title="15-445 Project 2 - B+Tree">
+      <i class="fa fa-chevron-left"></i> 15-445 Project 2 - B+Tree
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Bustub%E7%9A%84%E6%9F%A5%E8%AF%A2"><span class="nav-number">1.</span> <span class="nav-text">Bustub的查询</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task-1-Access-Method-Executors"><span class="nav-number">2.</span> <span class="nav-text">Task #1 - Access Method Executors</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SeqScan"><span class="nav-number">2.1.</span> <span class="nav-text">SeqScan</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Insert"><span class="nav-number">2.2.</span> <span class="nav-text">Insert</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Update"><span class="nav-number">2.3.</span> <span class="nav-text">Update</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Delete"><span class="nav-number">2.4.</span> <span class="nav-text">Delete</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IndexScan"><span class="nav-number">2.5.</span> <span class="nav-text">IndexScan</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task-2-Aggregation-Join-Executors"><span class="nav-number">3.</span> <span class="nav-text">Task #2 - Aggregation &amp; Join Executors</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Aggregation"><span class="nav-number">3.1.</span> <span class="nav-text">Aggregation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NestedLoopJoin"><span class="nav-number">3.2.</span> <span class="nav-text">NestedLoopJoin</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HashJoin"><span class="nav-number">3.3.</span> <span class="nav-text">HashJoin</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Optimizing-NestedLoopJoin-to-HashJoin"><span class="nav-number">3.4.</span> <span class="nav-text">Optimizing NestedLoopJoin to HashJoin</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Task-3-Sort-Limit-Executors-and-Top-N-Optimization"><span class="nav-number">4.</span> <span class="nav-text">Task #3 - Sort + Limit Executors and Top-N Optimization</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Sort"><span class="nav-number">4.1.</span> <span class="nav-text">Sort</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TopN"><span class="nav-number">4.2.</span> <span class="nav-text">TopN</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Optimization"><span class="nav-number">5.</span> <span class="nav-text">Optimization</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ADDITIONAL-INFORMATION"><span class="nav-number">6.</span> <span class="nav-text">ADDITIONAL INFORMATION</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#System-Catalog"><span class="nav-number">6.1.</span> <span class="nav-text">System Catalog</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Steve"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Steve</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/stevelee477" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;stevelee477" rel="noopener" target="_blank"><i class="github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:stevelee477@gmail.com" title="E-Mail → mailto:stevelee477@gmail.com" rel="noopener" target="_blank"><i class="envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2018 – 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Steve</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">112k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:41</span>
+</div>
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+</html>
